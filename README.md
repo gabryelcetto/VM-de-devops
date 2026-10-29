@@ -1,0 +1,151 @@
+# DevOps-Lab-UVV
+
+## ⬇️ Baixar a VM (sem login, direto pelo navegador)
+
+**https://github.com/gabryelcetto/VM-de-devops/releases/latest/download/DevOps-Lab-UVV.ova**
+
+1. Baixe o arquivo pelo link acima (~1,9 GB).
+2. No VirtualBox: **Arquivo → Importar Appliance** → escolha o `.ova` → **Finalizar**.
+3. Inicie a VM. Usuário **aluno**, senha **devops** (veja [CREDENCIAIS.txt](CREDENCIAIS.txt)).
+
+Cada pessoa que baixa recebe uma cópia própria: o que for feito dentro da VM fica só naquele computador.
+
+Projeto que gera automaticamente a máquina virtual **`DevOps-Lab-UVV.ova`** para o
+Oracle VirtualBox, com:
+
+| Item | Detalhe |
+|---|---|
+| Sistema | Ubuntu 24.04 LTS (ISO mais recente do 24.04) |
+| Interface gráfica | XFCE mínimo com login automático, teclado ABNT2, pt-BR |
+| VS Code | Repositório oficial da Microsoft + extensões Docker, Terraform e YAML |
+| Docker + Docker Compose | Docker CE oficial, plugin `docker compose` (e o atalho `docker-compose`) |
+| Git | `git` e `git-lfs` |
+| Ansible | PPA oficial `ppa:ansible/ansible` |
+| Terraform | Repositório oficial da HashiCorp |
+| Python | Python 3.12, `pip`, `venv`, `pipx` |
+| Tamanho | `.ova` de até ~3,8 GB (kernel `virtual`, sem firmware, sem snap, sem documentação) |
+| Jenkins | Jenkins LTS + Java 21, em `http://localhost:8080`, com acesso ao Docker |
+| Extras | Firefox, VirtualBox Guest Additions, área de transferência compartilhada, comando `verificar-lab` |
+
+**Login da VM:** usuário `aluno`, senha `devops`.
+A senha inicial do Jenkins fica no arquivo `LEIA-ME.txt` na Área de Trabalho da VM.
+
+---
+
+## Opção A – Gerar na nuvem (GitHub Actions, sem usar espaço do seu PC)
+
+A cada push na branch `main` (ou em **Actions → Run workflow**) o GitHub:
+
+1. monta a VM com Packer + QEMU/KVM;
+2. converte para `.ova` e **testa no VirtualBox de verdade** (importa, liga, confere área de trabalho,
+   rede, Docker, Jenkins e as ferramentas; prints da tela ficam na branch `test-results`);
+3. se o teste passar, publica uma **Release** nova — o link de download acima passa a apontar para ela.
+
+O build na nuvem usa QEMU/KVM (`ci/devops-lab-qemu.pkr.hcl`) com os mesmos scripts de instalação
+e converte o disco para `.ova` do VirtualBox (`ci/make-ova.py`).
+
+## Opção B – Gerar no seu computador
+
+## 1. Pré-requisitos (no seu computador)
+
+- **VirtualBox 7.x** – <https://www.virtualbox.org/wiki/Downloads>
+- **Packer 1.10 ou superior**
+  - Windows: `winget install --id Hashicorp.Packer -e`
+  - Ubuntu/Debian: <https://developer.hashicorp.com/packer/install>
+- Processador **x86-64** (Intel/AMD) com virtualização (VT-x/AMD-V) ativada na BIOS
+  — Macs com chip Apple (M1/M2/M3…) não rodam esta VM
+- ~**22 GB livres** em disco durante o build (o `.ova` final fica com no máximo ~3,8 GB) e conexão com a internet
+- Tempo estimado: **30 a 60 minutos**
+
+## 2. Gerar o .ova
+
+### Windows
+Abra o PowerShell na pasta do projeto e rode:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\build.ps1
+```
+
+Opcional: `-Cpus 4 -Memory 6144` para um build mais rápido, `-Headless` para não mostrar a janela da VM.
+
+> Quando o Windows Firewall perguntar, **permita** o `packer.exe`. A VM baixa dele a
+> configuração da instalação automática.
+
+### Linux / macOS (Intel)
+
+```bash
+chmod +x build.sh
+./build.sh
+# ou: CPUS=4 MEMORY=6144 HEADLESS=true ./build.sh
+```
+
+Uma janela do VirtualBox vai abrir e você verá o Ubuntu se instalando sozinho.
+**Não digite nada nela.** Ao final aparece:
+
+```
+output/DevOps-Lab-UVV.ova
+output/DevOps-Lab-UVV.ova.sha256
+```
+
+## 3. Importar e usar
+
+1. VirtualBox → **Arquivo → Importar Appliance** → selecione `DevOps-Lab-UVV.ova`.
+2. Em "Política de endereço MAC", deixe **Gerar novos endereços MAC**.
+3. Inicie a VM. Ela entra direto no XFCE.
+4. Abra o Terminal e rode `verificar-lab` para conferir todas as ferramentas.
+5. Jenkins: abra o Firefox em `http://localhost:8080` e use a senha do `LEIA-ME.txt`.
+
+O mesmo `.ova` pode ser copiado para outros colegas/laboratórios. Cada VM importada
+gera um machine-id e chaves SSH próprias no primeiro boot.
+
+Recomendado: 4 GB de RAM no mínimo; 6–8 GB se for usar Jenkins + Docker + VS Code juntos.
+
+## 4. Personalizar
+
+| O que | Onde |
+|---|---|
+| CPUs, memória, tamanho do disco | variáveis no topo de `devops-lab.pkr.hcl` |
+| Usuário, senha, hostname, fuso, idioma, teclado | `http/user-data` (a senha também em `devops-lab.pkr.hcl`) |
+| Programas instalados | `scripts/01-base.sh` … `scripts/04-jenkins.sh` |
+| Texto da Área de Trabalho | `files/LEIA-ME.txt` |
+
+Para trocar a senha: gere o hash com `openssl passwd -6 'NovaSenha'`, coloque em
+`http/user-data` (campo `password`) e altere a variável `password` em `devops-lab.pkr.hcl`.
+
+## 5. Problemas comuns
+
+**Fica muito tempo em "Waiting for SSH to become available…"**
+É normal esperar 15–30 min (o Ubuntu está sendo instalado). Se passar de 60 min, olhe a
+janela da VM:
+- Se ela parou no menu do instalador pedindo idioma, a VM não conseguiu baixar a
+  configuração: libere o `packer.exe` no firewall (Windows) e rode de novo.
+- Se ela ficou na tela do GRUB com o texto digitado pela metade, o computador demorou
+  para dar boot: aumente `boot_wait` (ex.: `"15s"`) em `devops-lab.pkr.hcl`.
+
+**Erro `VT-x is not available` / `VERR_VMX_NO_VMX`**
+Ative a virtualização na BIOS/UEFI. No Windows, se o Hyper-V/WSL2 estiver ativo, o
+VirtualBox funciona, mas bem mais lento; para desativar:
+`bcdedit /set hypervisorlaunchtype off` (como administrador) e reinicie.
+
+**Erro de checksum da ISO**
+Saiu uma nova versão do 24.04. Os scripts `build.ps1`/`build.sh` já pegam a mais
+recente; se rodar o `packer` direto, informe `-var "iso_name=ubuntu-24.04.X-live-server-amd64.iso"`.
+
+**"output directory already exists"**
+Os scripts usam `-force` e sobrescrevem a pasta `output`. Mova seu `.ova` antigo antes, se quiser guardá-lo.
+
+**Falha ao baixar pacotes (Docker, HashiCorp, Jenkins, Microsoft)**
+Normalmente é rede instável ou proxy da instituição. Rode o build de novo; se estiver
+atrás de proxy, rode em uma rede sem bloqueio.
+
+## Estrutura
+
+```
+DevOps-Lab-UVV/
+├── devops-lab.pkr.hcl      # template Packer (VM, instalação, exportação .ova)
+├── build.ps1 / build.sh    # scripts de um comando
+├── http/user-data          # instalação automática do Ubuntu (autoinstall)
+├── http/meta-data
+├── scripts/                # provisionamento (desktop, ferramentas, Jenkins, limpeza)
+└── files/                  # verificar-lab e LEIA-ME da Área de Trabalho
+```

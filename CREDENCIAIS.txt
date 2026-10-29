@@ -1,0 +1,124 @@
+================================================================
+              DevOps-Lab-UVV  -  USUÁRIOS, SENHAS E DADOS DA VM
+================================================================
+
+Arquivo da VM ...... DevOps-Lab-UVV.ova (2,07 GB)
+Sistema ............ Ubuntu 24.04 LTS + interface XFCE
+Importar ........... VirtualBox > Arquivo > Importar Appliance
+
+
+----------------------------------------------------------------
+1. LOGIN NO UBUNTU
+----------------------------------------------------------------
+Usuário ............ aluno
+Senha .............. devops
+Nome completo ...... Aluno DevOps
+Hostname ........... devops-lab-uvv
+
+- A VM entra direto na área de trabalho (login automático).
+- A senha "devops" é pedida ao usar sudo, desbloquear a tela
+  ou entrar pelo SSH.
+- O usuário "aluno" é administrador (pode usar sudo).
+- Para trocar a senha, rode no Terminal:  passwd
+
+
+----------------------------------------------------------------
+2. ADMINISTRADOR (ROOT)
+----------------------------------------------------------------
+Usuário root ....... sem senha própria (login direto desativado)
+Como usar .......... sudo <comando>        (senha: devops)
+Virar root ......... sudo -i              (senha: devops)
+
+
+----------------------------------------------------------------
+3. JENKINS
+----------------------------------------------------------------
+Endereço (na VM) ... http://localhost:8080
+Usuário inicial .... admin
+Senha inicial ...... gerada automaticamente na criação da VM
+
+Onde achar a senha inicial:
+  a) No arquivo LEIA-ME.txt, na Área de Trabalho da VM, ou
+  b) No Terminal da VM:
+       sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+Primeiro acesso:
+  1. Abra o Firefox na VM em http://localhost:8080
+  2. Cole a senha inicial
+  3. Escolha "Install suggested plugins"
+  4. Crie seu próprio usuário administrador e ANOTE AQUI:
+
+       Usuário Jenkins: ______________________
+       Senha Jenkins:   ______________________
+
+- O usuário de sistema "jenkins" está no grupo docker
+  (pipelines podem usar comandos docker).
+- Reiniciar o Jenkins:  sudo systemctl restart jenkins
+
+
+----------------------------------------------------------------
+4. SSH (opcional, acessar a VM pelo Windows)
+----------------------------------------------------------------
+Servidor SSH ....... instalado e ativo na VM (porta 22)
+Usuário / senha .... aluno / devops
+
+A rede da VM é NAT, então para acessar do Windows crie um
+redirecionamento de porta no VirtualBox:
+  Configurações da VM > Rede > Avançado > Redirecionamento de Portas
+    Nome: ssh  | Protocolo: TCP | Porta do host: 2222 | Porta do convidado: 22
+
+Depois, no PowerShell do Windows:
+    ssh -p 2222 aluno@127.0.0.1
+
+(Para abrir o Jenkins no navegador do Windows, crie outra regra:
+ host 8080 -> convidado 8080, e acesse http://localhost:8080)
+
+
+----------------------------------------------------------------
+5. FERRAMENTAS INSTALADAS
+----------------------------------------------------------------
+VS Code ............ code               (menu Aplicativos > Desenvolvimento)
+Docker ............. docker run hello-world
+Docker Compose ..... docker compose version   (ou docker-compose)
+Git ................ git --version
+Ansible ............ ansible --version
+Terraform .......... terraform -version
+Python 3 ........... python3 --version  (pip3, venv, pipx)
+Java 21 ............ java -version      (usado pelo Jenkins)
+Firefox ............ para acessar o Jenkins
+
+Conferir tudo de uma vez:   verificar-lab
+
+- O usuário "aluno" está no grupo docker: não precisa de sudo
+  para usar o Docker.
+- Configure seu Git antes do primeiro commit:
+    git config --global user.name  "Seu Nome"
+    git config --global user.email "seu@email.com"
+
+
+----------------------------------------------------------------
+6. CONFIGURAÇÃO DA VM
+----------------------------------------------------------------
+Processadores ...... 2 CPUs
+Memória RAM ........ 4 GB  (recomendado 6-8 GB com Jenkins + Docker)
+Disco .............. 25 GB dinâmico (cresce conforme o uso)
+Rede ............... NAT (internet funciona automaticamente)
+Idioma / teclado ... Português (Brasil) / ABNT2
+Fuso horário ....... America/Sao_Paulo
+Pasta de trabalho .. /home/aluno/projetos
+
+
+----------------------------------------------------------------
+7. RESUMO RÁPIDO
+----------------------------------------------------------------
+  O QUE                  USUÁRIO      SENHA
+  ---------------------  -----------  ----------------------------
+  Ubuntu (login/sudo)    aluno        devops
+  SSH                    aluno        devops
+  Root                   (sudo -i)    devops
+  Jenkins (1º acesso)    admin        ver LEIA-ME.txt na VM
+  Jenkins (depois)       você cria    você cria
+
+================================================================
+ Dica: troque a senha "devops" se for usar a VM fora da aula.
+================================================================

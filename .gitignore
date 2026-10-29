@@ -1,0 +1,6 @@
+output/
+output-qemu/
+packer_cache/
+tools/
+build.log
+*.ova

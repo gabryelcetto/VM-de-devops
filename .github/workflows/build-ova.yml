@@ -1,0 +1,165 @@
+name: Gerar, testar e publicar DevOps-Lab-UVV.ova
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "README.md"
+      - "*.txt"
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 200
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Liberar espaço no runner
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          sudo docker system prune -af || true
+          df -h /
+
+      - name: Habilitar KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm
+
+      - name: Instalar QEMU e Packer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 qemu-utils
+          wget -qO- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt-get update && sudo apt-get install -y packer
+          packer version
+
+      - name: Descobrir a ISO mais recente do Ubuntu 24.04
+        id: iso
+        run: |
+          name=$(curl -fsSL https://releases.ubuntu.com/24.04/SHA256SUMS | grep -oE 'ubuntu-24\.04(\.[0-9]+)*-live-server-amd64\.iso' | head -n 1)
+          echo "ISO: $name"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+
+      - name: Construir a VM (Packer + QEMU/KVM)
+        env:
+          PACKER_LOG: "0"
+        run: |
+          set -o pipefail
+          packer init ci/devops-lab-qemu.pkr.hcl
+          echo 1 > packer.rc
+          timeout --signal=INT --kill-after=5m 120m \
+            packer build -color=false -var "iso_name=${{ steps.iso.outputs.name }}" ci/devops-lab-qemu.pkr.hcl 2>&1 | tee packer.log
+          echo 0 > packer.rc
+
+      - name: Mostrar o erro (anotações)
+        if: always()
+        run: |
+          if [ "$(cat packer.rc 2>/dev/null)" = "0" ]; then exit 0; fi
+          touch packer.log
+          # As anotações ficam visíveis pela API pública mesmo sem login
+          tail -n 150 packer.log | sed 's/\x1b\[[0-9;]*m//g' | split -l 15 - chunk_
+          for f in chunk_*; do
+            msg=$(sed 's/%/%25/g' "$f" | awk '{printf "%s%%0A", $0}')
+            echo "::error title=packer-${f}::${msg}"
+          done
+
+      - name: Converter para .ova (VirtualBox)
+        run: |
+          python3 ci/make-ova.py output-qemu/DevOps-Lab-UVV.qcow2 output/DevOps-Lab-UVV.ova
+          rm -rf output-qemu
+          cd output && sha256sum DevOps-Lab-UVV.ova | tee DevOps-Lab-UVV.ova.sha256
+          ls -lh
+
+      - name: Publicar o .ova
+        uses: actions/upload-artifact@v4
+        with:
+          name: DevOps-Lab-UVV-ova
+          path: |
+            output/DevOps-Lab-UVV.ova
+            output/DevOps-Lab-UVV.ova.sha256
+          compression-level: 0
+          retention-days: 30
+
+  test:
+    name: Testar no VirtualBox
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Baixar o .ova
+        uses: actions/download-artifact@v4
+        with:
+          name: DevOps-Lab-UVV-ova
+          path: ova
+
+      - name: Instalar VirtualBox 7.2
+        run: |
+          sudo modprobe -r kvm_intel kvm_amd kvm || true
+          wget -qO- https://www.virtualbox.org/download/oracle_vbox_2016.asc | sudo gpg --dearmor -o /usr/share/keyrings/oracle-virtualbox-2016.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/oracle-virtualbox-2016.gpg] https://download.virtualbox.org/virtualbox/debian noble contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
+          sudo apt-get update
+          sudo apt-get install -y "linux-headers-$(uname -r)" build-essential virtualbox-7.2
+          sudo /sbin/vboxconfig
+          VBoxManage --version
+
+      - name: Testar a VM
+        id: test
+        run: |
+          set +e
+          bash ci/test-ova-virtualbox.sh ova/DevOps-Lab-UVV.ova resultados
+          echo "fails=$?" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Publicar resultados (branch test-results)
+        if: always()
+        run: |
+          cp -r resultados /tmp/resultados || mkdir -p /tmp/resultados
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git checkout --orphan test-results-tmp
+          git rm -rfq . || true
+          rm -rf ./*
+          cp -r /tmp/resultados/. .
+          git add -A
+          git commit -qm "Resultados do teste no VirtualBox (run ${{ github.run_id }})"
+          git push -f origin HEAD:test-results
+          if [ -f RESUMO.txt ]; then
+            msg=$(grep -E '^\[(OK|FALHA)\]|RESULTADO' RESUMO.txt | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::notice title=teste-virtualbox::${msg}"
+          fi
+
+      - name: Falhar se o teste falhou
+        if: steps.test.outputs.fails != '0'
+        run: exit 1
+
+  release:
+    name: Publicar Release
+    needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Baixar o .ova
+        uses: actions/download-artifact@v4
+        with:
+          name: DevOps-Lab-UVV-ova
+          path: ova
+
+      - name: Criar Release pública
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v$(date -u +%Y.%m.%d-%H%M)"
+          gh release create "$TAG" ova/DevOps-Lab-UVV.ova ova/DevOps-Lab-UVV.ova.sha256 \
+            --repo "${{ github.repository }}" --target "${{ github.sha }}" --latest \
+            --title "DevOps-Lab-UVV ($TAG)" \
+            --notes "VM Ubuntu 24.04 + XFCE com VS Code, Docker, Docker Compose, Git, Ansible, Terraform, Python e Jenkins. Testada automaticamente no VirtualBox. Importar em: VirtualBox > Arquivo > Importar Appliance. Usuario: aluno / Senha: devops"
+          echo "::notice title=release::https://github.com/${{ github.repository }}/releases/download/$TAG/DevOps-Lab-UVV.ova"

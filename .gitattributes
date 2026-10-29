@@ -1,0 +1,6 @@
+# Scripts que rodam dentro da VM Linux precisam de fim de linha LF
+*.sh        text eol=lf
+http/*      text eol=lf
+files/*     text eol=lf
+*.hcl       text eol=lf
+*.ps1       text eol=crlf
