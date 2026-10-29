@@ -94,6 +94,7 @@ gsh "echo devops | sudo -S -p '' apt-get update -qq; echo devops | sudo -S -p ''
 # ---------------------------------------------------------------- interface (logo após o login)
 CORES="$(print_tela tela-1-login)"
 if [ "${CORES:-0}" -gt 100 ]; then ok "Tela desenhada logo após o login ($CORES cores)"; else bad "Tela vazia/preta após o login ($CORES cores)"; fi
+chk  "Sessão XFCE completa (xfwm4, painel, área de trabalho, xfsettingsd)" "for p in xfwm4 xfce4-panel xfdesktop xfsettingsd; do pgrep -u aluno -x \$p >/dev/null && echo \"ok-\$p\"; done | tr '\n' ' '" "ok-xfwm4 ok-xfce4-panel ok-xfdesktop ok-xfsettingsd"
 chk  "Painel do XFCE na tela" "$XENV xwininfo -root -tree" "xfce4-panel"
 chk  "Área de trabalho (xfdesktop) na tela" "$XENV xwininfo -root -tree" '"(Desktop|Área de trabalho|xfdesktop)"'
 nchk "Sem diálogo de primeiro uso do painel" "$XENV xwininfo -root -tree" '"(Painel|Panel)"'

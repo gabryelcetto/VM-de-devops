@@ -38,10 +38,10 @@ echo "$CODE_ID" > /usr/share/devops-lab/code-desktop-id
 ajusta() { sed -i "s/\bcode\.desktop\b/${CODE_ID}/g" "$1"; }
 
 # ---------------------------------------------------------------- padrões do XFCE (sistema e usuário)
-install -d "$XFCONF_SYS"
-for f in "$G"/xfconf/*.xml; do
-  install -m 0644 "$f" "$XFCONF_SYS/$(basename "$f")"; ajusta "$XFCONF_SYS/$(basename "$f")"
-done
+# IMPORTANTE: não sobrescrever os arquivos de $XFCONF_SYS (o xfce4-session.xml de lá
+# define a sessão "Failsafe"; sem ele o XFCE não abre). As nossas configurações vão
+# só para o usuário (e /etc/skel) e se somam aos padrões do sistema.
+test -s "$XFCONF_SYS/xfce4-session.xml"
 install -m 0644 "$G/helpers.rc" /etc/xdg/xfce4/helpers.rc
 install -m 0644 "$G/mimeapps.list" /etc/xdg/mimeapps.list; ajusta /etc/xdg/mimeapps.list
 
