@@ -13,6 +13,11 @@ dpkg -l 'linux-image-[0-9]*' 'linux-modules-[0-9]*' 'linux-modules-extra-[0-9]*'
 apt-get -y clean
 rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/apt/*.bin /var/cache/man/* /var/cache/fontconfig/* /root/.cache "/home/${LAB_USER}/.cache"
 rm -rf /usr/share/doc/*/changelog* /usr/share/man/??_* /var/lib/docker/tmp/*
+# Jenkins: tira cache do instalador de plugins e as cópias "descompactadas" dos plugins
+# (o Jenkins recria no primeiro boot; economiza ~100 MB no .ova)
+systemctl stop jenkins || true
+rm -rf /var/lib/jenkins/.cache /var/lib/jenkins/logs/* /var/lib/jenkins/war
+find /var/lib/jenkins/plugins -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
 
 journalctl --rotate || true
 journalctl --vacuum-time=1s || true

@@ -4,3 +4,4 @@ packer_cache/
 tools/
 build.log
 *.ova
+__pycache__/

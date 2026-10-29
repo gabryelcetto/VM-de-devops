@@ -43,7 +43,7 @@ source "qemu" "devops_lab" {
   accelerator    = "kvm"
   cpus           = 4
   memory         = 8192
-  disk_size      = "25600M"
+  disk_size      = "32768M"
   format         = "qcow2"
   disk_interface = "virtio-scsi"
   disk_discard   = "unmap"
@@ -105,7 +105,8 @@ build {
       "${path.root}/../scripts/02-desktop.sh",
       "${path.root}/../scripts/03-devops-tools.sh",
       "${path.root}/../scripts/04-jenkins.sh",
-      "${path.root}/../scripts/05-finalize.sh",
+      "${path.root}/../scripts/05-interface.sh",
+      "${path.root}/../scripts/06-finalize.sh",
       "${path.root}/../scripts/99-cleanup.sh"
     ]
   }

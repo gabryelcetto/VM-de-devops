@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=DevOps-Lab-UVV (ajustes do login)
+Exec=/usr/local/bin/devops-lab-login
+NoDisplay=true
+X-XFCE-Autostart-Override=true

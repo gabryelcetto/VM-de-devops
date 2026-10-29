@@ -1,0 +1,13 @@
+[Configuration]
+FontName=Ubuntu Mono 12
+FontUseSystem=FALSE
+MiscDefaultGeometry=110x30
+MiscMenubarDefault=TRUE
+MiscConfirmClose=FALSE
+ScrollingUnlimited=TRUE
+ColorForeground=#e6edf3
+ColorBackground=#14202b
+ColorCursor=#2dd4bf
+ColorBold=#ffffff
+ColorBoldUseDefault=FALSE
+ColorPalette=#1f2a35;#ef6b73;#7fd38e;#e8c26b;#5aa9f2;#c38cf0;#45c6d8;#d6dde4;#4b5b6b;#ff8a91;#9be6a8;#f3d58a;#7fc0ff;#d6a8ff;#6fdcec;#f5f8fa

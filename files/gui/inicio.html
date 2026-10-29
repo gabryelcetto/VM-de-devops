@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>DevOps Lab UVV</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --bg:#0e1b26; --card:#152838; --line:#24435a; --txt:#e6f1fb; --sub:#9fb6c8; --acc:#2dd4bf; --acc2:#38bdf8; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--txt); font:16px/1.5 Ubuntu,"DejaVu Sans",sans-serif; }
+  main { max-width:1040px; margin:0 auto; padding:40px 24px 56px; }
+  h1 { font-size:34px; margin:0; letter-spacing:.5px; }
+  h1 span { color:var(--acc); }
+  .sub { color:var(--sub); margin:6px 0 28px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; }
+  .card h2 { font-size:17px; margin:0 0 6px; }
+  .card p { color:var(--sub); margin:0 0 10px; font-size:14px; }
+  a { color:var(--acc2); text-decoration:none; } a:hover { text-decoration:underline; }
+  code { background:#0b1520; border:1px solid var(--line); border-radius:6px; padding:2px 6px; font-family:"Ubuntu Mono",monospace; font-size:14px; color:#d6f5ef; }
+  .big { display:inline-block; margin-top:4px; padding:8px 14px; border-radius:8px; background:var(--acc); color:#06231f; font-weight:700; }
+  .big:hover { text-decoration:none; filter:brightness(1.08); }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  td { padding:6px 4px; border-top:1px solid var(--line); vertical-align:top; }
+  td:first-child { color:var(--sub); width:42%; }
+  h3 { margin:30px 0 12px; font-size:19px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>DevOps Lab <span>UVV</span></h1>
+  <p class="sub">Ubuntu 24.04 com tudo pronto para as aulas de DevOps.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Jenkins</h2>
+      <p>Usuário <code>aluno</code> · senha <code>devops</code>. Plugins de Pipeline, Git, GitHub e Docker já instalados.</p>
+      <a class="big" href="http://localhost:8080">Abrir o Jenkins</a>
+    </div>
+    <div class="card">
+      <h2>Conferir o ambiente</h2>
+      <p>No Terminal (Ctrl+Alt+T), rode:</p>
+      <code>verificar-lab</code>
+    </div>
+    <div class="card">
+      <h2>Login da máquina</h2>
+      <p>Usuário <code>aluno</code> · senha <code>devops</code><br>(pedida no <code>sudo</code>; troque com <code>passwd</code>)</p>
+    </div>
+    <div class="card">
+      <h2>Seus trabalhos</h2>
+      <p>Use a pasta <code>~/projetos</code>. Para levar para casa: <code>git push</code> no seu GitHub.</p>
+    </div>
+  </div>
+
+  <h3>Ferramentas instaladas</h3>
+  <div class="card">
+    <table>
+      <tr><td>VS Code</td><td><code>code .</code> · <a href="https://code.visualstudio.com/docs">documentação</a></td></tr>
+      <tr><td>Docker + Docker Compose</td><td><code>docker run hello-world</code> · <code>docker compose up</code> · <a href="https://docs.docker.com/">documentação</a></td></tr>
+      <tr><td>Git</td><td><code>git config --global user.name "Seu Nome"</code> · <a href="https://git-scm.com/book/pt-br/v2">livro Pro Git (pt-BR)</a></td></tr>
+      <tr><td>Ansible</td><td><code>ansible localhost -m ping</code> · <a href="https://docs.ansible.com/">documentação</a></td></tr>
+      <tr><td>Terraform</td><td><code>terraform init</code> · <a href="https://developer.hashicorp.com/terraform/docs">documentação</a></td></tr>
+      <tr><td>Python 3</td><td><code>python3 -m venv .venv</code> · <a href="https://docs.python.org/pt-br/3/">documentação (pt-BR)</a></td></tr>
+      <tr><td>Jenkins</td><td><a href="http://localhost:8080">http://localhost:8080</a> · <a href="https://www.jenkins.io/doc/book/pipeline/">Pipelines</a></td></tr>
+    </table>
+  </div>
+
+  <h3>Dicas</h3>
+  <div class="card">
+    <table>
+      <tr><td>Instalar um programa</td><td><code>sudo apt update &amp;&amp; sudo apt install NOME</code></td></tr>
+      <tr><td>Copiar/colar com o Windows</td><td>Já está ligado (área de transferência compartilhada).</td></tr>
+      <tr><td>Tela pequena?</td><td>Maximize a janela do VirtualBox: a resolução se ajusta sozinha.</td></tr>
+      <tr><td>Jenkins não abriu?</td><td>Ele liga ~1 minuto depois da máquina. Aguarde e recarregue a página.</td></tr>
+    </table>
+  </div>
+</main>
+</body>
+</html>

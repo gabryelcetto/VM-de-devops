@@ -12,6 +12,7 @@ on:
       - "ci/publish-release.sh"
       - ".devcontainer/**"
       - "ci/test-ova-virtualbox.sh"
+      - "ci/vm-tests/**"
       - ".github/workflows/codespaces.yml"
 
 permissions:

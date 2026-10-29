@@ -36,11 +36,16 @@ $APT install \
   net-tools dnsutils iputils-ping bash-completion \
   virtualbox-guest-utils virtualbox-guest-x11
 
-# Kernel "virtual": numa VM não precisa do linux-firmware (~1 GB)
+# Kernel "virtual": numa VM não precisa do linux-firmware (~1 GB) nem do
+# linux-modules-extra (~107 MB). Todos os drivers usados (vmwgfx, vboxvideo, vboxguest,
+# vboxsf, e1000, ahci, overlay/bridge/netfilter do Docker) estão no linux-modules.
 $APT install linux-virtual
-apt-mark manual 'linux-modules-extra-*' || true
 apt-get -y purge linux-generic linux-image-generic linux-headers-generic linux-firmware || true
 apt-get -y purge 'linux-headers-*' || true
+apt-get -y purge 'linux-modules-extra-*' || true
+for m in vmwgfx vboxvideo vboxguest vboxsf e1000 ahci overlay br_netfilter veth; do
+  modinfo -k "$(ls /lib/modules | sort -V | tail -n 1)" "$m" >/dev/null   # falha o build se faltar algum
+done
 
 # Remover o snapd também remove o metapacote ubuntu-server-minimal; marcamos
 # como "manual" os pacotes essenciais que ele puxava para o autoremove não apagá-los
@@ -59,3 +64,15 @@ Pin-Priority: -10
 EOF
 
 usermod -aG vboxsf "${LAB_USER}" || true
+
+# Sem perguntas interativas do needrestart quando o aluno usar o apt
+if [ -d /etc/needrestart ]; then
+  mkdir -p /etc/needrestart/conf.d
+  printf "\$nrconf{restart} = 'a';\n\$nrconf{kernelhints} = 0;\n" > /etc/needrestart/conf.d/90-devops-lab.conf
+fi
+# Desliga e para mais rápido; logs com tamanho limitado
+mkdir -p /etc/systemd/system.conf.d /etc/systemd/journald.conf.d
+printf '[Manager]\nDefaultTimeoutStopSec=15s\n' > /etc/systemd/system.conf.d/10-devops-lab.conf
+printf '[Journal]\nSystemMaxUse=100M\n' > /etc/systemd/journald.conf.d/10-devops-lab.conf
+# Sem propaganda do Ubuntu Pro na saída do apt
+pro config set apt_news=false 2>/dev/null || true

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Jenkins
+GenericName=Servidor de integração contínua
+Comment=Abre o Jenkins (usuário aluno, senha devops) no Firefox
+Exec=/usr/local/bin/abrir-jenkins
+Icon=network-server
+Terminal=false
+Categories=Development;
+StartupNotify=false

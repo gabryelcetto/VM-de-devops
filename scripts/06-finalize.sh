@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 05 - Ajustes finais: script de verificação, LEIA-ME na área de trabalho, rede via NetworkManager
+# 06 - Ajustes finais: LEIA-ME e atalhos na Área de Trabalho, rede, boot rápido, serviços sob demanda
 set -euxo pipefail
 
 HOME_DIR="$(getent passwd "${LAB_USER}" | cut -d: -f6)"
@@ -15,9 +15,12 @@ if [ -z "${DESKTOP}" ] || [ "${DESKTOP}" = "${HOME_DIR}" ]; then
 fi
 mkdir -p "${DESKTOP}" "${HOME_DIR}/projetos"
 
-# LEIA-ME na área de trabalho, com a senha inicial do Jenkins
-JENKINS_PWD="$(cat /var/lib/jenkins/secrets/initialAdminPassword)"
-sed "s/__JENKINS_PASSWORD__/${JENKINS_PWD}/" /tmp/files/LEIA-ME.txt > "${DESKTOP}/LEIA-ME.txt"
+# LEIA-ME e atalhos na Área de Trabalho (marcados como confiáveis no login por devops-lab-login)
+install -m 0644 /tmp/files/LEIA-ME.txt "${DESKTOP}/LEIA-ME.txt"
+for app in code firefox xfce4-terminal jenkins-devops-lab; do
+  install -m 0755 "/usr/share/applications/$app.desktop" "${DESKTOP}/$app.desktop"
+done
+ln -sfn "${HOME_DIR}/projetos" "${DESKTOP}/projetos"
 chown -R "${LAB_USER}:${LAB_USER}" "${HOME_DIR}"
 
 # Rede gerenciada pelo NetworkManager (ícone de rede no painel).
@@ -83,6 +86,58 @@ EOF
 systemctl enable regen-ssh-host-keys.service
 touch /etc/ssh/.regenerar-chaves
 
+# ---------------------------------------------------------------- serviços sob demanda (boot rápido)
+# Docker liga no primeiro uso (docker.socket), não no boot
+systemctl disable docker.service containerd.service
+systemctl enable docker.socket
+# Jenkins liga 45 s depois do boot, para não disputar CPU com a área de trabalho
+cat > /etc/systemd/system/jenkins-atrasado.timer <<'EOF'
+[Unit]
+Description=Liga o Jenkins logo depois que a área de trabalho abre
+
+[Timer]
+OnBootSec=45s
+Unit=jenkins.service
+
+[Install]
+WantedBy=timers.target
+EOF
+systemctl disable jenkins.service
+systemctl enable jenkins-atrasado.timer
+# Lista de pacotes do apt atualizada em segundo plano (3 min após o boot e a cada 12 h),
+# para "sudo apt install" funcionar sem erro mesmo sem "apt update"
+cat > /etc/systemd/system/devops-lab-apt-update.service <<'EOF'
+[Unit]
+Description=Atualiza a lista de pacotes do apt em segundo plano
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Nice=19
+IOSchedulingClass=idle
+ExecStart=/usr/bin/apt-get update -qq
+EOF
+cat > /etc/systemd/system/devops-lab-apt-update.timer <<'EOF'
+[Unit]
+Description=Atualiza a lista de pacotes do apt em segundo plano
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=12h
+
+[Install]
+WantedBy=timers.target
+EOF
+systemctl enable devops-lab-apt-update.timer
+# A rede passa a ser do NetworkManager; o systemd-networkd não é mais necessário
+systemctl disable systemd-networkd.service systemd-networkd.socket systemd-networkd-wait-online.service 2>/dev/null || true
+# Tarefas de manutenção que pesam no primeiro dia de uso
+for t in man-db.timer motd-news.timer ua-timer.timer esm-cache.service apt-daily.timer apt-daily-upgrade.timer; do
+  systemctl disable "$t" 2>/dev/null || true
+done
+systemctl daemon-reload
+
 # Verificação final: o build falha se alguma ferramenta não estiver funcionando
 sudo -u "${LAB_USER}" -H code --version
 docker --version
@@ -92,4 +147,11 @@ ansible --version
 terraform -version
 python3 --version
 java -version
+firefox --version
 systemctl is-active jenkins
+systemctl is-enabled jenkins-atrasado.timer docker.socket devops-lab-apt-update.timer
+sudo -u "${LAB_USER}" -H code --list-extensions | tee /tmp/extensoes.txt
+grep -qi ms-ceintl.vscode-language-pack-pt-br /tmp/extensoes.txt
+grep -qi hashicorp.terraform /tmp/extensoes.txt
+ansible-galaxy collection list 2>/dev/null | grep -E "community.general|community.docker|ansible.posix" || echo "AVISO: coleções do Ansible ausentes"
+ls -l "${DESKTOP}"

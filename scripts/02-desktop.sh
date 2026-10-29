@@ -7,11 +7,13 @@ APT="apt-get -y -o DPkg::Lock::Timeout=900 -o APT::Install-Recommends=false -o D
 $APT install \
   xserver-xorg-core xserver-xorg-input-libinput xserver-xorg-video-vmware xserver-xorg-video-fbdev \
   xfce4-session xfwm4 xfdesktop4 xfce4-panel xfce4-settings xfce4-terminal \
-  xfce4-notifyd xfce4-whiskermenu-plugin thunar mousepad \
-  lightdm lightdm-gtk-greeter dbus-x11 xdg-utils xdg-user-dirs \
+  xfce4-notifyd xfce4-whiskermenu-plugin thunar thunar-archive-plugin mousepad \
+  xfce4-taskmanager xfce4-screenshooter xarchiver exo-utils xfce4-helpers \
+  lightdm lightdm-gtk-greeter dbus-x11 xdg-utils xdg-user-dirs libnotify-bin \
+  gvfs librsvg2-common x11-xserver-utils \
   network-manager network-manager-gnome \
   adwaita-icon-theme elementary-xfce-icon-theme greybird-gtk-theme \
-  fonts-dejavu-core fonts-liberation language-pack-pt-base locales
+  fonts-ubuntu fonts-dejavu-core fonts-liberation language-pack-pt-base locales
 
 # Login automático no XFCE
 mkdir -p /etc/lightdm/lightdm.conf.d
@@ -24,18 +26,6 @@ greeter-session=lightdm-gtk-greeter
 EOF
 groupadd -f autologin
 usermod -aG autologin "${LAB_USER}"
-
-# Tema e ícones padrão
-mkdir -p /etc/xdg/xfce4/xfconf/xfce-perchannel-xml
-cat > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml <<'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<channel name="xsettings" version="1.0">
-  <property name="Net" type="empty">
-    <property name="ThemeName" type="string" value="Greybird"/>
-    <property name="IconThemeName" type="string" value="elementary-xfce"/>
-  </property>
-</channel>
-EOF
 
 # Teclado ABNT2 também no ambiente gráfico
 cat > /etc/default/keyboard <<'EOF'
@@ -59,4 +49,4 @@ Pin: origin packages.mozilla.org
 Pin-Priority: 1000
 EOF
 $APT update
-$APT install firefox firefox-l10n-pt-br || $APT install firefox || echo "AVISO: Firefox não instalado"
+$APT install firefox firefox-l10n-pt-br || $APT install firefox

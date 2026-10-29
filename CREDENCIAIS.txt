@@ -2,7 +2,7 @@
               DevOps-Lab-UVV  -  USUÁRIOS, SENHAS E DADOS DA VM
 ================================================================
 
-Arquivo da VM ...... DevOps-Lab-UVV.ova (2,07 GB)
+Arquivo da VM ...... DevOps-Lab-UVV.ova (~2 GB)
 Sistema ............ Ubuntu 24.04 LTS + interface XFCE
 Importar ........... VirtualBox > Arquivo > Importar Appliance
 
@@ -33,27 +33,18 @@ Virar root ......... sudo -i              (senha: devops)
 ----------------------------------------------------------------
 3. JENKINS
 ----------------------------------------------------------------
-Endereço (na VM) ... http://localhost:8080
-Usuário inicial .... admin
-Senha inicial ...... gerada automaticamente na criação da VM
+Endereço (na VM) ... http://localhost:8080   (atalho "Jenkins")
+Usuário ............ aluno
+Senha .............. devops
 
-Onde achar a senha inicial:
-  a) No arquivo LEIA-ME.txt, na Área de Trabalho da VM, ou
-  b) No Terminal da VM:
-       sudo cat /var/lib/jenkins/secrets/initialAdminPassword
-
-Primeiro acesso:
-  1. Abra o Firefox na VM em http://localhost:8080
-  2. Cole a senha inicial
-  3. Escolha "Install suggested plugins"
-  4. Crie seu próprio usuário administrador e ANOTE AQUI:
-
-       Usuário Jenkins: ______________________
-       Senha Jenkins:   ______________________
-
+- Já vem configurado: sem assistente inicial e com os plugins
+  de Pipeline, Git, GitHub, Docker, Ansible e outros instalados.
+- Ele liga sozinho ~1 minuto depois que a VM abre.
 - O usuário de sistema "jenkins" está no grupo docker
   (pipelines podem usar comandos docker).
 - Reiniciar o Jenkins:  sudo systemctl restart jenkins
+- Trocar a senha: Jenkins > aluno (canto superior direito) >
+  Security > Password.
 
 
 ----------------------------------------------------------------
@@ -85,7 +76,7 @@ Ansible ............ ansible --version
 Terraform .......... terraform -version
 Python 3 ........... python3 --version  (pip3, venv, pipx)
 Java 21 ............ java -version      (usado pelo Jenkins)
-Firefox ............ para acessar o Jenkins
+Firefox ............ página inicial com atalhos e documentação
 
 Conferir tudo de uma vez:   verificar-lab
 
@@ -101,7 +92,7 @@ Conferir tudo de uma vez:   verificar-lab
 ----------------------------------------------------------------
 Processadores ...... 2 CPUs
 Memória RAM ........ 4 GB  (recomendado 6-8 GB com Jenkins + Docker)
-Disco .............. 25 GB dinâmico (cresce conforme o uso)
+Disco .............. 32 GB dinâmico (cresce conforme o uso)
 Rede ............... NAT (internet funciona automaticamente)
 Idioma / teclado ... Português (Brasil) / ABNT2
 Fuso horário ....... America/Sao_Paulo
@@ -116,8 +107,7 @@ Pasta de trabalho .. /home/aluno/projetos
   Ubuntu (login/sudo)    aluno        devops
   SSH                    aluno        devops
   Root                   (sudo -i)    devops
-  Jenkins (1º acesso)    admin        ver LEIA-ME.txt na VM
-  Jenkins (depois)       você cria    você cria
+  Jenkins                aluno        devops
 
 ================================================================
  Dica: troque a senha "devops" se for usar a VM fora da aula.

@@ -1,0 +1,43 @@
+{
+  "policies": {
+    "DisableTelemetry": true,
+    "DisableFirefoxStudies": true,
+    "DisablePocket": true,
+    "DontCheckDefaultBrowser": true,
+    "NoDefaultBookmarks": true,
+    "OverrideFirstRunPage": "",
+    "OverridePostUpdatePage": "",
+    "DisplayBookmarksToolbar": "always",
+    "Homepage": {
+      "URL": "file:///usr/share/devops-lab/inicio.html",
+      "StartPage": "homepage",
+      "Locked": false
+    },
+    "FirefoxHome": {
+      "SponsoredTopSites": false,
+      "SponsoredPocket": false,
+      "Pocket": false,
+      "Highlights": false,
+      "Locked": false
+    },
+    "UserMessaging": {
+      "ExtensionRecommendations": false,
+      "FeatureRecommendations": false,
+      "UrlbarInterventions": false,
+      "SkipOnboarding": true,
+      "MoreFromMozilla": false,
+      "Locked": false
+    },
+    "RequestedLocales": ["pt-BR"],
+    "Bookmarks": [
+      { "Title": "Início do Lab", "URL": "file:///usr/share/devops-lab/inicio.html", "Placement": "toolbar" },
+      { "Title": "Jenkins", "URL": "http://localhost:8080", "Placement": "toolbar" },
+      { "Title": "Docker Docs", "URL": "https://docs.docker.com/", "Placement": "toolbar", "Folder": "Documentação" },
+      { "Title": "Terraform Docs", "URL": "https://developer.hashicorp.com/terraform/docs", "Placement": "toolbar", "Folder": "Documentação" },
+      { "Title": "Ansible Docs", "URL": "https://docs.ansible.com/", "Placement": "toolbar", "Folder": "Documentação" },
+      { "Title": "Python (pt-BR)", "URL": "https://docs.python.org/pt-br/3/", "Placement": "toolbar", "Folder": "Documentação" },
+      { "Title": "Pro Git (pt-BR)", "URL": "https://git-scm.com/book/pt-br/v2", "Placement": "toolbar", "Folder": "Documentação" },
+      { "Title": "GitHub", "URL": "https://github.com/", "Placement": "toolbar" }
+    ]
+  }
+}

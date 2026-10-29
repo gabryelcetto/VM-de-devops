@@ -51,10 +51,30 @@ $APT update
 $APT install code \
              docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
              terraform \
-             ansible
+             ansible-core
+
+# ---------------------------------------------------------------- Coleções do Ansible
+# ansible-core (~8 MB) + as coleções mais usadas em aula, no lugar do pacote
+# "ansible" completo (~280 MB). Outras: ansible-galaxy collection install NOME
+mkdir -p /usr/share/ansible/collections
+for try in 1 2 3; do
+  if ansible-galaxy collection install -p /usr/share/ansible/collections \
+       community.general community.docker ansible.posix; then break; fi
+  echo "ansible-galaxy falhou (tentativa $try)"; sleep 15
+  [ "$try" = 3 ] && echo "AVISO: coleções do Ansible não instaladas"
+done
 
 # ---------------------------------------------------------------- Ajustes Docker
+# Logs dos containers com tamanho limitado (o disco não enche)
+mkdir -p /etc/docker
+cat > /etc/docker/daemon.json <<'JSON'
+{
+  "log-driver": "json-file",
+  "log-opts": { "max-size": "10m", "max-file": "3" }
+}
+JSON
 systemctl enable --now docker containerd
+systemctl restart docker
 usermod -aG docker "${LAB_USER}"
 
 # Atalho "docker-compose" (sintaxe antiga) -> "docker compose"
@@ -67,8 +87,13 @@ chmod +x /usr/local/bin/docker-compose
 # Autocompletar do Terraform para o usuário
 sudo -u "${LAB_USER}" -H bash -c 'touch ~/.bashrc && terraform -install-autocomplete' || true
 
-# Extensões úteis no VS Code (falha não interrompe o build)
-# (só extensões leves, para manter o .ova <= 3,8 GB)
-for ext in ms-azuretools.vscode-docker hashicorp.terraform redhat.vscode-yaml; do
+# ---------------------------------------------------------------- VS Code
+# Extensões (falha de uma não interrompe o build; o teste confere depois)
+for ext in ms-ceintl.vscode-language-pack-pt-br ms-python.python \
+           ms-azuretools.vscode-docker hashicorp.terraform redhat.vscode-yaml redhat.ansible; do
   timeout 300 sudo -u "${LAB_USER}" -H code --install-extension "$ext" --force || true
 done
+HOME_DIR="$(getent passwd "${LAB_USER}" | cut -d: -f6)"
+install -d -o "${LAB_USER}" -g "${LAB_USER}" "${HOME_DIR}/.config" "${HOME_DIR}/.config/Code" "${HOME_DIR}/.config/Code/User" "${HOME_DIR}/.vscode"
+install -m 0644 -o "${LAB_USER}" -g "${LAB_USER}" /tmp/files/gui/vscode-settings.json "${HOME_DIR}/.config/Code/User/settings.json"
+install -m 0644 -o "${LAB_USER}" -g "${LAB_USER}" /tmp/files/gui/vscode-argv.json "${HOME_DIR}/.vscode/argv.json"

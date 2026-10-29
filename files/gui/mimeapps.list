@@ -1,0 +1,11 @@
+[Default Applications]
+x-scheme-handler/http=firefox.desktop
+x-scheme-handler/https=firefox.desktop
+text/html=firefox.desktop
+application/xhtml+xml=firefox.desktop
+inode/directory=thunar.desktop
+text/plain=org.xfce.mousepad.desktop
+text/markdown=code.desktop
+application/x-shellscript=code.desktop
+application/json=code.desktop
+application/x-yaml=code.desktop

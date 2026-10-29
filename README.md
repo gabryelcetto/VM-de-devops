@@ -15,17 +15,16 @@ Oracle VirtualBox, com:
 
 | Item | Detalhe |
 |---|---|
-| Sistema | Ubuntu 24.04 LTS (ISO mais recente do 24.04) |
-| Interface gráfica | XFCE mínimo com login automático, teclado ABNT2, pt-BR |
-| VS Code | Repositório oficial da Microsoft + extensões Docker, Terraform e YAML |
-| Docker + Docker Compose | Docker CE oficial, plugin `docker compose` (e o atalho `docker-compose`) |
-| Git | `git` e `git-lfs` |
-| Ansible | PPA oficial `ppa:ansible/ansible` |
+| Sistema | Ubuntu 24.04 LTS, kernel enxuto para VM, boot silencioso (~20 s até a área de trabalho) |
+| Interface | XFCE leve com painel embaixo (menu, Arquivos, Terminal, Firefox, VS Code, Jenkins), atalhos na Área de Trabalho, papel de parede próprio, fonte Ubuntu, pt-BR e teclado ABNT2 |
+| VS Code | Em português, com extensões de Python, Docker, Terraform, YAML e Ansible; sem telemetria e sem avisos de chaveiro |
+| Docker + Docker Compose | Docker CE oficial (liga no primeiro uso), `docker compose` e atalho `docker-compose`, logs com tamanho limitado |
+| Git | Prompt do terminal mostra a branch atual |
+| Ansible | `ansible-core` + coleções `community.general`, `community.docker` e `ansible.posix` |
 | Terraform | Repositório oficial da HashiCorp |
 | Python | Python 3.12, `pip`, `venv`, `pipx` |
-| Tamanho | `.ova` de até ~3,8 GB (kernel `virtual`, sem firmware, sem snap, sem documentação) |
-| Jenkins | Jenkins LTS + Java 21, em `http://localhost:8080`, com acesso ao Docker |
-| Extras | Firefox, VirtualBox Guest Additions, área de transferência compartilhada, comando `verificar-lab` |
+| Jenkins | LTS pronto para uso: usuário **aluno/devops**, sem assistente inicial, plugins de Pipeline, Git, GitHub, Docker e Ansible já instalados; liga ~1 min após o boot |
+| Extras | Firefox com página inicial do Lab e favoritos, Guest Additions, área de transferência e arrastar/soltar, comando `verificar-lab` |
 
 **Login da VM:** usuário `aluno`, senha `devops`.
 A senha inicial do Jenkins fica no arquivo `LEIA-ME.txt` na Área de Trabalho da VM.

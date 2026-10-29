@@ -5,39 +5,46 @@
 Usuário: aluno
 Senha:   devops        (troque com o comando: passwd)
 
-Ferramentas instaladas
-----------------------
- - Ubuntu 24.04 LTS com XFCE
- - VS Code ............ menu Aplicativos > Desenvolvimento, ou: code
- - Docker ............. docker run hello-world
- - Docker Compose ..... docker compose version
- - Git ................ git --version
- - Ansible ............ ansible --version
- - Terraform .......... terraform -version
- - Python 3 ........... python3 --version  (pip3, venv, pipx)
- - Jenkins LTS ........ http://localhost:8080
+Tudo já está instalado e pronto:
+  VS Code, Docker, Docker Compose, Git, Ansible, Terraform,
+  Python 3 e Jenkins (com plugins de Pipeline, Git e Docker).
+
+Onde está cada coisa
+--------------------
+ - Painel embaixo: Aplicativos, Arquivos, Terminal, Firefox,
+   VS Code e Jenkins.
+ - Os mesmos atalhos estão aqui na Área de Trabalho.
+ - Terminal também abre com  Ctrl + Alt + T
 
 Para conferir tudo de uma vez, abra o Terminal e rode:
 
     verificar-lab
 
-Jenkins - primeiro acesso
--------------------------
-1. Abra o Firefox em http://localhost:8080
-2. Cole a senha inicial do administrador:
+Jenkins
+-------
+ - Endereço:  http://localhost:8080   (atalho "Jenkins")
+ - Usuário:   aluno
+ - Senha:     devops
+ - Ele liga sozinho cerca de 1 minuto depois que a máquina
+   abre. Se a página não carregar, aguarde e recarregue.
+ - Pipelines podem usar Docker (o Jenkins está no grupo docker).
 
-       __JENKINS_PASSWORD__
-
-   (ela também fica em /var/lib/jenkins/secrets/initialAdminPassword)
-3. Escolha "Install suggested plugins" e crie seu usuário admin.
-
-O usuário "jenkins" já está no grupo docker, então pipelines
-podem rodar comandos docker.
+Comandos rápidos
+----------------
+ code .                         abre a pasta atual no VS Code
+ docker run hello-world         testa o Docker (sem sudo)
+ docker compose up              sobe um compose.yaml
+ ansible localhost -m ping      testa o Ansible
+ terraform init                 inicia um projeto Terraform
+ python3 -m venv .venv          cria um ambiente Python
+ sudo apt install NOME          instala outro programa
 
 Dicas
 -----
- - Use a pasta ~/projetos para seus trabalhos.
- - Área de transferência e arrastar/soltar entre host e VM
-   já estão ativados.
- - Se a VM estiver lenta, aumente a memória para 6-8 GB em
-   Configurações > Sistema no VirtualBox.
+ - Use a pasta ~/projetos (atalho "projetos" aqui ao lado).
+ - Para levar seu trabalho: git push para o seu GitHub.
+ - Copiar/colar e arrastar arquivos entre o Windows e a VM
+   já estão ligados.
+ - Maximize a janela do VirtualBox: a resolução se ajusta.
+ - Se a VM estiver lenta, aumente a memória para 6 GB em
+   Configurações > Sistema no VirtualBox (com ela desligada).

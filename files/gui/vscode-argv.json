@@ -1,0 +1,6 @@
+{
+  "locale": "pt-br",
+  "disable-hardware-acceleration": true,
+  "password-store": "basic",
+  "enable-crash-reporter": false
+}

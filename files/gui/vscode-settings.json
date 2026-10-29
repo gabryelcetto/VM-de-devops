@@ -1,0 +1,20 @@
+{
+  "telemetry.telemetryLevel": "off",
+  "redhat.telemetry.enabled": false,
+  "update.mode": "none",
+  "extensions.autoUpdate": false,
+  "extensions.ignoreRecommendations": true,
+  "security.workspace.trust.enabled": false,
+  "workbench.colorTheme": "Default Dark Modern",
+  "workbench.startupEditor": "none",
+  "workbench.tips.enabled": false,
+  "editor.fontFamily": "'Ubuntu Mono', 'DejaVu Sans Mono', monospace",
+  "editor.fontSize": 15,
+  "editor.minimap.enabled": false,
+  "terminal.integrated.fontFamily": "'Ubuntu Mono', monospace",
+  "terminal.integrated.fontSize": 15,
+  "files.autoSave": "afterDelay",
+  "git.openRepositoryInParentFolders": "always",
+  "git.confirmSync": false,
+  "window.titleBarStyle": "custom"
+}

@@ -50,7 +50,7 @@ variable "memory" {
 
 variable "disk_size" {
   type    = number
-  default = 25600 # MB (disco dinâmico: só ocupa o que for usado)
+  default = 32768 # MB (disco dinâmico: só ocupa o que for usado)
 }
 
 # Precisa bater com o usuário/senha definidos em http/user-data
@@ -169,7 +169,8 @@ build {
       "scripts/02-desktop.sh",
       "scripts/03-devops-tools.sh",
       "scripts/04-jenkins.sh",
-      "scripts/05-finalize.sh",
+      "scripts/05-interface.sh",
+      "scripts/06-finalize.sh",
       "scripts/99-cleanup.sh"
     ]
   }
