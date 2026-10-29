@@ -11,6 +11,7 @@ on:
       - ".github/workflows/publicar.yml"
       - "ci/publish-release.sh"
       - ".devcontainer/**"
+      - "ci/test-ova-virtualbox.sh"
       - ".github/workflows/codespaces.yml"
 
 permissions:
