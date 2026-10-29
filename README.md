@@ -1,6 +1,6 @@
 # DevOps-Lab
 
-## ⬇️ Baixar a VM (sem login, direto pelo navegador)
+## Baixar a VM (sem login, direto pelo navegador)
 
 **https://github.com/gabryelcetto/VM-de-devops/releases/latest/download/DevOps-Lab.ova**
 
@@ -16,7 +16,7 @@ Cada pessoa que baixa recebe uma cópia própria: o que for feito dentro da VM f
 > Para rodar, o PC precisa de ~8 GB livres em disco. A VM usa 4 GB de RAM e 2 CPUs.
 > Com o Hyper-V do Windows ligado (ícone de tartaruga verde no VirtualBox) ela funciona, mas fica mais lenta.
 
-## 🌐 Usar direto no navegador (sem baixar nada)
+##  Usar direto no navegador (sem baixar nada)
 
 [![Abrir no GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/gabryelcetto/VM-de-devops?quickstart=1)
 
