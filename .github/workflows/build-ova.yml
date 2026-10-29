@@ -7,6 +7,8 @@ on:
     paths-ignore:
       - "README.md"
       - "*.txt"
+      - "ci/release-from-run.txt"
+      - ".github/workflows/publicar.yml"
 
 permissions:
   contents: write
@@ -168,7 +170,7 @@ jobs:
           NOTES="VM Ubuntu 24.04 + XFCE com VS Code, Docker, Docker Compose, Git, Ansible, Terraform, Python e Jenkins. Testada automaticamente no VirtualBox. Importar em: VirtualBox > Arquivo > Importar Appliance. Usuario: aluno / Senha: devops"
           fail() { echo "::error title=release::$(tail -c 1500 "$1" | tr '\n' ' ')"; exit 1; }
           gh api -X POST "repos/$REPO/releases" -f tag_name="$TAG" -f target_commitish="${{ github.sha }}" \
-            -f name="DevOps-Lab-UVV ($TAG)" -f body="$NOTES" -F make_latest=true > rel.json 2> rel.err || fail rel.err
+            -f name="DevOps-Lab-UVV ($TAG)" -f body="$NOTES" -f make_latest=true > rel.json 2> rel.err || fail rel.err
           RID=$(python3 -c "import json;print(json.load(open('rel.json'))['id'])")
           for f in DevOps-Lab-UVV.ova DevOps-Lab-UVV.ova.sha256; do
             ok=0
