@@ -12,15 +12,18 @@ check() {
 }
 echo "=== DevOps-Lab-UVV (Codespaces) - verificação do ambiente ==="
 check "Ubuntu"          bash -c '. /etc/os-release; echo "$PRETTY_NAME"'
-if command -v code >/dev/null 2>&1; then check "VS Code" code --version
-else printf "${amarelo}[INFO]${nc}  %-16s %s\n" "VS Code" "é o próprio editor do navegador"; fi
+if v="$(code --version 2>/dev/null)" && [ -n "$v" ]; then
+  printf "${verde}[OK]${nc}    %-16s %s\n" "VS Code" "${v%%$'\n'*}"
+else
+  printf "${amarelo}[INFO]${nc}  %-16s %s\n" "VS Code" "é o próprio editor do navegador"
+fi
 check "Docker"          docker --version
 check "Docker Compose"  docker compose version
 check "Git"             git --version
 check "Ansible"         ansible --version
 check "Terraform"       terraform -version
 check "Python"          python3 --version
-check "Docker roda"     docker run --rm hello-world
+check "Docker roda"     bash -c "docker run --rm hello-world | grep 'Hello from Docker'"
 code_http=""
 for _ in $(seq 1 60); do
   code_http="$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/login)"
