@@ -23,7 +23,7 @@ check "Git"             git --version
 check "Ansible"         ansible --version
 check "Terraform"       terraform -version
 check "Python"          python3 --version
-check "Docker roda"     bash -c "docker run --rm hello-world | grep 'Hello from Docker'"
+check "Docker roda"     bash -c "docker run --rm hello-world 2>/dev/null | grep 'Hello from Docker'"
 code_http=""
 for _ in $(seq 1 60); do
   code_http="$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/login)"
