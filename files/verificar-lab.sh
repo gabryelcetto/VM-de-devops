@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# verificar-lab - mostra as versões de todas as ferramentas do DevOps-Lab-UVV
+# verificar-lab - mostra as versões de todas as ferramentas do DevOps-Lab-UVV (inclui Firefox)
 
 verde='\033[0;32m'; vermelho='\033[0;31m'; nc='\033[0m'
 
