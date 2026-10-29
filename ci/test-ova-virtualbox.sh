@@ -15,7 +15,7 @@ FAILS=0
 log()  { echo "$*" | tee -a "$SUMMARY"; }
 ok()   { log "[OK]    $*"; }
 bad()  { log "[FALHA] $*"; FAILS=$((FAILS+1)); }
-shot() { VBoxManage controlvm "$VM" screenshotpng "$OUT/$1.png" >/dev/null 2>&1 || true; }
+shot() { VBoxManage controlvm "$VM" screenshotpng "$OUT/$1.png" >>"$OUT/screenshot-erros.txt" 2>&1 || echo "falhou: $1" >>"$OUT/screenshot-erros.txt"; }
 prop() { VBoxManage guestproperty get "$VM" "$1" 2>/dev/null | sed -n 's/^Value: //p'; }
 grun() { # executa um comando dentro da VM como aluno
   timeout 300 VBoxManage guestcontrol "$VM" run --username aluno --password devops \
@@ -50,7 +50,7 @@ else
   bad "Importação do .ova"; cat "$OUT/import.txt" | tee -a "$SUMMARY"; exit 1
 fi
 VBoxManage showvminfo "$VM" --machinereadable > "$OUT/vminfo.txt"
-grep -E '^(ostype|memory|cpus|graphicscontroller|vram|nic1|storagecontrollertype0|storagecontrollerportcount0|ioapic|paravirtprovider)=' "$OUT/vminfo.txt" | tee -a "$SUMMARY"
+grep -E '^(ostype|memory|cpus|graphicscontroller|vram|nic1|storagecontrollertype0|storagecontrollerportcount0|ioapic|paravirtprovider|mouse|clipboard|draganddrop)=' "$OUT/vminfo.txt" | tee -a "$SUMMARY"
 # Saída serial para diagnóstico (não muda nada para o aluno)
 VBoxManage modifyvm "$VM" --uart1 0x3F8 4 --uartmode1 file "$OUT/serial.log" >/dev/null 2>&1 || true
 
@@ -97,6 +97,25 @@ R="$(grun /usr/bin/cat /proc/cmdline)"; log "Kernel cmdline: $R"
 echo "$R" | grep -q quiet && ok "Boot silencioso (quiet) configurado" || bad "Boot sem quiet"
 
 R="$(grun /usr/bin/df -h /)"; log "Disco: $(echo "$R" | tail -1)"
+
+# ---------------------------------------------------------------- QA extra
+chk() { # chk "descrição" "comando shell" "texto esperado na saída"
+  local R; R="$(grun /bin/bash -lc "$2")"
+  echo "### $1"$'\n'"$R" >> "$OUT/qa-extra.txt"
+  if echo "$R" | grep -qE "$3"; then ok "$1"; else bad "$1"; log "$(echo "$R" | tail -n 8)"; fi
+}
+chk "Firefox instalado (para abrir o Jenkins)" "firefox --version" "Mozilla Firefox"
+chk "Extensões do VS Code (Docker, Terraform, YAML)" "code --list-extensions" "hashicorp.terraform"
+chk "apt update funciona (repositórios e chaves OK)" "echo devops | sudo -S apt-get update 2>&1 | tail -n 3" "Lendo listas|Reading package lists"
+chk "Ansible executa (ping no localhost)" "ansible localhost -c local -m ping 2>&1" "pong"
+chk "Terraform executa (init/apply local)" "d=\$(mktemp -d) && cd \$d && printf 'output \"ok\" { value = \"terraform-ok\" }\\n' > main.tf && terraform init -input=false >/dev/null && terraform apply -auto-approve -input=false 2>&1 | tail -n 3" "terraform-ok"
+chk "Docker Compose sobe um serviço" "d=\$(mktemp -d) && cd \$d && printf 'services:\\n  web:\\n    image: hello-world\\n' > compose.yaml && docker compose up 2>&1 | tail -n 5" "Hello from Docker"
+chk "Python venv + pip" "python3 -m venv /tmp/venv-qa && /tmp/venv-qa/bin/pip --version" "pip "
+chk "Git configura e faz commit" "d=\$(mktemp -d) && cd \$d && git init -q && git -c user.name=qa -c user.email=qa@x commit -q --allow-empty -m qa && git log --oneline | wc -l" "^1"
+chk "SSH ativo com chaves novas" "systemctl is-active ssh.socket ssh 2>/dev/null; ls /etc/ssh/ssh_host_ed25519_key" "ssh_host_ed25519_key"
+chk "Identidade única (machine-id gerado)" "cat /etc/machine-id" "^[0-9a-f]{32}$"
+chk "Idioma pt-BR, teclado ABNT2, fuso de São Paulo" "echo LANG=\$LANG; cat /etc/default/keyboard; timedatectl show -p Timezone" "Sao_Paulo"
+chk "Sudo funciona com a senha devops" "echo devops | sudo -S -k whoami" "^root$"
 shot "boot1-final"
 
 # ---------------------------------------------------------------- 2º boot com CPU limitada (PC lento)

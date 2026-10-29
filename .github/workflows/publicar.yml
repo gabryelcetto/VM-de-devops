@@ -16,13 +16,21 @@ jobs:
       - uses: actions/checkout@v4
       - id: src
         run: echo "run_id=$(tr -d '[:space:]' < ci/release-from-run.txt)" >> "$GITHUB_OUTPUT"
-      - name: Baixar o .ova
+      - name: Baixar o .ova final (testado)
+        uses: actions/download-artifact@v4
+        with:
+          name: DevOps-Lab-UVV-ova-final
+          run-id: ${{ steps.src.outputs.run_id }}
+          github-token: ${{ github.token }}
+          path: ova
+
+      - name: Baixar o .ova compatível (VirtualBox 6.1)
         uses: actions/download-artifact@v4
         with:
           name: DevOps-Lab-UVV-ova
           run-id: ${{ steps.src.outputs.run_id }}
           github-token: ${{ github.token }}
-          path: ova
+          path: compat
 
       - name: Criar Release pública
         env:

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Gera o .ova final com o próprio VirtualBox, a partir do .ova "compatível"
+# convertido do QEMU, aplicando as configurações recomendadas para Linux:
+#   vídeo VMSVGA 128 MB, 1 porta SATA, mouse USB tablet, área de transferência
+#   e arrastar/soltar bidirecionais, áudio desligado.
+# Uso: ci/finalize-ova-virtualbox.sh <entrada.ova> <pasta-saida>
+set -euxo pipefail
+IN="$1"
+OUTDIR="$2"
+VM="DevOps-Lab-UVV"
+DESC="Ubuntu 24.04 LTS + XFCE com VS Code, Docker, Docker Compose, Git, Ansible, Terraform, Python e Jenkins. Usuario: aluno / Senha: devops"
+mkdir -p "$OUTDIR"
+
+VBoxManage import "$IN" --vsys 0 --vmname "$VM"
+CTL="$(VBoxManage showvminfo "$VM" --machinereadable | sed -n 's/^storagecontrollername0="\(.*\)"$/\1/p')"
+VBoxManage storagectl "$VM" --name "$CTL" --portcount 1
+VBoxManage modifyvm "$VM" \
+  --ostype Ubuntu_64 --cpus 2 --memory 4096 --ioapic on --rtc-use-utc on \
+  --graphicscontroller vmsvga --vram 128 \
+  --usb-ohci on --mouse usbtablet \
+  --clipboard-mode bidirectional --drag-and-drop bidirectional \
+  --audio-enabled off \
+  --description "$DESC"
+VBoxManage showvminfo "$VM" --machinereadable \
+  | grep -E '^(graphicscontroller|vram|mouse|clipboard|draganddrop|storagecontrollerportcount0|usb|audio)' || true
+
+VBoxManage export "$VM" -o "$OUTDIR/DevOps-Lab-UVV.ova" --options manifest,nomacs \
+  --vsys 0 --product "DevOps Lab UVV" --version "1.0" --description "$DESC"
+VBoxManage unregistervm "$VM" --delete
+
+cd "$OUTDIR"
+sha256sum DevOps-Lab-UVV.ova > DevOps-Lab-UVV.ova.sha256
+ls -l
+SIZE=$(stat -c %s DevOps-Lab-UVV.ova)
+echo "::notice title=ova-final::DevOps-Lab-UVV.ova = $SIZE bytes"
+# Limite do GitHub para arquivos de Release: 2 GiB
+[ "$SIZE" -lt 2147483648 ] || { echo "::error::.ova final passou de 2 GiB"; exit 1; }

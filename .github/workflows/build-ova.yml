@@ -119,11 +119,24 @@ jobs:
           sudo /sbin/vboxconfig
           VBoxManage --version
 
+      - name: Gerar o .ova final pelo VirtualBox (VMSVGA, USB tablet, área de transferência)
+        run: bash ci/finalize-ova-virtualbox.sh ova/DevOps-Lab-UVV.ova final
+
+      - name: Guardar o .ova final
+        uses: actions/upload-artifact@v4
+        with:
+          name: DevOps-Lab-UVV-ova-final
+          path: |
+            final/DevOps-Lab-UVV.ova
+            final/DevOps-Lab-UVV.ova.sha256
+          compression-level: 0
+          retention-days: 30
+
       - name: Testar a VM
         id: test
         run: |
           set +e
-          bash ci/test-ova-virtualbox.sh ova/DevOps-Lab-UVV.ova resultados
+          bash ci/test-ova-virtualbox.sh final/DevOps-Lab-UVV.ova resultados
           echo "fails=$?" >> "$GITHUB_OUTPUT"
           exit 0
 
@@ -156,11 +169,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Baixar o .ova
+      - name: Baixar o .ova final (testado)
+        uses: actions/download-artifact@v4
+        with:
+          name: DevOps-Lab-UVV-ova-final
+          path: ova
+
+      - name: Baixar o .ova compatível (VirtualBox 6.1)
         uses: actions/download-artifact@v4
         with:
           name: DevOps-Lab-UVV-ova
-          path: ova
+          path: compat
 
       - name: Criar Release pública
         env:

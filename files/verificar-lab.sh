@@ -25,6 +25,7 @@ check "Terraform"       terraform -version
 check "Python"          python3 --version
 check "pip"             pip3 --version
 check "Java"            java -version
+check "Firefox"         firefox --version
 
 if systemctl is-active --quiet jenkins; then
   printf "${verde}[OK]${nc}    %-16s %s\n" "Jenkins" "ativo em http://localhost:8080 (versão $(dpkg-query -W -f='${Version}' jenkins))"
