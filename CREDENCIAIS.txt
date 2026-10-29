@@ -2,7 +2,7 @@
               DevOps-Lab  -  USUÁRIOS, SENHAS E DADOS DA VM
 ================================================================
 
-Arquivo da VM ...... DevOps-Lab.ova (~2 GB)
+Arquivo da VM ...... DevOps-Lab.ova (~1,7 GB)
 Sistema ............ Ubuntu 24.04 LTS + interface XFCE
 Importar ........... VirtualBox > Arquivo > Importar Appliance
 

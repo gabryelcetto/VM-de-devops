@@ -4,11 +4,36 @@
 
 **https://github.com/gabryelcetto/VM-de-devops/releases/latest/download/DevOps-Lab.ova**
 
-1. Baixe o arquivo pelo link acima (~1,9 GB).
+1. Baixe o arquivo pelo link acima (~1,7 GB).
 2. No VirtualBox: **Arquivo → Importar Appliance** → escolha o `.ova` → **Finalizar**.
 3. Inicie a VM. Usuário **aluno**, senha **devops** (veja [CREDENCIAIS.txt](CREDENCIAIS.txt)).
 
 Cada pessoa que baixa recebe uma cópia própria: o que for feito dentro da VM fica só naquele computador.
+
+> VirtualBox antigo (6.1) e o arquivo não importa? Use o `DevOps-Lab-compat-vbox6.ova`, na mesma
+> [página de Releases](https://github.com/gabryelcetto/VM-de-devops/releases/latest).
+>
+> Para rodar, o PC precisa de ~8 GB livres em disco. A VM usa 4 GB de RAM e 2 CPUs.
+> Com o Hyper-V do Windows ligado (ícone de tartaruga verde no VirtualBox) ela funciona, mas fica mais lenta.
+
+## 🌐 Usar direto no navegador (sem baixar nada)
+
+[![Abrir no GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/gabryelcetto/VM-de-devops?quickstart=1)
+
+Clique no botão acima, entre com sua conta do GitHub e aguarde 1–3 minutos. Abre no navegador
+um ambiente com as mesmas ferramentas da VM: **VS Code, Docker + Docker Compose, Git, Ansible,
+Terraform, Python e Jenkins**. Não precisa de VirtualBox, cmd, PowerShell nem permissão de administrador.
+
+| O que | Como acessar |
+|---|---|
+| Terminal | Menu ☰ → **Terminal → Novo Terminal** |
+| Conferir tudo | No terminal: `verificar-lab` |
+| Jenkins | Aba **PORTAS** → porta **8080** → 🌐 (senha inicial: comando `senha-jenkins`) |
+| Área de trabalho gráfica | Aba **PORTAS** → porta **6080** → 🌐 → **Connect** (senha: `devops`) |
+
+- Cada aluno tem o seu próprio Codespace; o que for feito nele não aparece para os outros.
+- O Codespace desliga sozinho após 30 min parado e é apagado após 30 dias sem uso. Para voltar: <https://github.com/codespaces>
+- O uso é gratuito dentro da cota mensal da conta do GitHub (que reinicia todo mês); alunos com o GitHub Student Pack têm cota maior. Apague o Codespace quando não for mais usar.
 
 Projeto que gera automaticamente a máquina virtual **`DevOps-Lab.ova`** para o
 Oracle VirtualBox, com:
@@ -53,7 +78,7 @@ e converte o disco para `.ova` do VirtualBox (`ci/make-ova.py`).
   - Ubuntu/Debian: <https://developer.hashicorp.com/packer/install>
 - Processador **x86-64** (Intel/AMD) com virtualização (VT-x/AMD-V) ativada na BIOS
   — Macs com chip Apple (M1/M2/M3…) não rodam esta VM
-- ~**22 GB livres** em disco durante o build (o `.ova` final fica com no máximo ~3,8 GB) e conexão com a internet
+- ~**22 GB livres** em disco durante o build (o `.ova` final fica com ~1,7 GB) e conexão com a internet
 - Tempo estimado: **30 a 60 minutos**
 
 ## 2. Gerar o .ova
