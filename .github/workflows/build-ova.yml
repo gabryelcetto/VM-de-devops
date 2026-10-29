@@ -10,6 +10,8 @@ on:
       - "ci/release-from-run.txt"
       - ".github/workflows/publicar.yml"
       - "ci/publish-release.sh"
+      - ".devcontainer/**"
+      - ".github/workflows/codespaces.yml"
 
 permissions:
   contents: write
