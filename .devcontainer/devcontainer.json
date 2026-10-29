@@ -1,0 +1,36 @@
+{
+  "name": "DevOps-Lab-UVV (navegador)",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/python:1": { "version": "3.12" },
+    "ghcr.io/devcontainers/features/terraform:1": {},
+    "ghcr.io/devcontainers/features/desktop-lite:1": {
+      "password": "devops",
+      "webPort": "6080",
+      "vncPort": "5901"
+    }
+  },
+  "hostRequirements": { "cpus": 2, "memory": "8gb" },
+  "forwardPorts": [6080, 8080],
+  "portsAttributes": {
+    "6080": { "label": "Área de trabalho (senha: devops)", "onAutoForward": "notify" },
+    "8080": { "label": "Jenkins", "onAutoForward": "notify" }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postStartCommand": "bash .devcontainer/start-jenkins.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "hashicorp.terraform",
+        "redhat.vscode-yaml",
+        "redhat.ansible",
+        "ms-python.python"
+      ]
+    },
+    "codespaces": {
+      "openFiles": [".devcontainer/BEM-VINDO.md"]
+    }
+  }
+}

@@ -1,0 +1,37 @@
+name: Testar o ambiente do Codespaces
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".devcontainer/**"
+      - ".github/workflows/codespaces.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Criar o ambiente igual ao Codespaces e rodar o verificar-lab
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: ghcr.io/gabryelcetto/vm-de-devops-devcontainer
+          push: never
+          runCmd: |
+            bash .devcontainer/start-jenkins.sh
+            sleep 20
+            set -o pipefail
+            verificar-lab 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tee codespaces-resultado.txt
+
+      - name: Mostrar o resultado (anotação)
+        if: always()
+        run: |
+          if [ -f codespaces-resultado.txt ]; then
+            msg=$(sed 's/%/%25/g' codespaces-resultado.txt | awk '{printf "%s%%0A", $0}')
+            echo "::notice title=codespaces::${msg}"
+          else
+            echo "::error title=codespaces::o ambiente não chegou a rodar o verificar-lab"
+          fi
