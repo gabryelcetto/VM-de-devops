@@ -1,4 +1,4 @@
-name: Publicar Release de um build já testado
+name: Testar e publicar um build já gerado
 
 on:
   push:
@@ -10,28 +10,77 @@ permissions:
   actions: read
 
 jobs:
-  release:
+  test:
     runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    outputs:
+      run_id: ${{ steps.src.outputs.run_id }}
     steps:
       - uses: actions/checkout@v4
       - id: src
         run: echo "run_id=$(tr -d '[:space:]' < ci/release-from-run.txt)" >> "$GITHUB_OUTPUT"
-      - name: Baixar o .ova final (testado)
+      - name: Baixar o .ova final
         uses: actions/download-artifact@v4
         with:
           name: DevOps-Lab-UVV-ova-final
           run-id: ${{ steps.src.outputs.run_id }}
           github-token: ${{ github.token }}
-          path: ova
+          path: final
+      - name: Instalar VirtualBox 7.2 e ImageMagick
+        run: |
+          sudo modprobe -r kvm_intel kvm_amd kvm || true
+          wget -qO- https://www.virtualbox.org/download/oracle_vbox_2016.asc | sudo gpg --dearmor -o /usr/share/keyrings/oracle-virtualbox-2016.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/oracle-virtualbox-2016.gpg] https://download.virtualbox.org/virtualbox/debian noble contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
+          sudo apt-get update
+          sudo apt-get install -y "linux-headers-$(uname -r)" build-essential virtualbox-7.2 imagemagick
+          sudo /sbin/vboxconfig
+      - name: Testar a VM
+        id: test
+        run: |
+          set +e
+          bash ci/test-ova-virtualbox.sh final/DevOps-Lab-UVV.ova resultados
+          echo "fails=$?" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Publicar resultados (branch test-results)
+        if: always()
+        run: |
+          cp -r resultados /tmp/resultados || mkdir -p /tmp/resultados
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git checkout --orphan test-results-tmp
+          git rm -rfq . || true
+          rm -rf ./*
+          cp -r /tmp/resultados/. .
+          git add -A
+          git commit -qm "Resultados do teste no VirtualBox (run ${{ github.run_id }})"
+          git push -f origin HEAD:test-results
+          if [ -f RESUMO.txt ]; then
+            msg=$(grep -E '^\[(OK|FALHA)\]|RESULTADO' RESUMO.txt | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::notice title=teste-virtualbox::${msg}"
+          fi
+      - name: Falhar se o teste falhou
+        if: steps.test.outputs.fails != '0'
+        run: exit 1
 
+  release:
+    needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Baixar o .ova final (testado)
+        uses: actions/download-artifact@v4
+        with:
+          name: DevOps-Lab-UVV-ova-final
+          run-id: ${{ needs.test.outputs.run_id }}
+          github-token: ${{ github.token }}
+          path: ova
       - name: Baixar o .ova compatível (VirtualBox 6.1)
         uses: actions/download-artifact@v4
         with:
           name: DevOps-Lab-UVV-ova
-          run-id: ${{ steps.src.outputs.run_id }}
+          run-id: ${{ needs.test.outputs.run_id }}
           github-token: ${{ github.token }}
           path: compat
-
       - name: Criar Release pública
         env:
           GH_TOKEN: ${{ github.token }}

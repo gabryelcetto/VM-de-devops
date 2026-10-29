@@ -98,6 +98,23 @@ echo "$R" | grep -q quiet && ok "Boot silencioso (quiet) configurado" || bad "Bo
 
 R="$(grun /usr/bin/df -h /)"; log "Disco: $(echo "$R" | tail -1)"
 
+# ---------------------------------------------------------------- tela vista de DENTRO da VM
+# (o print do VirtualBox em modo headless pode sair preto com VMSVGA; aqui o print
+#  é tirado pelo próprio X da VM, que é o que o aluno vê)
+grun /bin/bash -lc "echo devops | sudo -S -p '' apt-get install -y -qq x11-utils x11-apps >/dev/null 2>&1; echo instalado" >/dev/null
+XENV="export DISPLAY=:0 XAUTHORITY=/home/aluno/.Xauthority;"
+chk "Tela: painel do XFCE desenhado" "$XENV xwininfo -root -tree" "xfce4-panel"
+chk "Tela: área de trabalho (xfdesktop) desenhada" "$XENV xwininfo -root -tree" "xfdesktop|Desktop"
+grun /bin/bash -lc "$XENV xwd -root -silent > /tmp/tela.xwd && ls -l /tmp/tela.xwd" >> "$OUT/qa-extra.txt"
+VBoxManage guestcontrol "$VM" copyfrom --username aluno --password devops /tmp/tela.xwd "$OUT/tela-dentro-da-vm.xwd" >/dev/null 2>&1 || true
+if [ -s "$OUT/tela-dentro-da-vm.xwd" ] && convert "xwd:$OUT/tela-dentro-da-vm.xwd" "$OUT/tela-dentro-da-vm.png" 2>/dev/null; then
+  CORES="$(convert "$OUT/tela-dentro-da-vm.png" -format '%k' info:)"
+  if [ "${CORES:-0}" -gt 50 ]; then ok "Tela tem conteúdo ($CORES cores; print salvo)"; else bad "Tela parece vazia ($CORES cores)"; fi
+  rm -f "$OUT/tela-dentro-da-vm.xwd"
+else
+  bad "Não consegui tirar o print de dentro da VM"
+fi
+
 # ---------------------------------------------------------------- QA extra
 chk() { # chk "descrição" "comando shell" "texto esperado na saída"
   local R; R="$(grun /bin/bash -lc "$2")"
@@ -109,13 +126,13 @@ chk "Extensões do VS Code (Docker, Terraform, YAML)" "code --list-extensions" "
 chk "apt update funciona (repositórios e chaves OK)" "echo devops | sudo -S apt-get update 2>&1 | tail -n 3" "Lendo listas|Reading package lists"
 chk "Ansible executa (ping no localhost)" "ansible localhost -c local -m ping 2>&1" "pong"
 chk "Terraform executa (init/apply local)" "d=\$(mktemp -d) && cd \$d && printf 'output \"ok\" { value = \"terraform-ok\" }\\n' > main.tf && terraform init -input=false >/dev/null && terraform apply -auto-approve -input=false 2>&1 | tail -n 3" "terraform-ok"
-chk "Docker Compose sobe um serviço" "d=\$(mktemp -d) && cd \$d && printf 'services:\\n  web:\\n    image: hello-world\\n' > compose.yaml && docker compose up 2>&1 | tail -n 5" "Hello from Docker"
+chk "Docker Compose sobe um serviço" "d=\$(mktemp -d) && cd \$d && printf 'services:\\n  web:\\n    image: hello-world\\n' > compose.yaml && docker compose up 2>&1 | tail -n 5" "exited with code 0"
 chk "Python venv + pip" "python3 -m venv /tmp/venv-qa && /tmp/venv-qa/bin/pip --version" "pip "
 chk "Git configura e faz commit" "d=\$(mktemp -d) && cd \$d && git init -q && git -c user.name=qa -c user.email=qa@x commit -q --allow-empty -m qa && git log --oneline | wc -l" "^1"
 chk "SSH ativo com chaves novas" "systemctl is-active ssh.socket ssh 2>/dev/null; ls /etc/ssh/ssh_host_ed25519_key" "ssh_host_ed25519_key"
 chk "Identidade única (machine-id gerado)" "cat /etc/machine-id" "^[0-9a-f]{32}$"
 chk "Idioma pt-BR, teclado ABNT2, fuso de São Paulo" "echo LANG=\$LANG; cat /etc/default/keyboard; timedatectl show -p Timezone" "Sao_Paulo"
-chk "Sudo funciona com a senha devops" "echo devops | sudo -S -k whoami" "^root$"
+chk "Sudo funciona com a senha devops" "echo devops | sudo -S -k -p '' whoami" "^root$"
 shot "boot1-final"
 
 # ---------------------------------------------------------------- 2º boot com CPU limitada (PC lento)
