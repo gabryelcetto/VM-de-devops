@@ -13,7 +13,7 @@ Tudo já está instalado: **VS Code** (este editor), **Docker + Docker Compose**
 3. **Jenkins:** aba **PORTAS** (ao lado do Terminal) → porta **8080** → ícone do 🌐.
    Senha inicial:
    ```bash
-   cat ~/JENKINS-SENHA-INICIAL.txt
+   senha-jenkins
    ```
 4. **Área de trabalho gráfica (opcional):** aba **PORTAS** → porta **6080** → 🌐 →
    clique em **Connect** e use a senha **devops**.

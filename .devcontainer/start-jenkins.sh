@@ -9,12 +9,4 @@ else
     -p 8080:8080 -v jenkins_home:/var/jenkins_home \
     jenkins/jenkins:lts-jdk21 >/dev/null
 fi
-# Guarda a senha inicial do Jenkins num arquivo fácil de achar
-( for _ in $(seq 1 90); do
-    if docker exec jenkins test -s /var/jenkins_home/secrets/initialAdminPassword 2>/dev/null; then
-      docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword > "$HOME/JENKINS-SENHA-INICIAL.txt"
-      break
-    fi
-    sleep 2
-  done ) &
-echo "Jenkins iniciando em http://localhost:8080 (aba PORTAS)"
+echo "Jenkins iniciando em http://localhost:8080 (aba PORTAS). Senha inicial: rode  senha-jenkins"

@@ -34,5 +34,7 @@ else printf "${vermelho}[FALHA]${nc} %-16s %s\n" "Jenkins" "não respondeu (HTTP
 d="$(curl -s -o /dev/null -w '%{http_code}' http://localhost:6080/)"
 if [ "$d" = "200" ]; then printf "${verde}[OK]${nc}    %-16s %s\n" "Área de trabalho" "porta 6080 (aba PORTAS), senha devops"
 else printf "${vermelho}[FALHA]${nc} %-16s %s\n" "Área de trabalho" "porta 6080 não respondeu (HTTP $d)"; FALHAS=$((FALHAS+1)); fi
-[ -s "$HOME/JENKINS-SENHA-INICIAL.txt" ] && echo "Senha inicial do Jenkins: $(cat "$HOME/JENKINS-SENHA-INICIAL.txt")"
+if s="$(docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword 2>/dev/null)" && [ -n "$s" ]; then
+  echo "Senha inicial do Jenkins: $s   (também com o comando: senha-jenkins)"
+fi
 exit "$FALHAS"
