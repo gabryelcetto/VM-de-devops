@@ -26,29 +26,41 @@ python3 -m json.tool /etc/firefox/policies/policies.json >/dev/null
 install -m 0755 "$G/abrir-jenkins.sh" /usr/local/bin/abrir-jenkins
 install -m 0644 "$G/jenkins-devops-lab.desktop" /usr/share/applications/jenkins-devops-lab.desktop
 
+# ---------------------------------------------------------------- nome do atalho do VS Code
+# (o pacote já usou "code.desktop"; versões novas podem usar outro nome)
+find /usr/share/applications -maxdepth 1 \( -iname '*code*' -o -iname '*visual*' \) -print || true
+CODE_FILE="$(grep -lE '^Exec=/usr/(share/code/code|bin/code)( |$)' /usr/share/applications/*.desktop 2>/dev/null | grep -v url-handler | head -n 1 || true)"
+[ -n "$CODE_FILE" ] || CODE_FILE="$(grep -lE '^Name=Visual Studio Code$' /usr/share/applications/*.desktop | grep -v url-handler | head -n 1)"
+CODE_ID="$(basename "$CODE_FILE")"
+echo "Atalho do VS Code: $CODE_ID"
+echo "$CODE_ID" > /usr/share/devops-lab/code-desktop-id
+# troca "code.desktop" pelo nome real nos arquivos de configuração copiados
+ajusta() { sed -i "s/\bcode\.desktop\b/${CODE_ID}/g" "$1"; }
+
 # ---------------------------------------------------------------- padrões do XFCE (sistema e usuário)
 install -d "$XFCONF_SYS"
 for f in "$G"/xfconf/*.xml; do
-  install -m 0644 "$f" "$XFCONF_SYS/$(basename "$f")"
+  install -m 0644 "$f" "$XFCONF_SYS/$(basename "$f")"; ajusta "$XFCONF_SYS/$(basename "$f")"
 done
 install -m 0644 "$G/helpers.rc" /etc/xdg/xfce4/helpers.rc
-install -m 0644 "$G/mimeapps.list" /etc/xdg/mimeapps.list
+install -m 0644 "$G/mimeapps.list" /etc/xdg/mimeapps.list; ajusta /etc/xdg/mimeapps.list
 
 configura_usuario() {  # $1 = home de destino (aluno ou /etc/skel)
   local H="$1"
   install -d "$H/.config/xfce4/xfconf/xfce-perchannel-xml" "$H/.config/xfce4/terminal" "$H/.config/autostart"
   for f in "$G"/xfconf/*.xml; do
     install -m 0644 "$f" "$H/.config/xfce4/xfconf/xfce-perchannel-xml/$(basename "$f")"
+    ajusta "$H/.config/xfce4/xfconf/xfce-perchannel-xml/$(basename "$f")"
   done
   install -m 0644 "$G/terminalrc" "$H/.config/xfce4/terminal/terminalrc"
   install -m 0644 "$G/helpers.rc" "$H/.config/xfce4/helpers.rc"
-  install -m 0644 "$G/mimeapps.list" "$H/.config/mimeapps.list"
+  install -m 0644 "$G/mimeapps.list" "$H/.config/mimeapps.list"; ajusta "$H/.config/mimeapps.list"
   # Atalhos do painel: cada lançador tem sua pasta com o .desktop
   local id app
-  for pair in 3:thunar 4:xfce4-terminal 5:firefox 6:code 7:jenkins-devops-lab; do
+  for pair in 3:thunar.desktop 4:xfce4-terminal.desktop 5:firefox.desktop "6:${CODE_ID}" 7:jenkins-devops-lab.desktop; do
     id="${pair%%:*}"; app="${pair#*:}"
     install -d "$H/.config/xfce4/panel/launcher-$id"
-    install -m 0644 "/usr/share/applications/$app.desktop" "$H/.config/xfce4/panel/launcher-$id/$app.desktop"
+    install -m 0644 "/usr/share/applications/$app" "$H/.config/xfce4/panel/launcher-$id/$app"
   done
   # Menu Whisker (formato antigo, caso a versão não leia o xfconf)
   cat > "$H/.config/xfce4/panel/whiskermenu-1.rc" <<'RC'
@@ -57,6 +69,7 @@ button-title=Aplicativos
 show-button-title=true
 show-button-icon=true
 RC
+  ajusta "$H/.config/xfce4/panel/whiskermenu-1.rc"
 }
 configura_usuario /etc/skel
 configura_usuario "$HOME_DIR"
@@ -88,9 +101,10 @@ chown -R "${LAB_USER}:${LAB_USER}" "$HOME_DIR"
 test -s /usr/share/backgrounds/xfce/xfce-shapes.svg
 fc-list > /tmp/fontes.txt
 grep -qi "Ubuntu Mono" /tmp/fontes.txt
-for app in thunar xfce4-terminal firefox code jenkins-devops-lab org.xfce.mousepad xfce4-taskmanager xfce4-screenshooter; do
-  test -f "/usr/share/applications/$app.desktop" || { echo "falta $app.desktop"; exit 1; }
+for app in thunar.desktop xfce4-terminal.desktop firefox.desktop "$CODE_ID" jenkins-devops-lab.desktop org.xfce.mousepad.desktop xfce4-taskmanager.desktop xfce4-screenshooter.desktop; do
+  test -f "/usr/share/applications/$app" || { echo "falta $app"; exit 1; }
 done
+grep -q "$CODE_ID" "$HOME_DIR/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
 for f in "$HOME_DIR"/.config/xfce4/xfconf/xfce-perchannel-xml/*.xml; do
   python3 -c "import sys, xml.dom.minidom; xml.dom.minidom.parse(sys.argv[1])" "$f"
 done

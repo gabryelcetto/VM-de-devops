@@ -17,8 +17,9 @@ mkdir -p "${DESKTOP}" "${HOME_DIR}/projetos"
 
 # LEIA-ME e atalhos na Área de Trabalho (marcados como confiáveis no login por devops-lab-login)
 install -m 0644 /tmp/files/LEIA-ME.txt "${DESKTOP}/LEIA-ME.txt"
-for app in code firefox xfce4-terminal jenkins-devops-lab; do
-  install -m 0755 "/usr/share/applications/$app.desktop" "${DESKTOP}/$app.desktop"
+CODE_ID="$(cat /usr/share/devops-lab/code-desktop-id)"
+for app in "$CODE_ID" firefox.desktop xfce4-terminal.desktop jenkins-devops-lab.desktop; do
+  install -m 0755 "/usr/share/applications/$app" "${DESKTOP}/$app"
 done
 ln -sfn "${HOME_DIR}/projetos" "${DESKTOP}/projetos"
 chown -R "${LAB_USER}:${LAB_USER}" "${HOME_DIR}"
