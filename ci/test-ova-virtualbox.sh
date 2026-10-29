@@ -166,6 +166,8 @@ if [ "${CORES:-0}" -gt 100 ]; then ok "Tela final desenhada ($CORES cores)"; els
   echo; echo "===== disco ====="; gsh "df -h /"
   echo; echo "===== maiores pacotes (MB) ====="; gsh "dpkg-query -Wf '\${Installed-Size}\t\${Package}\n' | sort -n | tail -n 25 | awk '{printf \"%8.1f  %s\n\", \$1/1024, \$2}'"
   echo; echo "===== pastas grandes ====="; gsh "echo devops | sudo -S -p '' du -sh /usr/share/code /usr/lib/firefox /var/lib/jenkins /usr/share/java /usr/lib/jvm /usr/share/ansible /usr/lib/modules 2>/dev/null"
+  echo; echo "===== pacotes removidos no enxugamento ====="; gsh "cat /usr/share/devops-lab/pacotes-removidos.txt"
+  echo; echo "===== quem puxou pacotes grandes ====="; gsh "for p in libwebkitgtk-6.0-4 python3-botocore libllvm20 ubuntu-wallpapers-noble; do echo \"## \$p\"; apt-cache rdepends --installed \$p 2>/dev/null | tail -n +3 | head -n 8; done"
   echo; echo "===== autostart da sessão ====="; gsh "ls /etc/xdg/autostart ~/.config/autostart"
   echo; echo "===== janelas na tela ====="; gsh "$XENV xwininfo -root -tree | grep -oE '\"[^\"]+\"' | sort -u | head -n 40"
 } > "$ANALISE" 2>&1

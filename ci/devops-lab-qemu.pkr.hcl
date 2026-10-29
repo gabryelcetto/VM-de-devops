@@ -107,6 +107,7 @@ build {
       "${path.root}/../scripts/04-jenkins.sh",
       "${path.root}/../scripts/05-interface.sh",
       "${path.root}/../scripts/06-finalize.sh",
+      "${path.root}/../scripts/98-enxugar.sh",
       "${path.root}/../scripts/99-cleanup.sh"
     ]
   }
