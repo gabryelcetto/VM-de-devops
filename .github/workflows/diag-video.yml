@@ -1,0 +1,62 @@
+name: Diagnóstico da tela preta
+
+on:
+  push:
+    branches: [main]
+    paths: ["ci/diag-video.sh", ".github/workflows/diag-video.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  diag:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        variante: [atual, vram16, vboxsvga, vboxvga, modesetting, modesetting-vram16]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: DevOps-Lab-ova-final
+          run-id: "40903259875"
+          github-token: ${{ github.token }}
+          path: final
+      - name: Instalar VirtualBox 7.2
+        run: |
+          sudo modprobe -r kvm_intel kvm_amd kvm || true
+          wget -qO- https://www.virtualbox.org/download/oracle_vbox_2016.asc | sudo gpg --dearmor -o /usr/share/keyrings/oracle-virtualbox-2016.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/oracle-virtualbox-2016.gpg] https://download.virtualbox.org/virtualbox/debian noble contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
+          sudo apt-get update
+          sudo apt-get install -y "linux-headers-$(uname -r)" build-essential virtualbox-7.2 imagemagick
+          sudo /sbin/vboxconfig
+      - name: Diagnóstico
+        run: bash ci/diag-video.sh final/DevOps-Lab.ova diag ${{ matrix.variante }}
+      - name: Resumo
+        if: always()
+        run: |
+          msg=$(cat diag/resumo-*.txt | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+          echo "::notice title=${{ matrix.variante }}::${msg}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: diag-${{ matrix.variante }}
+          path: diag
+      - name: Guardar resultados na branch diag-video
+        if: always()
+        run: |
+          cp -r diag /tmp/diag
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          for i in 1 2 3 4 5; do
+            git fetch -q origin diag-video 2>/dev/null && git checkout -q -B d FETCH_HEAD || git checkout -q --orphan d
+            git rm -rfq . >/dev/null 2>&1 || true; rm -rf ./* 2>/dev/null || true
+            git checkout -q FETCH_HEAD -- . 2>/dev/null || true
+            mkdir -p ${{ matrix.variante }}; cp -r /tmp/diag/. ${{ matrix.variante }}/
+            git add -A ${{ matrix.variante }}; git commit -qm "diag ${{ matrix.variante }}" || true
+            git push -q origin HEAD:diag-video && break
+            sleep $((RANDOM % 10 + 3))
+          done

@@ -14,6 +14,8 @@ on:
       - "ci/test-ova-virtualbox.sh"
       - "ci/vm-tests/**"
       - ".github/workflows/codespaces.yml"
+      - "ci/diag-video.sh"
+      - ".github/workflows/diag-video.yml"
 
 permissions:
   contents: write
