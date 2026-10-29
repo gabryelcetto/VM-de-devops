@@ -22,7 +22,7 @@ jobs:
       - name: Baixar o .ova final
         uses: actions/download-artifact@v4
         with:
-          name: DevOps-Lab-UVV-ova-final
+          name: DevOps-Lab-ova-final
           run-id: ${{ steps.src.outputs.run_id }}
           github-token: ${{ github.token }}
           path: final
@@ -38,7 +38,7 @@ jobs:
         id: test
         run: |
           set +e
-          bash ci/test-ova-virtualbox.sh final/DevOps-Lab-UVV.ova resultados
+          bash ci/test-ova-virtualbox.sh final/DevOps-Lab.ova resultados
           echo "fails=$?" >> "$GITHUB_OUTPUT"
           exit 0
       - name: Publicar resultados (branch test-results)
@@ -70,14 +70,14 @@ jobs:
       - name: Baixar o .ova final (testado)
         uses: actions/download-artifact@v4
         with:
-          name: DevOps-Lab-UVV-ova-final
+          name: DevOps-Lab-ova-final
           run-id: ${{ needs.test.outputs.run_id }}
           github-token: ${{ github.token }}
           path: ova
       - name: Baixar o .ova compatível (VirtualBox 6.1)
         uses: actions/download-artifact@v4
         with:
-          name: DevOps-Lab-UVV-ova
+          name: DevOps-Lab-ova
           run-id: ${{ needs.test.outputs.run_id }}
           github-token: ${{ github.token }}
           path: compat

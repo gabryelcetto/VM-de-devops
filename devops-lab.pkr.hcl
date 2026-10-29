@@ -1,5 +1,5 @@
 #############################################################################
-#  DevOps-Lab-UVV  -  Template Packer para gerar DevOps-Lab-UVV.ova
+#  DevOps-Lab  -  Template Packer para gerar DevOps-Lab.ova
 #
 #  Ubuntu 24.04 LTS + XFCE (leve) + VS Code + Docker/Compose + Git +
 #  Ansible + Terraform + Python + Jenkins
@@ -23,7 +23,7 @@ packer {
 # --------------------------------------------------------------------------
 variable "vm_name" {
   type    = string
-  default = "DevOps-Lab-UVV"
+  default = "DevOps-Lab"
 }
 
 variable "iso_base_url" {
@@ -126,7 +126,7 @@ source "virtualbox-iso" "devops_lab" {
   export_opts = [
     "--manifest",
     "--vsys", "0",
-    "--product", "DevOps Lab UVV",
+    "--product", "DevOps Lab",
     "--version", "1.0",
     "--description", "Ubuntu 24.04 LTS + XFCE com VS Code, Docker, Docker Compose, Git, Ansible, Terraform, Python e Jenkins. Usuario: aluno / Senha: devops"
   ]
@@ -136,7 +136,7 @@ source "virtualbox-iso" "devops_lab" {
 # Provisionamento
 # --------------------------------------------------------------------------
 build {
-  name    = "devops-lab-uvv"
+  name    = "devops-lab"
   sources = ["source.virtualbox-iso.devops_lab"]
 
 
@@ -177,6 +177,6 @@ build {
 
   post-processor "checksum" {
     checksum_types = ["sha256"]
-    output         = "output/DevOps-Lab-UVV.ova.{{ .ChecksumType }}"
+    output         = "output/DevOps-Lab.ova.{{ .ChecksumType }}"
   }
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# verificar-lab - mostra as versões de todas as ferramentas do DevOps-Lab-UVV (inclui Firefox)
+# verificar-lab - mostra as versões de todas as ferramentas do DevOps-Lab (inclui Firefox)
 
 verde='\033[0;32m'; vermelho='\033[0;31m'; amarelo='\033[0;33m'; nc='\033[0m'
 
@@ -14,7 +14,7 @@ check() {
   fi
 }
 
-echo "=== DevOps-Lab-UVV - verificação do ambiente ==="
+echo "=== DevOps-Lab - verificação do ambiente ==="
 check "Ubuntu"          lsb_release -ds
 check "VS Code"         code --version
 check "Docker"          docker --version

@@ -5,8 +5,8 @@
       <stop offset="0.55" stop-color="#11293a"/>
       <stop offset="1" stop-color="#173f4f"/>
     </linearGradient>
-    <radialGradient id="glow" cx="0.78" cy="0.30" r="0.55">
-      <stop offset="0" stop-color="#2dd4bf" stop-opacity="0.22"/>
+    <radialGradient id="glow" cx="0.5" cy="0.48" r="0.5">
+      <stop offset="0" stop-color="#2dd4bf" stop-opacity="0.18"/>
       <stop offset="1" stop-color="#2dd4bf" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="loop" x1="0" y1="0" x2="1" y2="0">
@@ -20,12 +20,9 @@
   <rect width="1920" height="1080" fill="url(#bg)"/>
   <rect width="1920" height="1080" fill="url(#grid)"/>
   <rect width="1920" height="1080" fill="url(#glow)"/>
+  <text x="960" y="500" text-anchor="middle" font-family="Ubuntu, 'DejaVu Sans', sans-serif"
+        font-size="150" font-weight="700" fill="#e8f3ff" letter-spacing="2">DevOps</text>
   <!-- símbolo do ciclo DevOps (infinito) -->
-  <path d="M1500 360 C1550 305 1610 305 1610 360 C1610 415 1550 415 1500 360 C1450 305 1390 305 1390 360 C1390 415 1450 415 1500 360 Z"
-        fill="none" stroke="url(#loop)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
-  <g font-family="Ubuntu, 'DejaVu Sans', sans-serif" text-anchor="end">
-    <text x="1800" y="560" font-size="104" font-weight="700" fill="#e8f3ff">DevOps Lab</text>
-    <text x="1800" y="660" font-size="76" font-weight="700" fill="#2dd4bf" letter-spacing="10">UVV</text>
-    <text x="1800" y="730" font-size="27" fill="#9fb6c8">VS Code · Docker · Git · Ansible · Terraform · Python · Jenkins</text>
-  </g>
+  <path d="M960 640 C1035 557 1125 557 1125 640 C1125 723 1035 723 960 640 C885 557 795 557 795 640 C795 723 885 723 960 640 Z"
+        fill="none" stroke="url(#loop)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

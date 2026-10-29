@@ -7,7 +7,7 @@
 set -euxo pipefail
 IN="$1"
 OUTDIR="$2"
-VM="DevOps-Lab-UVV"
+VM="DevOps-Lab"
 DESC="Ubuntu 24.04 LTS + XFCE com VS Code, Docker, Docker Compose, Git, Ansible, Terraform, Python e Jenkins. Usuario: aluno / Senha: devops"
 mkdir -p "$OUTDIR"
 
@@ -24,14 +24,14 @@ VBoxManage modifyvm "$VM" \
 VBoxManage showvminfo "$VM" --machinereadable \
   | grep -E '^(graphicscontroller|vram|mouse|clipboard|draganddrop|storagecontrollerportcount0|usb|audio)' || true
 
-VBoxManage export "$VM" -o "$OUTDIR/DevOps-Lab-UVV.ova" --options manifest,nomacs \
-  --vsys 0 --product "DevOps Lab UVV" --version "1.0" --description "$DESC"
+VBoxManage export "$VM" -o "$OUTDIR/DevOps-Lab.ova" --options manifest,nomacs \
+  --vsys 0 --product "DevOps Lab" --version "1.0" --description "$DESC"
 VBoxManage unregistervm "$VM" --delete
 
 cd "$OUTDIR"
-sha256sum DevOps-Lab-UVV.ova > DevOps-Lab-UVV.ova.sha256
+sha256sum DevOps-Lab.ova > DevOps-Lab.ova.sha256
 ls -l
-SIZE=$(stat -c %s DevOps-Lab-UVV.ova)
-echo "::notice title=ova-final::DevOps-Lab-UVV.ova = $SIZE bytes"
+SIZE=$(stat -c %s DevOps-Lab.ova)
+echo "::notice title=ova-final::DevOps-Lab.ova = $SIZE bytes"
 # Limite do GitHub para arquivos de Release: 2 GiB
 [ "$SIZE" -lt 2147483648 ] || { echo "::error::.ova final passou de 2 GiB"; exit 1; }

@@ -1,4 +1,4 @@
-# Bem-vindo ao DevOps-Lab-UVV (no navegador)
+# Bem-vindo ao DevOps-Lab (no navegador)
 
 Tudo já está instalado: **VS Code** (este editor), **Docker + Docker Compose**, **Git**,
 **Ansible**, **Terraform**, **Python** e **Jenkins**.

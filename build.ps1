@@ -1,5 +1,5 @@
 # ==========================================================================
-#  DevOps-Lab-UVV - gera output\DevOps-Lab-UVV.ova (Windows)
+#  DevOps-Lab - gera output\DevOps-Lab.ova (Windows)
 #  Uso:  powershell -ExecutionPolicy Bypass -File .\build.ps1
 #        powershell -ExecutionPolicy Bypass -File .\build.ps1 -Memory 6144 -Cpus 4
 # ==========================================================================
@@ -12,7 +12,7 @@ param(
 $ErrorActionPreference = "Stop"
 Set-Location -Path $PSScriptRoot
 
-Write-Host "== DevOps-Lab-UVV: preparando build ==" -ForegroundColor Cyan
+Write-Host "== DevOps-Lab: preparando build ==" -ForegroundColor Cyan
 
 # --- VirtualBox -----------------------------------------------------------
 $vboxDir = Join-Path $env:ProgramFiles "Oracle\VirtualBox"
@@ -86,7 +86,7 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-$ova = Join-Path $PSScriptRoot "output\DevOps-Lab-UVV.ova"
+$ova = Join-Path $PSScriptRoot "output\DevOps-Lab.ova"
 $sizeGB = [math]::Round((Get-Item $ova).Length / 1GB, 2)
 Write-Host ""
 Write-Host "Pronto! Arquivo gerado: $ova ($sizeGB GB)" -ForegroundColor Green

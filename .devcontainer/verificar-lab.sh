@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# verificar-lab (versão Codespaces) - confere as ferramentas do DevOps-Lab-UVV
+# verificar-lab (versão Codespaces) - confere as ferramentas do DevOps-Lab
 verde='\033[0;32m'; vermelho='\033[0;31m'; amarelo='\033[0;33m'; nc='\033[0m'
 FALHAS=0
 check() {
@@ -10,7 +10,7 @@ check() {
     printf "${vermelho}[FALHA]${nc} %-16s %s\n" "$nome" "${saida%%$'\n'*}"; FALHAS=$((FALHAS+1))
   fi
 }
-echo "=== DevOps-Lab-UVV (Codespaces) - verificação do ambiente ==="
+echo "=== DevOps-Lab (Codespaces) - verificação do ambiente ==="
 check "Ubuntu"          bash -c '. /etc/os-release; echo "$PRETTY_NAME"'
 if v="$(code --version 2>/dev/null)" && [ -n "$v" ]; then
   printf "${verde}[OK]${nc}    %-16s %s\n" "VS Code" "${v%%$'\n'*}"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Testa o DevOps-Lab-UVV.ova no VirtualBox de verdade (como um aluno faria):
+# Testa o DevOps-Lab.ova no VirtualBox de verdade (como um aluno faria):
 # importa, liga, espera a área de trabalho, confere interface, ferramentas, Jenkins
 # (inclusive um pipeline com Docker), desempenho, reinicia com a CPU limitada
 # (PC lento) e tira prints da tela por dentro da VM.
@@ -8,7 +8,7 @@ set -uo pipefail
 
 OVA="$1"
 OUT="$2"
-VM="DevOps-Lab-UVV"
+VM="DevOps-Lab"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 mkdir -p "$OUT"
 SUMMARY="$OUT/RESUMO.txt"
@@ -65,7 +65,7 @@ print_tela() { # $1 = nome do arquivo; print pelo próprio X da VM (o que o alun
   fi
 }
 
-log "=== Teste do DevOps-Lab-UVV.ova no VirtualBox $(VBoxManage --version) ==="
+log "=== Teste do DevOps-Lab.ova no VirtualBox $(VBoxManage --version) ==="
 log "Arquivo: $(basename "$OVA") ($(du -h "$OVA" | cut -f1))"
 
 # ---------------------------------------------------------------- importar
@@ -97,7 +97,7 @@ if [ "${CORES:-0}" -gt 100 ]; then ok "Tela desenhada logo após o login ($CORES
 chk  "Painel do XFCE na tela" "$XENV xwininfo -root -tree" "xfce4-panel"
 chk  "Área de trabalho (xfdesktop) na tela" "$XENV xwininfo -root -tree" '"(Desktop|Área de trabalho|xfdesktop)"'
 nchk "Sem diálogo de primeiro uso do painel" "$XENV xwininfo -root -tree" '"(Painel|Panel)"'
-chk  "Papel de parede DevOps Lab como padrão" "readlink -f /usr/share/backgrounds/xfce/xfce-shapes.svg" "devops-lab-uvv.svg"
+chk  "Papel de parede DevOps Lab como padrão" "readlink -f /usr/share/backgrounds/xfce/xfce-shapes.svg" "devops-lab.svg"
 chk  "Tema Greybird, ícones elementary e fonte Ubuntu" "$XENV xfconf-query -c xsettings -p /Net/ThemeName; xfconf-query -c xsettings -p /Net/IconThemeName; xfconf-query -c xsettings -p /Gtk/FontName" "Ubuntu 10"
 chk  "Painel com menu, atalhos, tarefas, bandeja e relógio" "$XENV xfconf-query -c xfce4-panel -l -v | grep -E '^/plugins/plugin-[0-9]+ '" "whiskermenu"
 chk  "Compositor desligado (mais leve)" "$XENV xfconf-query -c xfwm4 -p /general/use_compositing" "false"

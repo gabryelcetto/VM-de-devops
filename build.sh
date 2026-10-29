@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==========================================================================
-#  DevOps-Lab-UVV - gera output/DevOps-Lab-UVV.ova (Linux / macOS Intel)
+#  DevOps-Lab - gera output/DevOps-Lab.ova (Linux / macOS Intel)
 #  Uso:  ./build.sh                 (padrão: 2 CPUs, 4096 MB)
 #        CPUS=4 MEMORY=6144 HEADLESS=true ./build.sh
 # ==========================================================================
@@ -11,7 +11,7 @@ CPUS="${CPUS:-2}"
 MEMORY="${MEMORY:-4096}"
 HEADLESS="${HEADLESS:-false}"
 
-echo "== DevOps-Lab-UVV: preparando build =="
+echo "== DevOps-Lab: preparando build =="
 
 if ! command -v VBoxManage >/dev/null 2>&1; then
   echo "VirtualBox não encontrado. Instale em https://www.virtualbox.org/wiki/Downloads" >&2
@@ -47,5 +47,5 @@ packer build -force \
   devops-lab.pkr.hcl
 
 echo
-echo "Pronto! Arquivo gerado: $(pwd)/output/DevOps-Lab-UVV.ova"
+echo "Pronto! Arquivo gerado: $(pwd)/output/DevOps-Lab.ova"
 echo "Importe no VirtualBox em: Arquivo > Importar Appliance"

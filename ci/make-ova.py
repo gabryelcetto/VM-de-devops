@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Converte o disco qcow2 gerado pelo Packer/QEMU em DevOps-Lab-UVV.ova
+"""Converte o disco qcow2 gerado pelo Packer/QEMU em DevOps-Lab.ova
 pronto para o Oracle VirtualBox (Arquivo > Importar Appliance).
 
-Uso: python3 ci/make-ova.py output-qemu/DevOps-Lab-UVV.qcow2 output/DevOps-Lab-UVV.ova
+Uso: python3 ci/make-ova.py output-qemu/DevOps-Lab.qcow2 output/DevOps-Lab.ova
 """
 import hashlib
 import json
@@ -12,7 +12,7 @@ import sys
 import tarfile
 import uuid
 
-NAME = "DevOps-Lab-UVV"
+NAME = "DevOps-Lab"
 CPUS = 2
 MEMORY_MB = 4096
 VRAM_MB = 128
@@ -75,7 +75,7 @@ def main(qcow2, ova):
     <Info>A virtual machine</Info>
     <ProductSection>
       <Info>Meta-information about the installed software</Info>
-      <Product>DevOps Lab UVV</Product>
+      <Product>DevOps Lab</Product>
       <Version>1.0</Version>
     </ProductSection>
     <AnnotationSection>

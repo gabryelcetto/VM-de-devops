@@ -11,7 +11,7 @@ crumb() {
 cat > /tmp/job.xml <<'XML'
 <?xml version='1.1' encoding='UTF-8'?>
 <flow-definition plugin="workflow-job">
-  <description>Pipeline de teste do DevOps-Lab-UVV</description>
+  <description>Pipeline de teste do DevOps-Lab</description>
   <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps">
     <script>pipeline {
   agent any

@@ -8,14 +8,14 @@ HOME_DIR="$(getent passwd "${LAB_USER}" | cut -d: -f6)"
 XFCONF_SYS=/etc/xdg/xfce4/xfconf/xfce-perchannel-xml
 
 # ---------------------------------------------------------------- papel de parede
-install -D -m 0644 "$G/devops-lab-uvv.svg" /usr/share/backgrounds/devops-lab-uvv.svg
+install -D -m 0644 "$G/devops-lab.svg" /usr/share/backgrounds/devops-lab.svg
 # Vira o padrão do XFCE (xfdesktop 4.18 usa xfce-shapes.svg quando não há configuração)
 if ! dpkg-divert --list /usr/share/backgrounds/xfce/xfce-shapes.svg | grep -q .; then
   dpkg-divert --local --rename \
     --divert /usr/share/backgrounds/xfce/xfce-shapes.svg.original \
     --add /usr/share/backgrounds/xfce/xfce-shapes.svg
 fi
-ln -sf /usr/share/backgrounds/devops-lab-uvv.svg /usr/share/backgrounds/xfce/xfce-shapes.svg
+ln -sf /usr/share/backgrounds/devops-lab.svg /usr/share/backgrounds/xfce/xfce-shapes.svg
 
 # ---------------------------------------------------------------- página inicial do Firefox
 install -D -m 0644 "$G/inicio.html" /usr/share/devops-lab/inicio.html
@@ -72,7 +72,7 @@ fi
 # ---------------------------------------------------------------- prompt com a branch do git
 cat >> "$HOME_DIR/.bashrc" <<'BASHRC'
 
-# DevOps-Lab-UVV: mostra a branch do git no prompt
+# DevOps-Lab: mostra a branch do git no prompt
 if [ -f /usr/lib/git-core/git-sh-prompt ]; then
   . /usr/lib/git-core/git-sh-prompt
   PS1='\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0;33m\]$(__git_ps1 " (%s)")\[\e[0m\]\$ '

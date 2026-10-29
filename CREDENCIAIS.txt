@@ -1,8 +1,8 @@
 ================================================================
-              DevOps-Lab-UVV  -  USUÁRIOS, SENHAS E DADOS DA VM
+              DevOps-Lab  -  USUÁRIOS, SENHAS E DADOS DA VM
 ================================================================
 
-Arquivo da VM ...... DevOps-Lab-UVV.ova (~2 GB)
+Arquivo da VM ...... DevOps-Lab.ova (~2 GB)
 Sistema ............ Ubuntu 24.04 LTS + interface XFCE
 Importar ........... VirtualBox > Arquivo > Importar Appliance
 
@@ -13,7 +13,7 @@ Importar ........... VirtualBox > Arquivo > Importar Appliance
 Usuário ............ aluno
 Senha .............. devops
 Nome completo ...... Aluno DevOps
-Hostname ........... devops-lab-uvv
+Hostname ........... devops-lab
 
 - A VM entra direto na área de trabalho (login automático).
 - A senha "devops" é pedida ao usar sudo, desbloquear a tela

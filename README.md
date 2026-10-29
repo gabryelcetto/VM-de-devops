@@ -1,8 +1,8 @@
-# DevOps-Lab-UVV
+# DevOps-Lab
 
 ## ⬇️ Baixar a VM (sem login, direto pelo navegador)
 
-**https://github.com/gabryelcetto/VM-de-devops/releases/latest/download/DevOps-Lab-UVV.ova**
+**https://github.com/gabryelcetto/VM-de-devops/releases/latest/download/DevOps-Lab.ova**
 
 1. Baixe o arquivo pelo link acima (~1,9 GB).
 2. No VirtualBox: **Arquivo → Importar Appliance** → escolha o `.ova` → **Finalizar**.
@@ -10,7 +10,7 @@
 
 Cada pessoa que baixa recebe uma cópia própria: o que for feito dentro da VM fica só naquele computador.
 
-Projeto que gera automaticamente a máquina virtual **`DevOps-Lab-UVV.ova`** para o
+Projeto que gera automaticamente a máquina virtual **`DevOps-Lab.ova`** para o
 Oracle VirtualBox, com:
 
 | Item | Detalhe |
@@ -82,13 +82,13 @@ Uma janela do VirtualBox vai abrir e você verá o Ubuntu se instalando sozinho.
 **Não digite nada nela.** Ao final aparece:
 
 ```
-output/DevOps-Lab-UVV.ova
-output/DevOps-Lab-UVV.ova.sha256
+output/DevOps-Lab.ova
+output/DevOps-Lab.ova.sha256
 ```
 
 ## 3. Importar e usar
 
-1. VirtualBox → **Arquivo → Importar Appliance** → selecione `DevOps-Lab-UVV.ova`.
+1. VirtualBox → **Arquivo → Importar Appliance** → selecione `DevOps-Lab.ova`.
 2. Em "Política de endereço MAC", deixe **Gerar novos endereços MAC**.
 3. Inicie a VM. Ela entra direto no XFCE.
 4. Abra o Terminal e rode `verificar-lab` para conferir todas as ferramentas.
@@ -140,7 +140,7 @@ atrás de proxy, rode em uma rede sem bloqueio.
 ## Estrutura
 
 ```
-DevOps-Lab-UVV/
+DevOps-Lab/
 ├── devops-lab.pkr.hcl      # template Packer (VM, instalação, exportação .ova)
 ├── build.ps1 / build.sh    # scripts de um comando
 ├── http/user-data          # instalação automática do Ubuntu (autoinstall)

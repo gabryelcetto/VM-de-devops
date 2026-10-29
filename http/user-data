@@ -1,5 +1,5 @@
 #cloud-config
-# Ubuntu autoinstall - DevOps-Lab-UVV
+# Ubuntu autoinstall - DevOps-Lab
 # Usuário: aluno   Senha: devops   (hash SHA-512 abaixo)
 # Para trocar a senha: openssl passwd -6 'NOVA_SENHA'  e altere também
 # a variável "password" em devops-lab.pkr.hcl
@@ -12,10 +12,10 @@ autoinstall:
   refresh-installer:
     update: false
   identity:
-    hostname: devops-lab-uvv
+    hostname: devops-lab
     realname: Aluno DevOps
     username: aluno
-    password: "$6$UvvDevOpsLab2026$LzKV8k/sg3ZWhPoWQdtLWfJ3F0.LPHUzmrlOJAl2rcWuK4PrIssSssoKqdQkspxghLvmDpgVKxeE8kTTbUc0P1"
+    password: "$6$DevOpsLab2026xq$q/8oSWtMP/zw/IZ6.ko8pUpAR7lo3W7VQuVBzSw336LM.CD/EbUXeOGp6iTXpaMTlUosTHAQ1KQ3exJ5b/JWq0"
   ssh:
     install-server: true
     allow-pw: true

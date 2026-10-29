@@ -1,4 +1,4 @@
-name: Gerar, testar e publicar DevOps-Lab-UVV.ova
+name: Gerar, testar e publicar DevOps-Lab.ova
 
 on:
   workflow_dispatch:
@@ -84,18 +84,18 @@ jobs:
 
       - name: Converter para .ova (VirtualBox)
         run: |
-          python3 ci/make-ova.py output-qemu/DevOps-Lab-UVV.qcow2 output/DevOps-Lab-UVV.ova
+          python3 ci/make-ova.py output-qemu/DevOps-Lab.qcow2 output/DevOps-Lab.ova
           rm -rf output-qemu
-          cd output && sha256sum DevOps-Lab-UVV.ova | tee DevOps-Lab-UVV.ova.sha256
+          cd output && sha256sum DevOps-Lab.ova | tee DevOps-Lab.ova.sha256
           ls -lh
 
       - name: Publicar o .ova
         uses: actions/upload-artifact@v4
         with:
-          name: DevOps-Lab-UVV-ova
+          name: DevOps-Lab-ova
           path: |
-            output/DevOps-Lab-UVV.ova
-            output/DevOps-Lab-UVV.ova.sha256
+            output/DevOps-Lab.ova
+            output/DevOps-Lab.ova.sha256
           compression-level: 0
           retention-days: 30
 
@@ -110,7 +110,7 @@ jobs:
       - name: Baixar o .ova
         uses: actions/download-artifact@v4
         with:
-          name: DevOps-Lab-UVV-ova
+          name: DevOps-Lab-ova
           path: ova
 
       - name: Instalar VirtualBox 7.2
@@ -124,15 +124,15 @@ jobs:
           VBoxManage --version
 
       - name: Gerar o .ova final pelo VirtualBox (VMSVGA, USB tablet, área de transferência)
-        run: bash ci/finalize-ova-virtualbox.sh ova/DevOps-Lab-UVV.ova final
+        run: bash ci/finalize-ova-virtualbox.sh ova/DevOps-Lab.ova final
 
       - name: Guardar o .ova final
         uses: actions/upload-artifact@v4
         with:
-          name: DevOps-Lab-UVV-ova-final
+          name: DevOps-Lab-ova-final
           path: |
-            final/DevOps-Lab-UVV.ova
-            final/DevOps-Lab-UVV.ova.sha256
+            final/DevOps-Lab.ova
+            final/DevOps-Lab.ova.sha256
           compression-level: 0
           retention-days: 30
 
@@ -140,7 +140,7 @@ jobs:
         id: test
         run: |
           set +e
-          bash ci/test-ova-virtualbox.sh final/DevOps-Lab-UVV.ova resultados
+          bash ci/test-ova-virtualbox.sh final/DevOps-Lab.ova resultados
           echo "fails=$?" >> "$GITHUB_OUTPUT"
           exit 0
 
@@ -176,13 +176,13 @@ jobs:
       - name: Baixar o .ova final (testado)
         uses: actions/download-artifact@v4
         with:
-          name: DevOps-Lab-UVV-ova-final
+          name: DevOps-Lab-ova-final
           path: ova
 
       - name: Baixar o .ova compatível (VirtualBox 6.1)
         uses: actions/download-artifact@v4
         with:
-          name: DevOps-Lab-UVV-ova
+          name: DevOps-Lab-ova
           path: compat
 
       - name: Criar Release pública

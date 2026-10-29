@@ -1,6 +1,6 @@
 #############################################################################
-#  DevOps-Lab-UVV - build na nuvem (GitHub Actions) com QEMU/KVM
-#  Gera um disco qcow2 que depois vira DevOps-Lab-UVV.ova (ci/make-ova.py)
+#  DevOps-Lab - build na nuvem (GitHub Actions) com QEMU/KVM
+#  Gera um disco qcow2 que depois vira DevOps-Lab.ova (ci/make-ova.py)
 #  Usa os mesmos http/ scripts/ files/ do build local com VirtualBox.
 #############################################################################
 
@@ -36,7 +36,7 @@ variable "password" {
 }
 
 source "qemu" "devops_lab" {
-  vm_name      = "DevOps-Lab-UVV.qcow2"
+  vm_name      = "DevOps-Lab.qcow2"
   iso_url      = "${var.iso_base_url}/${var.iso_name}"
   iso_checksum = "file:${var.iso_base_url}/SHA256SUMS"
 
@@ -73,7 +73,7 @@ source "qemu" "devops_lab" {
 }
 
 build {
-  name    = "devops-lab-uvv"
+  name    = "devops-lab"
   sources = ["source.qemu.devops_lab"]
 
 
