@@ -1,0 +1,110 @@
+===== módulos de vídeo
+vboxvideo              36864  1
+drm_vram_helper        24576  1 vboxvideo
+drm_ttm_helper         12288  2 drm_vram_helper,vboxvideo
+ttm                   110592  2 drm_vram_helper,drm_ttm_helper
+by-path
+card0
+===== Xorg: driver e erros
+	(WW) warning, (EE) error, (NI) not implemented, (??) unknown.
+[    15.428] (II) LoadModule: "glx"
+[    15.513] (II) LoadModule: "vboxvideo"
+[    15.514] (II) LoadModule: "modesetting"
+[    15.514] (II) Loading /usr/lib/xorg/modules/drivers/modesetting_drv.so
+[    15.519] (II) Module modesetting: vendor="X.Org Foundation"
+[    15.519] (II) LoadModule: "fbdev"
+[    15.519] (II) Loading /usr/lib/xorg/modules/drivers/fbdev_drv.so
+[    15.520] (II) LoadModule: "vesa"
+[    15.520] (II) LoadModule: "vboxvideo"
+[    15.520] (II) LoadModule: "modesetting"
+[    15.520] (II) Loading /usr/lib/xorg/modules/drivers/modesetting_drv.so
+[    15.520] (II) Module modesetting: vendor="X.Org Foundation"
+[    15.520] (II) UnloadModule: "modesetting"
+[    15.520] (II) Unloading modesetting
+[    15.520] (II) Failed to load module "modesetting" (already loaded, 0)
+[    15.520] (II) LoadModule: "fbdev"
+[    15.520] (II) Loading /usr/lib/xorg/modules/drivers/fbdev_drv.so
+[    15.520] (II) LoadModule: "vesa"
+[    15.520] (II) modesetting: Driver for Modesetting Kernel Drivers: kms
+[    15.520] (II) FBDEV: driver for framebuffer: fbdev
+[    15.525] (II) modeset(0): using drv /dev/dri/card0
+[    15.525] (II) LoadModule: "fbdevhw"
+[    15.633] (II) modeset(0): Creating default Display subsection in Screen section
+[    15.633] (II) Loading sub module "glamoregl"
+[    15.633] (II) LoadModule: "glamoregl"
+[    15.633] (II) Loading /usr/lib/xorg/modules/libglamoregl.so
+[    15.832] (II) Module glamoregl: vendor="X.Org Foundation"
+[    17.185] (II) modeset(0): Refusing to try glamor on llvmpipe
+[    17.188] (II) modeset(0): glamor initialization failed
+[    17.188] (II) modeset(0): ShadowFB: preferred NO, enabled NO
+[    17.258] (II) modeset(0): Output VGA-1 has no monitor section
+[    17.265] (II) modeset(0): EDID for output VGA-1
+[    17.265] (II) modeset(0): Manufacturer: VBX  Model: 0  Serial#: 50332672
+[    17.265] (II) modeset(0): Year: 1990  Week: 1
+[    17.265] (II) modeset(0): EDID Version: 1.3
+[    17.265] (II) modeset(0): Digital Display Input
+[    17.265] (II) modeset(0): Indeterminate output size
+[    17.265] (II) modeset(0): Gamma: 2.20
+[    17.265] (II) modeset(0): DPMS capabilities: StandBy Suspend Off
+[    17.265] (II) modeset(0): Supported color encodings: RGB 4:4:4 YCrCb 4:4:4 
+[    17.265] (II) modeset(0): Default color space is primary color space
+[    17.265] (II) modeset(0): First detailed timing is preferred mode
+[    17.265] (II) modeset(0): redX: 0.640 redY: 0.330   greenX: 0.300 greenY: 0.600
+[    17.265] (II) modeset(0): blueX: 0.150 blueY: 0.060   whiteX: 0.312 whiteY: 0.329
+[    17.265] (II) modeset(0): Manufacturer's mask: 0
+[    17.265] (II) modeset(0): Supported detailed timing:
+[    17.265] (II) modeset(0): clock: 47.8 MHz   Image Size:  0 x 0 mm
+[    17.265] (II) modeset(0): h_active: 1024  h_sync: 1026  h_sync_end 1028 h_blank_end 1030 h_border: 0
+[    17.265] (II) modeset(0): v_active: 768  v_sync: 768  v_sync_end 802 v_blanking: 774 v_border: 0
+[    17.265] (II) modeset(0): Ranges: V min: 0 V max: 200 Hz, H min: 0 H max: 200 kHz, PixClock max 1005 MHz
+[    17.265] (II) modeset(0): Monitor name: VBOX monitor
+[    17.265] (II) modeset(0): EDID (in hex):
+[    17.265] (II) modeset(0): 	00ffffffffffff005858000000040003
+[    17.265] (II) modeset(0): 	0100010380000078eeee91a3544c9926
+[    17.265] (II) modeset(0): 	0f505400000001010101010101010101
+[    17.265] (II) modeset(0): 	010101010101af120006400006300202
+[    17.265] (II) modeset(0): 	0202000000000000000000fd0000c800
+[    17.265] (II) modeset(0): 	c864000a202020202020000000fc0056
+[    17.265] (II) modeset(0): 	424f58206d6f6e69746f720a00000010
+===== xrandr
+Screen 0: minimum 320 x 200, current 1366 x 768, maximum 16384 x 16384
+VGA-1 connected primary 1366x768+0+0 (normal left inverted right x axis y axis) 0mm x 0mm
+   1024x768      59.95 +  60.00  
+   2560x1600     59.99    59.97  
+   1920x1440     60.00  
+   1856x1392     60.00  
+   1792x1344     60.00  
+   2048x1152     60.00  
+   1920x1200     59.88    59.95  
+   1920x1080     60.00  
+===== dmesg drm
+[    0.000000] BIOS-e820: [mem 0x0000000000000000-0x000000000009fbff] usable
+[    0.000031] clocksource: kvm-clock: mask: 0xffffffffffffffff max_cycles: 0x1cd42e4dffb, max_idle_ns: 881590591483 ns
+[    0.023105] found SMP MP-table at [mem 0x0009fbf0-0x0009fbff]
+[    0.091375] NODE_DATA(0) allocated [mem 0x11ffd1000-0x11fffbfff]
+[    0.980813] ACPI: bus type drm_connector registered
+[    1.192126] Loaded X.509 cert 'Canonical Ltd. Secure Boot Signing (2021 v1): a8d54bbb3825cfb94fa13c9f8a594a195c107b8d'
+[    1.192190] Loaded X.509 cert 'Canonical Ltd. Secure Boot Signing (Ubuntu Core 2019): c1d57b8f6b743f23ee41f4f7ee292f06eecadfb9'
+[    1.735260] vboxvideo 0000:00:02.0: vgaarb: deactivate vga console
+[    1.799887] [drm] VRAM 08000000
+[    1.804224] [drm:vbox_hw_init [vboxvideo]] *ERROR* vboxvideo: vbva_enable failed
+[    1.809522] [drm:vbox_update_mode_hints [vboxvideo]] *ERROR* vboxvideo: hgsmi_get_mode_hints failed: -5
+[    1.809821] [drm] Initialized vboxvideo 1.0.0 20130823 for 0000:00:02.0 on minor 0
+[    1.817770] fbcon: vboxvideodrmfb (fb0) is primary device
+[    2.133005] vboxvideo 0000:00:02.0: [drm] drm_plane_enable_fb_damage_clips() not called
+[    2.371314] vboxvideo 0000:00:02.0: [drm] fb0: vboxvideodrmfb frame buffer device
+[    6.266923] systemd[1]: Starting modprobe@drm.service - Load Kernel Module drm...
+[    8.398558] workqueue: drm_fb_helper_damage_work hogged CPU for >10000us 4 times, consider switching to WQ_UNBOUND
+[    9.540415] workqueue: drm_fb_helper_damage_work hogged CPU for >10000us 8 times, consider switching to WQ_UNBOUND
+[   12.308414] 00:07:00.756808 main     VMSVGA DRM resizing client not started, rc=VERR_FILE_NOT_FOUND
+[   15.494359] workqueue: drm_fb_helper_damage_work hogged CPU for >10000us 16 times, consider switching to WQ_UNBOUND
+[   92.106813] [drm:vbox_update_mode_hints [vboxvideo]] *ERROR* vboxvideo: hgsmi_get_mode_hints failed: -5
+===== VBoxClient
+952 /usr/bin/VBoxClient --clipboard
+953 /usr/bin/VBoxClient --clipboard
+967 /usr/bin/VBoxClient --seamless
+968 /usr/bin/VBoxClient --seamless
+975 /usr/bin/VBoxClient --draganddrop
+976 /usr/bin/VBoxClient --draganddrop
+1008 /usr/bin/VBoxClient --vmsvga
+1009 /usr/bin/VBoxClient --vmsvga
