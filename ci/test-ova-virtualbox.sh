@@ -65,6 +65,15 @@ print_tela() { # $1 = nome do arquivo; print pelo próprio X da VM (o que o alun
   fi
 }
 
+print_vbox() { # $1 = nome; print pela JANELA do VirtualBox (o que chega ao monitor do aluno); devolve nº de cores
+  rm -f "$OUT/$1.png"
+  if VBoxManage controlvm "$VM" screenshotpng "$OUT/$1.png" >/dev/null 2>&1 && [ -s "$OUT/$1.png" ]; then
+    convert "$OUT/$1.png" -format '%k' info: 2>/dev/null || echo 0
+  else
+    echo 0
+  fi
+}
+
 log "=== Teste do DevOps-Lab.ova no VirtualBox $(VBoxManage --version) ==="
 log "Arquivo: $(basename "$OVA") ($(du -h "$OVA" | cut -f1))"
 
@@ -90,6 +99,11 @@ fi
 
 # Ferramentas de print/inspeção da tela, só para o teste (esta VM é descartada depois)
 gsh "echo devops | sudo -S -p '' apt-get update -qq; echo devops | sudo -S -p '' apt-get install -y -qq x11-utils x11-apps >/dev/null; which xwd xwininfo" >> "$OUT/qa-detalhes.txt"
+
+# ---------------------------------------------------------------- imagem na janela do VirtualBox
+# (sem redimensionar nada: é exatamente o que o aluno vê ao ligar a VM)
+CORES="$(print_vbox janela-virtualbox-1)"
+if [ "${CORES:-0}" -gt 100 ]; then ok "Janela do VirtualBox mostra a área de trabalho ($CORES cores)"; else bad "Janela do VirtualBox PRETA após o login ($CORES cores)"; fi
 
 # ---------------------------------------------------------------- interface (logo após o login)
 CORES="$(print_tela tela-1-login)"
@@ -185,10 +199,15 @@ if VBoxManage showvminfo "$VM" --machinereadable | grep -q '^VMState="poweroff"'
 else
   bad "VM não desligou pelo ACPI"; VBoxManage controlvm "$VM" poweroff || true; sleep 5
 fi
-VBoxManage modifyvm "$VM" --cpu-execution-cap 35
+# 2º boot: PC lento E controladora VMSVGA (é o que o VirtualBox escolhe ao importar o
+# arquivo compatível com o VirtualBox 6.1); a imagem tem que aparecer do mesmo jeito.
+VBoxManage modifyvm "$VM" --cpu-execution-cap 35 --graphicscontroller vmsvga
 VBoxManage startvm "$VM" --type headless
-if wait_desktop "boot2-cpu35" 1200; then
+if wait_desktop "boot2-cpu35-vmsvga" 1200; then
   sleep 30
+  CORES="$(print_vbox janela-virtualbox-2-vmsvga)"
+  if [ "${CORES:-0}" -gt 100 ]; then ok "PC lento + VMSVGA: janela do VirtualBox mostra a área de trabalho ($CORES cores)"; else bad "PC lento + VMSVGA: janela do VirtualBox PRETA ($CORES cores)"; fi
+  log "PC lento + VMSVGA - resolução: $(gsh "$XENV xrandr 2>/dev/null | sed -n 's/.*current \\([0-9]* x [0-9]*\\).*/\\1/p'")"
   CORES="$(print_tela tela-3-pc-lento)"
   if [ "${CORES:-0}" -gt 100 ]; then ok "PC lento: tela desenhada ($CORES cores)"; else bad "PC lento: tela vazia/preta ($CORES cores)"; fi
   log "PC lento - $(gsh 'systemd-analyze' | head -n 1)"

@@ -138,6 +138,12 @@ Para trocar a senha: gere o hash com `openssl passwd -6 'NovaSenha'`, coloque em
 
 ## 5. Problemas comuns
 
+**A janela da VM fica preta**
+Baixe o `DevOps-Lab.ova` mais novo (desde 30/10/2026 a VM já vem com a controladora
+de vídeo **VBoxSVGA**, que resolve isso). Numa VM importada antes dessa data: desligue a VM,
+vá em Configurações → Tela → Controladora Gráfica, escolha **VBoxSVGA** e ligue de novo
+(o aviso amarelo de "configuração não recomendada" pode ser ignorado).
+
 **Fica muito tempo em "Waiting for SSH to become available…"**
 É normal esperar 15–30 min (o Ubuntu está sendo instalado). Se passar de 60 min, olhe a
 janela da VM:

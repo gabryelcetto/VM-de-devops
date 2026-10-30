@@ -12,7 +12,7 @@ openssh-server curl ca-certificates locales language-pack-pt-base ubuntu-minimal
 python3 python3-minimal python3.12 python3-pip python3-venv pipx git
 code firefox firefox-l10n-pt-br jenkins openjdk-21-jre-headless terraform ansible-core
 docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-buildx-plugin
-lightdm lightdm-gtk-greeter xserver-xorg-core xserver-xorg-input-libinput xserver-xorg-video-vmware
+lightdm lightdm-gtk-greeter xserver-xorg-core xserver-xorg-input-libinput
 xfce4-session xfce4-panel xfwm4 xfdesktop4 xfce4-settings xfce4-terminal xfce4-notifyd
 xfce4-whiskermenu-plugin xfce4-taskmanager xfce4-screenshooter xfce4-helpers exo-utils
 thunar thunar-archive-plugin xarchiver mousepad gvfs librsvg2-common libnotify-bin

@@ -87,7 +87,7 @@ source "virtualbox-iso" "devops_lab" {
   hard_drive_discard       = true
   hard_drive_nonrotational = true
   iso_interface            = "sata"
-  gfx_controller           = "vmsvga"
+  gfx_controller           = "vboxsvga"
   gfx_vram_size            = 128
   headless                 = var.headless
 

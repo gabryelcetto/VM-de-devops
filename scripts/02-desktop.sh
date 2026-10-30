@@ -5,7 +5,7 @@ set -euxo pipefail
 APT="apt-get -y -o DPkg::Lock::Timeout=900 -o APT::Install-Recommends=false -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
 
 $APT install \
-  xserver-xorg-core xserver-xorg-input-libinput xserver-xorg-video-vmware xserver-xorg-video-fbdev \
+  xserver-xorg-core xserver-xorg-input-libinput xserver-xorg-video-fbdev \
   xfce4-session xfwm4 xfdesktop4 xfce4-panel xfce4-settings xfce4-terminal \
   xfce4-notifyd xfce4-whiskermenu-plugin thunar thunar-archive-plugin mousepad \
   xfce4-taskmanager xfce4-screenshooter xarchiver exo-utils xfce4-helpers \
@@ -14,6 +14,20 @@ $APT install \
   network-manager network-manager-gnome \
   adwaita-icon-theme elementary-xfce-icon-theme greybird-gtk-theme \
   fonts-ubuntu fonts-dejavu-core fonts-liberation language-pack-pt-base locales
+
+# Vídeo: usa sempre o driver "modesetting" do próprio Xorg.
+# O driver "vmware" (xserver-xorg-video-vmware) deixava a janela do VirtualBox PRETA
+# com a controladora VMSVGA (a VM funcionava por dentro, mas a imagem não chegava à tela).
+apt-get -y purge xserver-xorg-video-vmware || true
+install -d /etc/X11/xorg.conf.d
+cat > /etc/X11/xorg.conf.d/10-devops-lab-video.conf <<'EOF'
+# DevOps-Lab: driver de vídeo genérico (funciona com VBoxSVGA, VMSVGA e VBoxVGA)
+Section "Device"
+  Identifier "Placa de video"
+  Driver "modesetting"
+EndSection
+EOF
+test ! -e /usr/lib/xorg/modules/drivers/vmware_drv.so
 
 # Login automático no XFCE
 mkdir -p /etc/lightdm/lightdm.conf.d

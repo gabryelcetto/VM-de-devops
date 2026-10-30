@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Gera o .ova final com o próprio VirtualBox, a partir do .ova "compatível"
 # convertido do QEMU, aplicando as configurações recomendadas para Linux:
-#   vídeo VMSVGA 128 MB, 1 porta SATA, mouse USB tablet, área de transferência
+#   vídeo VBoxSVGA 128 MB (com VMSVGA a tela ficava preta, inclusive com Hyper-V), 1 porta SATA, mouse USB tablet, área de transferência
 #   e arrastar/soltar bidirecionais, áudio desligado.
 # Uso: ci/finalize-ova-virtualbox.sh <entrada.ova> <pasta-saida>
 set -euxo pipefail
@@ -16,7 +16,7 @@ CTL="$(VBoxManage showvminfo "$VM" --machinereadable | sed -n 's/^storagecontrol
 VBoxManage storagectl "$VM" --name "$CTL" --portcount 1
 VBoxManage modifyvm "$VM" \
   --ostype Ubuntu_64 --cpus 2 --memory 4096 --ioapic on --rtc-use-utc on \
-  --graphicscontroller vmsvga --vram 128 \
+  --graphicscontroller vboxsvga --vram 128 \
   --usb-ohci on --mouse usbtablet \
   --clipboard-mode bidirectional --drag-and-drop bidirectional \
   --audio-enabled off \
