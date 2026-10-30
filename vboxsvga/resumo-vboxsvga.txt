@@ -2,10 +2,11 @@ memory=4096
 vram=128
 cpus=2
 graphicscontroller="vboxsvga"
-t=10s  print do VirtualBox: 3 1024x768  usuarios=0
-t=20s  print do VirtualBox: 12354 1024x768  usuarios=1
-t=30s  print do VirtualBox: 12354 1024x768  usuarios=1
-t=45s  print do VirtualBox: 12354 1024x768  usuarios=1
-t=60s  print do VirtualBox: 12354 1024x768  usuarios=1
-t=90s  print do VirtualBox: 12354 1024x768  usuarios=1
-final (print do VirtualBox): 12354 1024x768
+t=10s  print do VirtualBox: 4 1024x768  usuarios=0
+t=20s  print do VirtualBox: 12376 1024x768  usuarios=1
+t=30s  print do VirtualBox: 12376 1024x768  usuarios=1
+t=45s  print do VirtualBox: 12401 1024x768  usuarios=1
+t=60s  print do VirtualBox: 12401 1024x768  usuarios=1
+t=90s  print do VirtualBox: 12401 1024x768  usuarios=1
+final (print do VirtualBox): 12397 1024x768
+depois de pedir 1366x768 (como ao redimensionar a janela): 12345 1366x768
