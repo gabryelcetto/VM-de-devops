@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variante: [atual, vram16, vboxsvga, vboxvga, modesetting, modesetting-vram16]
+        variante: [vboxsvga, vboxsvga16, vboxsvga-lento, modesetting, modesetting-vram16, atual]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4

@@ -21,6 +21,8 @@ case "$VAR" in
   vram16|modesetting-vram16) VBoxManage modifyvm "$VM" --vram 16 ;;
   vboxsvga) VBoxManage modifyvm "$VM" --graphicscontroller vboxsvga ;;
   vboxvga)  VBoxManage modifyvm "$VM" --graphicscontroller vboxvga --vram 32 ;;
+  vboxsvga16) VBoxManage modifyvm "$VM" --graphicscontroller vboxsvga --vram 16 ;;
+  vboxsvga-lento) VBoxManage modifyvm "$VM" --graphicscontroller vboxsvga --cpu-execution-cap 35 ;;
 esac
 VBoxManage showvminfo "$VM" --machinereadable | grep -E '^(graphicscontroller|vram|cpus|memory)=' | tee -a "$R"
 VBoxManage startvm "$VM" --type headless >/dev/null
@@ -34,12 +36,15 @@ for _ in $(seq 1 60); do [ -n "$(prop /VirtualBox/GuestInfo/Net/0/V4/IP)" ] && b
 sleep 10
 
 if [ "${VAR#modesetting}" != "$VAR" ]; then
-  gsh "echo devops | sudo -S -p '' mkdir -p /etc/X11/xorg.conf.d; printf 'Section \"Device\"\n  Identifier \"gpu\"\n  Driver \"modesetting\"\n  Option \"AccelMethod\" \"none\"\nEndSection\n' | (echo devops | sudo -S -p '' tee /etc/X11/xorg.conf.d/10-devops-lab-video.conf); echo devops | sudo -S -p '' systemctl restart lightdm" >> "$R"
+  gsh "printf 'Section \"Device\"\n  Identifier \"gpu\"\n  Driver \"modesetting\"\nEndSection\n' > /tmp/v.conf; echo devops | sudo -S -p '' install -D -m 0644 /tmp/v.conf /etc/X11/xorg.conf.d/10-devops-lab-video.conf; cat /etc/X11/xorg.conf.d/10-devops-lab-video.conf; echo devops | sudo -S -p '' systemctl restart lightdm" >> "$R"
   sleep 40
   log "depois de trocar para modesetting: $(shot depois-modesetting)"
 fi
 
 log "final (print do VirtualBox): $(shot final)"
+VBoxManage controlvm "$VM" setvideomodehint 1366 768 32 >/dev/null 2>&1
+sleep 15
+log "depois de pedir 1366x768 (como ao redimensionar a janela): $(shot redimensionada)"
 {
   echo "===== módulos de vídeo"; gsh "lsmod | grep -E 'vmwgfx|vboxvideo|drm' ; ls /dev/dri"
   echo "===== Xorg: driver e erros"; gsh "grep -E '\((II|EE|WW)\).*(LoadModule|driver|Driver|glamor|vmware|modeset|VMWARE|Output|EE)' /var/log/Xorg.0.log | head -n 60"
