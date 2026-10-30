@@ -2,10 +2,11 @@ memory=4096
 vram=128
 cpus=2
 graphicscontroller="vmsvga"
-t=10s  print do VirtualBox: 3 1280x800  usuarios=0
+t=10s  print do VirtualBox: 3 720x400  usuarios=
 t=20s  print do VirtualBox: 1 1280x800  usuarios=1
 t=30s  print do VirtualBox: 1 1280x800  usuarios=1
 t=45s  print do VirtualBox: 1 1280x800  usuarios=1
 t=60s  print do VirtualBox: 1 1280x800  usuarios=1
 t=90s  print do VirtualBox: 1 1280x800  usuarios=1
 final (print do VirtualBox): 1 1280x800
+depois de pedir 1366x768 (como ao redimensionar a janela): 12314 1366x768
