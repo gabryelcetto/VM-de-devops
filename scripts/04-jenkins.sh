@@ -25,7 +25,7 @@ systemctl stop jenkins || true
 mkdir -p /etc/systemd/system/jenkins.service.d
 cat > /etc/systemd/system/jenkins.service.d/10-devops-lab.conf <<'UNIT'
 [Service]
-Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -Xms256m -Xmx768m -XX:+UseSerialGC"
+Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -Xms256m -Xmx768m -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=64m"
 # Em PCs lentos (VirtualBox com Hyper-V) o Jenkins pode levar vários minutos para subir
 TimeoutStartSec=900
 # Não disputa CPU com a área de trabalho

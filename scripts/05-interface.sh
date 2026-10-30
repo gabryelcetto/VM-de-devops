@@ -70,6 +70,10 @@ show-button-title=true
 show-button-icon=true
 RC
   ajusta "$H/.config/xfce4/panel/whiskermenu-1.rc"
+  # Não iniciam no login (a VM não tem áudio; protetor de tela e acessibilidade não são usados)
+  for a in at-spi-dbus-bus pulseaudio xscreensaver light-locker; do
+    printf '[Desktop Entry]\nType=Application\nName=%s\nHidden=true\n' "$a" > "$H/.config/autostart/$a.desktop"
+  done
 }
 configura_usuario /etc/skel
 configura_usuario "$HOME_DIR"
@@ -77,10 +81,6 @@ configura_usuario "$HOME_DIR"
 # ---------------------------------------------------------------- ajustes a cada login
 install -m 0755 "$G/primeiro-login.sh" /usr/local/bin/devops-lab-login
 install -m 0644 "$G/primeiro-login.desktop" /etc/xdg/autostart/devops-lab-login.desktop
-# Acessibilidade (at-spi) atrasa o login e não é usada aqui
-if [ -f /etc/xdg/autostart/at-spi-dbus-bus.desktop ]; then
-  printf '[Desktop Entry]\nHidden=true\n' > "$HOME_DIR/.config/autostart/at-spi-dbus-bus.desktop"
-fi
 
 # ---------------------------------------------------------------- prompt com a branch do git
 cat >> "$HOME_DIR/.bashrc" <<'BASHRC'

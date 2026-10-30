@@ -66,6 +66,23 @@ if [ ! -f /swap.img ]; then
   grep -q '^/swap.img' /etc/fstab || echo '/swap.img none swap sw 0 0' >> /etc/fstab
 fi
 
+# zram: swap comprimida na RAM (bem mais rápida que o arquivo de swap no disco).
+# Com VS Code + Docker + Jenkins + Firefox abertos em 4 GB, evita travadas por disco.
+# O /swap.img continua como reserva (prioridade menor).
+if modinfo zram >/dev/null 2>&1; then
+  apt-get -y -o DPkg::Lock::Timeout=900 -o APT::Install-Recommends=false install systemd-zram-generator
+  cat > /etc/systemd/zram-generator.conf <<'EOF'
+[zram0]
+zram-size = min(ram / 2, 2048)
+compression-algorithm = zstd
+swap-priority = 100
+EOF
+  # Com zram, trocar páginas pouco usadas para a RAM comprimida é barato
+  printf 'vm.swappiness = 100\nvm.page-cluster = 0\n' > /etc/sysctl.d/60-devops-lab-zram.conf
+else
+  echo "AVISO: módulo zram não existe neste kernel; mantendo só o /swap.img"
+fi
+
 # cloud-init não é necessário depois da instalação (acelera o boot)
 touch /etc/cloud/cloud-init.disabled
 
@@ -134,7 +151,9 @@ systemctl enable devops-lab-apt-update.timer
 # A rede passa a ser do NetworkManager; o systemd-networkd não é mais necessário
 systemctl disable systemd-networkd.service systemd-networkd.socket systemd-networkd-wait-online.service 2>/dev/null || true
 # Tarefas de manutenção que pesam no primeiro dia de uso
-for t in man-db.timer motd-news.timer ua-timer.timer esm-cache.service apt-daily.timer apt-daily-upgrade.timer; do
+for t in man-db.timer motd-news.timer ua-timer.timer esm-cache.service apt-daily.timer apt-daily-upgrade.timer \
+         rsyslog.service syslog.socket sysstat.service sysstat-collect.timer sysstat-summary.timer \
+         e2scrub_all.timer e2scrub_reap.service dpkg-db-backup.timer; do
   systemctl disable "$t" 2>/dev/null || true
 done
 systemctl daemon-reload

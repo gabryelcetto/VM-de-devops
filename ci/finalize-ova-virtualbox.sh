@@ -13,16 +13,19 @@ mkdir -p "$OUTDIR"
 
 VBoxManage import "$IN" --vsys 0 --vmname "$VM"
 CTL="$(VBoxManage showvminfo "$VM" --machinereadable | sed -n 's/^storagecontrollername0="\(.*\)"$/\1/p')"
-VBoxManage storagectl "$VM" --name "$CTL" --portcount 1
+VBoxManage storagectl "$VM" --name "$CTL" --portcount 1 --hostiocache on
+DISCO="$(VBoxManage showvminfo "$VM" --machinereadable | sed -n "s/^\"$CTL-ImageUUID-0-0\"=\"\(.*\)\"$/\1/p")"
+[ -n "$DISCO" ] && VBoxManage storageattach "$VM" --storagectl "$CTL" --port 0 --device 0 --type hdd \
+  --medium "$DISCO" --nonrotational on --discard on || echo "AVISO: não marquei o disco como SSD"
 VBoxManage modifyvm "$VM" \
   --ostype Ubuntu_64 --cpus 2 --memory 4096 --ioapic on --rtc-use-utc on \
   --graphicscontroller vboxsvga --vram 128 \
   --usb-ohci on --mouse usbtablet \
   --clipboard-mode bidirectional --drag-and-drop bidirectional \
-  --audio-enabled off \
+  --audio-enabled off --nictype1 virtio \
   --description "$DESC"
 VBoxManage showvminfo "$VM" --machinereadable \
-  | grep -E '^(graphicscontroller|vram|mouse|clipboard|draganddrop|storagecontrollerportcount0|usb|audio)' || true
+  | grep -E '^(nic|SATA|AHCI|.*Rotational|.*Discard|hostiocache|graphicscontroller|vram|mouse|clipboard|draganddrop|storagecontrollerportcount0|usb|audio)' || true
 
 VBoxManage export "$VM" -o "$OUTDIR/DevOps-Lab.ova" --options manifest,nomacs \
   --vsys 0 --product "DevOps Lab" --version "1.0" --description "$DESC"

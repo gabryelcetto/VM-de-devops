@@ -38,6 +38,7 @@ pipewire pipewire-bin pipewire-pulse wireplumber
 ubuntu-wallpapers ubuntu-wallpapers-noble python3-botocore python3-boto3 libwebkitgtk-6.0-4
 apport apport-symptoms pollinate ubuntu-release-upgrader-core update-notifier-common
 cloud-init cloud-guest-utils landscape-common sosreport byobu lxd-installer ec2-instance-connect
+xscreensaver xscreensaver-data light-locker pulseaudio sysstat rsyslog
 "
 REL=/usr/share/devops-lab/pacotes-removidos.txt
 mkdir -p /usr/share/devops-lab
