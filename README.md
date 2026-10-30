@@ -12,6 +12,8 @@ Cada pessoa que baixa recebe uma cópia própria: o que for feito dentro da VM f
 
 > VirtualBox antigo (6.1) e o arquivo não importa? Use o `DevOps-Lab-compat-vbox6.ova`, na mesma
 > [página de Releases](https://github.com/gabryelcetto/VM-de-devops/releases/latest).
+> Depois de importar esse arquivo, vá em Configurações → Tela → Controladora Gráfica e escolha
+> **VBoxSVGA** (senão a janela da VM pode ficar preta).
 >
 > Para rodar, o PC precisa de ~8 GB livres em disco. A VM usa 4 GB de RAM e 2 CPUs.
 > Com o Hyper-V do Windows ligado (ícone de tartaruga verde no VirtualBox) ela funciona, mas fica mais lenta.

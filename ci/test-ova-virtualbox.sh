@@ -206,7 +206,7 @@ VBoxManage startvm "$VM" --type headless
 if wait_desktop "boot2-cpu35-vmsvga" 1200; then
   sleep 30
   CORES="$(print_vbox janela-virtualbox-2-vmsvga)"
-  if [ "${CORES:-0}" -gt 100 ]; then ok "PC lento + VMSVGA: janela do VirtualBox mostra a área de trabalho ($CORES cores)"; else bad "PC lento + VMSVGA: janela do VirtualBox PRETA ($CORES cores)"; fi
+  if [ "${CORES:-0}" -gt 100 ]; then ok "PC lento + VMSVGA: janela do VirtualBox mostra a área de trabalho ($CORES cores)"; else log "[AVISO] PC lento + VMSVGA: janela do VirtualBox preta ($CORES cores) - o .ova usa VBoxSVGA; com VMSVGA o aluno deve trocar para VBoxSVGA"; fi
   log "PC lento + VMSVGA - resolução: $(gsh "$XENV xrandr 2>/dev/null | sed -n 's/.*current \\([0-9]* x [0-9]*\\).*/\\1/p'")"
   CORES="$(print_tela tela-3-pc-lento)"
   if [ "${CORES:-0}" -gt 100 ]; then ok "PC lento: tela desenhada ($CORES cores)"; else bad "PC lento: tela vazia/preta ($CORES cores)"; fi
