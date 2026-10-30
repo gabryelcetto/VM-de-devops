@@ -1,0 +1,119 @@
+===== módulos de vídeo
+vmwgfx                450560  1
+drm_ttm_helper         12288  1 vmwgfx
+ttm                   110592  2 vmwgfx,drm_ttm_helper
+by-path
+card0
+renderD128
+===== Xorg: driver e erros
+	(WW) warning, (EE) error, (NI) not implemented, (??) unknown.
+[    97.143] (II) LoadModule: "glx"
+[    97.143] (II) LoadModule: "vmware"
+[    97.143] (II) Loading /usr/lib/xorg/modules/drivers/vmware_drv.so
+[    97.156] (II) Module vmware: vendor="X.Org Foundation"
+[    97.156] (II) LoadModule: "modesetting"
+[    97.156] (II) Loading /usr/lib/xorg/modules/drivers/modesetting_drv.so
+[    97.156] (II) Module modesetting: vendor="X.Org Foundation"
+[    97.156] (II) LoadModule: "fbdev"
+[    97.156] (II) Loading /usr/lib/xorg/modules/drivers/fbdev_drv.so
+[    97.156] (II) LoadModule: "vesa"
+[    97.156] (II) LoadModule: "vmware"
+[    97.156] (II) Loading /usr/lib/xorg/modules/drivers/vmware_drv.so
+[    97.156] (II) Module vmware: vendor="X.Org Foundation"
+[    97.156] (II) UnloadModule: "vmware"
+[    97.156] (II) Unloading vmware
+[    97.156] (II) Failed to load module "vmware" (already loaded, 0)
+[    97.156] (II) LoadModule: "modesetting"
+[    97.156] (II) Loading /usr/lib/xorg/modules/drivers/modesetting_drv.so
+[    97.156] (II) Module modesetting: vendor="X.Org Foundation"
+[    97.156] (II) UnloadModule: "modesetting"
+[    97.156] (II) Unloading modesetting
+[    97.156] (II) Failed to load module "modesetting" (already loaded, 0)
+[    97.156] (II) LoadModule: "fbdev"
+[    97.156] (II) Loading /usr/lib/xorg/modules/drivers/fbdev_drv.so
+[    97.156] (II) LoadModule: "vesa"
+[    97.156] (II) vmware: driver for VMware SVGA: vmware0405, vmware0710
+[    97.156] (II) modesetting: Driver for Modesetting Kernel Drivers: kms
+[    97.156] (II) FBDEV: driver for framebuffer: fbdev
+[    97.156] (WW) Falling back to old probe method for modesetting
+[    97.156] (II) LoadModule: "fbdevhw"
+[    97.162] (II) vmware(0): Creating default Display subsection in Screen section
+[    97.162] (II) vmware(0): Output Virtual1 has no monitor section
+[    97.162] (II) vmware(0): Output Virtual2 has no monitor section
+[    97.162] (II) vmware(0): Output Virtual3 has no monitor section
+[    97.162] (II) vmware(0): Output Virtual4 has no monitor section
+[    97.162] (II) vmware(0): Output Virtual5 has no monitor section
+[    97.162] (II) vmware(0): Output Virtual6 has no monitor section
+[    97.162] (II) vmware(0): Output Virtual7 has no monitor section
+[    97.162] (II) vmware(0): Output Virtual8 has no monitor section
+[    97.163] (II) vmware(0): Printing probed modes for output Virtual1
+[    97.163] (II) vmware(0): Modeline "1920x1440"x60.0  234.00  1920 2048 2256 2600  1440 1441 1444 1500 -hsync +vsync (90.0 kHz e)
+[    97.163] (II) vmware(0): Modeline "1856x1392"x60.0  218.25  1856 1952 2176 2528  1392 1393 1396 1439 -hsync +vsync (86.3 kHz e)
+[    97.163] (II) vmware(0): Modeline "1792x1344"x60.0  204.75  1792 1920 2120 2448  1344 1345 1348 1394 -hsync +vsync (83.6 kHz e)
+[    97.163] (II) vmware(0): Modeline "2048x1152"x60.0  162.00  2048 2074 2154 2250  1152 1153 1156 1200 +hsync +vsync (72.0 kHz e)
+[    97.163] (II) vmware(0): Modeline "1920x1200"x59.9  193.25  1920 2056 2256 2592  1200 1203 1209 1245 -hsync +vsync (74.6 kHz e)
+[    97.163] (II) vmware(0): Modeline "1920x1200"x60.0  154.00  1920 1968 2000 2080  1200 1203 1209 1235 +hsync -vsync (74.0 kHz e)
+[    97.163] (II) vmware(0): Modeline "1920x1080"x60.0  148.50  1920 2008 2052 2200  1080 1084 1089 1125 -hsync -vsync (67.5 kHz e)
+[    97.163] (II) vmware(0): Modeline "1600x1200"x60.0  162.00  1600 1664 1856 2160  1200 1201 1204 1250 +hsync +vsync (75.0 kHz e)
+[    97.163] (II) vmware(0): Modeline "1680x1050"x60.0  146.25  1680 1784 1960 2240  1050 1053 1059 1089 -hsync +vsync (65.3 kHz e)
+[    97.163] (II) vmware(0): Modeline "1680x1050"x59.9  119.00  1680 1728 1760 1840  1050 1053 1059 1080 +hsync -vsync (64.7 kHz e)
+[    97.163] (II) vmware(0): Modeline "1400x1050"x60.0  121.75  1400 1488 1632 1864  1050 1053 1057 1089 -hsync +vsync (65.3 kHz e)
+[    97.163] (II) vmware(0): Modeline "1400x1050"x59.9  101.00  1400 1448 1480 1560  1050 1053 1057 1080 +hsync -vsync (64.7 kHz e)
+[    97.163] (II) vmware(0): Modeline "1600x900"x60.0  108.00  1600 1624 1704 1800  900 901 904 1000 +hsync +vsync (60.0 kHz e)
+[    97.163] (II) vmware(0): Modeline "1280x1024"x60.0  108.00  1280 1328 1440 1688  1024 1025 1028 1066 +hsync +vsync (64.0 kHz e)
+[    97.163] (II) vmware(0): Modeline "1440x900"x59.9  106.50  1440 1520 1672 1904  900 903 909 934 -hsync +vsync (55.9 kHz e)
+[    97.163] (II) vmware(0): Modeline "1440x900"x59.9   88.75  1440 1488 1520 1600  900 903 909 926 +hsync -vsync (55.5 kHz e)
+[    97.163] (II) vmware(0): Modeline "1280x960"x60.0  108.00  1280 1376 1488 1800  960 961 964 1000 +hsync +vsync (60.0 kHz e)
+[    97.163] (II) vmware(0): Modeline "1366x768"x59.8   85.50  1366 1436 1579 1792  768 771 774 798 +hsync +vsync (47.7 kHz e)
+[    97.163] (II) vmware(0): Modeline "1366x768"x60.0   72.00  1366 1380 1436 1500  768 769 772 800 +hsync +vsync (48.0 kHz e)
+grep: erro de escrita: Pipe quebrado
+===== xrandr
+Screen 0: minimum 1 x 1, current 1920 x 1440, maximum 16384 x 16384
+Virtual1 connected primary 1920x1440+0+0 (normal left inverted right x axis y axis) 0mm x 0mm
+   1920x1440     60.00* 
+   1856x1392     60.00  
+   1792x1344     60.00  
+   2048x1152     60.00  
+   1920x1200     59.88    59.95  
+   1920x1080     60.00  
+   1600x1200     60.00  
+   1680x1050     59.95    59.88  
+===== dmesg drm
+[    0.000000] BIOS-e820: [mem 0x0000000000000000-0x000000000009fbff] usable
+[    0.000007] clocksource: kvm-clock: mask: 0xffffffffffffffff max_cycles: 0x1cd42e4dffb, max_idle_ns: 881590591483 ns
+[    0.006950] found SMP MP-table at [mem 0x0009fbf0-0x0009fbff]
+[    0.008567] NODE_DATA(0) allocated [mem 0x11ffd1000-0x11fffbfff]
+[    0.423382] ACPI: bus type drm_connector registered
+[    0.502406] Loaded X.509 cert 'Canonical Ltd. Secure Boot Signing (2021 v1): a8d54bbb3825cfb94fa13c9f8a594a195c107b8d'
+[    0.502447] Loaded X.509 cert 'Canonical Ltd. Secure Boot Signing (Ubuntu Core 2019): c1d57b8f6b743f23ee41f4f7ee292f06eecadfb9'
+[    2.969169] systemd[1]: Starting modprobe@drm.service - Load Kernel Module drm...
+[    2.999523] systemd[1]: modprobe@drm.service: Deactivated successfully.
+[    2.999631] systemd[1]: Finished modprobe@drm.service - Load Kernel Module drm.
+[    3.667246] vmwgfx 0000:00:02.0: vgaarb: deactivate vga console
+[    3.873938] vmwgfx 0000:00:02.0: [drm] FIFO at 0x00000000f0000000 size is 2048 kiB
+[    3.873953] vmwgfx 0000:00:02.0: [drm] VRAM at 0x00000000e0000000 size is 16384 kiB
+[    3.874063] vmwgfx 0000:00:02.0: [drm] Running on SVGA version 2.
+[    3.874083] vmwgfx 0000:00:02.0: [drm] Capabilities: rect copy, cursor, cursor bypass, cursor bypass 2, alpha cursor, extended fifo, pitchlock, irq mask, gmr, traces, gmr2, screen object 2, command buffers, command buffers 2, gbobject, cap2 register, 
+[    3.874101] vmwgfx 0000:00:02.0: [drm] Capabilities2: cursor mob, 
+[    3.874103] vmwgfx 0000:00:02.0: [drm] *ERROR* vmwgfx seems to be running on an unsupported hypervisor.
+[    3.874104] vmwgfx 0000:00:02.0: [drm] *ERROR* This configuration is likely broken.
+[    3.874104] vmwgfx 0000:00:02.0: [drm] *ERROR* Please switch to a supported graphics device to avoid problems.
+[    3.874118] vmwgfx 0000:00:02.0: [drm] DMA map mode: Caching DMA mappings.
+[    3.874555] vmwgfx 0000:00:02.0: [drm] Legacy memory limits: VRAM = 16384 kB, FIFO = 2048 kB, surface = 507904 kB
+[    3.874557] vmwgfx 0000:00:02.0: [drm] MOB limits: max mob size = 1048576 kB, max mob pages = 262144
+[    3.874558] vmwgfx 0000:00:02.0: [drm] Max GMR ids is 8192
+[    3.874559] vmwgfx 0000:00:02.0: [drm] Max number of GMR pages is 1048576
+[    3.874560] vmwgfx 0000:00:02.0: [drm] Maximum display memory size is 16384 kiB
+[    3.914455] vmwgfx 0000:00:02.0: [drm] Screen Target display unit initialized
+[    3.915228] vmwgfx 0000:00:02.0: [drm] Fifo max 0x00200000 min 0x00001000 cap 0x00000355
+[    3.930295] vmwgfx 0000:00:02.0: [drm] Using command buffers with DMA pool.
+[    3.937845] vmwgfx 0000:00:02.0: [drm] Available shader model: Legacy.
+[    3.940257] [drm] Initialized vmwgfx 2.20.0 20211206 for 0000:00:02.0 on minor 0
+[    3.944405] fbcon: vmwgfxdrmfb (fb0) is primary device
+[    4.001393] vmwgfx 0000:00:02.0: [drm] fb0: vmwgfxdrmfb frame buffer device
+[    4.279360] 23:59:40.290724 main     VMSVGA DRM resizing client not started, rc=VERR_FILE_NOT_FOUND
+===== VBoxClient
+1360 /usr/bin/VBoxClient --clipboard
+1361 /usr/bin/VBoxClient --clipboard
+1380 /usr/bin/VBoxClient --draganddrop
+1382 /usr/bin/VBoxClient --draganddrop
