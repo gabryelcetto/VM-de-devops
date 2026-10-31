@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Painel DevOps
+GenericName=Docker, Jenkins, Git e VS Code em um só lugar
+Comment=Veja e altere seus containers, jobs do Jenkins, repositórios Git e projetos do VS Code
+Exec=/usr/local/bin/painel-devops
+Icon=devops-lab-painel
+Terminal=false
+Categories=Development;
+StartupNotify=false

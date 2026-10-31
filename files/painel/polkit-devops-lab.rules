@@ -1,0 +1,9 @@
+// DevOps-Lab: o aluno pode ligar/desligar o Jenkins e o Docker (pelo Painel DevOps) sem digitar senha.
+polkit.addRule(function (action, subject) {
+  if (action.id == "org.freedesktop.systemd1.manage-units" && subject.user == "aluno") {
+    var u = action.lookup("unit");
+    if (u == "jenkins.service" || u == "docker.service" || u == "docker.socket") {
+      return polkit.Result.YES;
+    }
+  }
+});

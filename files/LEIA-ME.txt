@@ -12,7 +12,7 @@ Tudo já está instalado e pronto:
 Onde está cada coisa
 --------------------
  - Painel embaixo: Aplicativos, Arquivos, Terminal, Firefox,
-   VS Code e Jenkins.
+   VS Code, Jenkins, Painel DevOps e Docker (Portainer).
  - Os mesmos atalhos estão aqui na Área de Trabalho.
  - Terminal também abre com  Ctrl + Alt + T
 
@@ -28,6 +28,16 @@ Jenkins
  - Ele liga sozinho cerca de 1 minuto depois que a máquina
    abre. Se a página não carregar, aguarde e recarregue.
  - Pipelines podem usar Docker (o Jenkins está no grupo docker).
+
+Painéis visuais
+---------------
+ - Painel DevOps (atalho na Área de Trabalho e no painel):
+   seus containers, jobs do Jenkins, repositórios Git e
+   projetos do VS Code em um só lugar. Dá para criar e parar
+   containers, editar o docker-compose.yml, criar/editar/rodar
+   pipelines, fazer commit, trocar de branch, push e pull.
+ - Docker (Portainer): painel completo do Docker.
+   Endereço http://localhost:9000  Usuário: admin  Senha: devops
 
 Comandos rápidos
 ----------------

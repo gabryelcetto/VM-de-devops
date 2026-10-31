@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="painel-token" content="__TOKEN__">
+<title>Painel DevOps</title>
+<style>
+:root{
+  --fundo:#0f1b24; --cartao:#162633; --cartao2:#1c3040; --borda:#26404f; --texto:#e6eef2; --fraco:#93a9b5;
+  --acento:#2fc4b2; --acento2:#2f9bd6; --ok:#3ccf7a; --aviso:#f2b84b; --erro:#ef6a6a; --raio:10px;
+  --mono:'Ubuntu Mono','DejaVu Sans Mono',monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--fundo);color:var(--texto);font:14px/1.45 'Ubuntu','DejaVu Sans',sans-serif}
+header{display:flex;align-items:center;gap:18px;padding:12px 22px;background:#0b151c;border-bottom:1px solid var(--borda);position:sticky;top:0;z-index:5}
+header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.3px}
+header h1 span{color:var(--acento)}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{background:none;border:0;color:var(--fraco);padding:8px 14px;border-radius:8px;font:inherit;cursor:pointer}
+nav button:hover{color:var(--texto);background:var(--cartao)}
+nav button.ativo{color:#04201c;background:var(--acento);font-weight:700}
+.direita{margin-left:auto;color:var(--fraco);font-size:12px;display:flex;gap:10px;align-items:center}
+main{padding:20px 22px 60px;max-width:1400px;margin:0 auto}
+section{display:none} section.ativo{display:block}
+h2{font-size:16px;margin:22px 0 10px;color:var(--texto)}
+h2:first-child{margin-top:0}
+.grade{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.cartao{background:var(--cartao);border:1px solid var(--borda);border-radius:var(--raio);padding:14px 16px}
+.cartao .b{margin-top:8px}
+.cartao h3{margin:0 0 6px;font-size:14px;display:flex;align-items:center;gap:8px}
+.numero{font-size:28px;font-weight:700}
+.sub{color:var(--fraco);font-size:12.5px}
+.barra{height:8px;background:#0b151c;border-radius:6px;overflow:hidden;margin:8px 0 4px}
+.barra i{display:block;height:100%;background:linear-gradient(90deg,var(--acento),var(--acento2))}
+table{width:100%;border-collapse:collapse;background:var(--cartao);border:1px solid var(--borda);border-radius:var(--raio);overflow:hidden}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--borda);vertical-align:middle}
+th{background:var(--cartao2);color:var(--fraco);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
+tr:last-child td{border-bottom:0}
+td.acoes{white-space:nowrap;text-align:right}
+.etq{display:inline-block;padding:1px 8px;border-radius:20px;font-size:12px;font-weight:600}
+.etq.ok{background:#173d2a;color:var(--ok)} .etq.erro{background:#432222;color:var(--erro)}
+.etq.aviso{background:#43361b;color:var(--aviso)} .etq.neutro{background:#26404f;color:var(--fraco)}
+button.b, a.b{background:var(--cartao2);color:var(--texto);border:1px solid var(--borda);border-radius:7px;padding:5px 10px;font:inherit;font-size:13px;cursor:pointer;text-decoration:none;display:inline-block;margin:2px}
+button.b:hover, a.b:hover{border-color:var(--acento)}
+button.b.pri{background:var(--acento);color:#04201c;border-color:var(--acento);font-weight:700}
+button.b.perigo:hover{border-color:var(--erro);color:var(--erro)}
+button.b:disabled{opacity:.5;cursor:wait}
+input,select,textarea{background:#0b151c;color:var(--texto);border:1px solid var(--borda);border-radius:7px;padding:7px 9px;font:inherit}
+textarea{font-family:var(--mono);width:100%;min-height:340px;tab-size:2;line-height:1.4}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--acento);outline-offset:-1px}
+.form{display:flex;gap:8px;flex-wrap:wrap;align-items:end;background:var(--cartao);border:1px solid var(--borda);border-radius:var(--raio);padding:12px 14px;margin-bottom:14px}
+.form label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--fraco)}
+.mono{font-family:var(--mono);font-size:13px}
+.vazio{color:var(--fraco);padding:18px;text-align:center;background:var(--cartao);border:1px dashed var(--borda);border-radius:var(--raio)}
+.repo{background:var(--cartao);border:1px solid var(--borda);border-radius:var(--raio);padding:14px 16px;margin-bottom:12px}
+.repo .topo{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.repo .topo b{font-size:15px}
+.colunas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.lista{margin:0;padding:0;list-style:none;max-height:190px;overflow:auto}
+.lista li{padding:3px 0;border-bottom:1px solid #1e3443;font-size:13px}
+.lista li:last-child{border:0}
+.aviso-box{background:#2a2614;border:1px solid #5a4a1c;color:#f6dc9a;padding:10px 14px;border-radius:var(--raio);margin-bottom:14px}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:20;padding:20px}
+#modal.aberto{display:flex}
+#modal .caixa{background:var(--cartao);border:1px solid var(--borda);border-radius:12px;width:min(1100px,100%);max-height:92vh;display:flex;flex-direction:column}
+#modal .cab{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--borda);gap:10px}
+#modal .cab b{font-size:15px}
+#modal .corpo{padding:14px 16px;overflow:auto}
+#modal pre{margin:0;white-space:pre-wrap;word-break:break-word;font-family:var(--mono);font-size:13px;background:#0b151c;padding:12px;border-radius:8px;max-height:70vh;overflow:auto}
+#modal .rod{padding:10px 16px;border-top:1px solid var(--borda);display:flex;gap:8px;justify-content:flex-end}
+#avisos{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;z-index:30;max-width:460px}
+.toast{background:var(--cartao2);border:1px solid var(--borda);border-left:4px solid var(--acento);padding:10px 14px;border-radius:8px;white-space:pre-wrap;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.toast.erro{border-left-color:var(--erro)}
+.ponto{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--fraco)}
+.ponto.ok{background:var(--ok)} .ponto.erro{background:var(--erro)} .ponto.aviso{background:var(--aviso)}
+@media (max-width:800px){.colunas{grid-template-columns:1fr} header{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Painel <span>DevOps</span></h1>
+  <nav id="abas">
+    <button data-aba="inicio" class="ativo">Início</button>
+    <button data-aba="docker">Docker</button>
+    <button data-aba="jenkins">Jenkins</button>
+    <button data-aba="git">Git</button>
+    <button data-aba="vscode">VS Code</button>
+    <button data-aba="sistema">Sistema</button>
+  </nav>
+  <div class="direita"><span id="atualizado">—</span><button class="b" onclick="carregar(true)">Atualizar</button></div>
+</header>
+
+<main>
+  <!-- INÍCIO -->
+  <section id="inicio" class="ativo">
+    <h2>Visão geral</h2>
+    <div class="grade" id="cartoes"></div>
+    <h2>Atalhos</h2>
+    <div class="cartao">
+      <button class="b" onclick="abrir('portainer')">Portainer (painel completo do Docker)</button>
+      <button class="b" onclick="abrirUrl('http://localhost:8080')">Jenkins</button>
+      <button class="b" onclick="abrir('vscode','~/projetos')">VS Code em ~/projetos</button>
+      <button class="b" onclick="abrir('terminal','~/projetos')">Terminal em ~/projetos</button>
+      <button class="b" onclick="abrir('pasta','~/projetos')">Pasta projetos</button>
+    </div>
+  </section>
+
+  <!-- DOCKER -->
+  <section id="docker">
+    <div id="dk-desligado"></div>
+    <div class="form">
+      <label>Imagem<input id="dk-img" placeholder="nginx:alpine" size="18"></label>
+      <label>Nome<input id="dk-nome" placeholder="meu-app" size="12"></label>
+      <label>Portas (PC:container)<input id="dk-portas" placeholder="8081:80" size="12"></label>
+      <label>Limite de memória<input id="dk-mem" placeholder="1g" size="6"></label>
+      <label>Variáveis (NOME=valor, uma por linha)<textarea id="dk-env" style="min-height:34px;width:220px"></textarea></label>
+      <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="dk-rest"> reiniciar sozinho</label>
+      <button class="b pri" onclick="dkRun(this)">Criar container</button>
+      <button class="b" onclick="dkPull(this)">Só baixar a imagem</button>
+      <button class="b" onclick="abrir('portainer')">Abrir Portainer</button>
+    </div>
+    <h2>Containers</h2><div id="dk-cont"></div>
+    <h2>Projetos Docker Compose</h2>
+    <div class="form">
+      <label>Arquivo compose<select id="dk-arqs" style="min-width:420px"></select></label>
+      <button class="b" onclick="composeEditar()">Ver / editar</button>
+      <button class="b pri" onclick="composeAcao('compose_up',null,this)">Subir (up -d)</button>
+      <button class="b perigo" onclick="composeAcao('compose_down',null,this)">Derrubar (down)</button>
+      <button class="b" onclick="composeNovo()">Novo compose…</button>
+    </div>
+    <div id="dk-proj"></div>
+    <h2>Imagens</h2><div id="dk-img-lista"></div>
+    <h2>Volumes</h2><div id="dk-vol"></div>
+  </section>
+
+  <!-- JENKINS -->
+  <section id="jenkins">
+    <div id="jk-estado"></div>
+    <div class="form">
+      <label>Nome do novo pipeline<input id="jk-novo" placeholder="meu-pipeline" size="22"></label>
+      <button class="b pri" onclick="jkNovo()">Criar pipeline…</button>
+      <button class="b" onclick="abrirUrl('http://localhost:8080')">Abrir Jenkins</button>
+    </div>
+    <div id="jk-jobs"></div>
+  </section>
+
+  <!-- GIT -->
+  <section id="git">
+    <div id="git-ident"></div>
+    <div class="form">
+      <label>Novo projeto em ~/projetos<input id="git-novo" placeholder="minha-api" size="18"></label>
+      <button class="b pri" onclick="gitNovo(this)">Criar (git init)</button>
+      <label>Clonar do GitHub<input id="git-url" placeholder="https://github.com/usuario/repo.git" size="38"></label>
+      <button class="b" onclick="gitClonar(this)">Clonar</button>
+    </div>
+    <div id="git-repos"></div>
+  </section>
+
+  <!-- VS CODE -->
+  <section id="vscode">
+    <h2>Abertos recentemente no VS Code</h2><div id="vs-rec"></div>
+    <h2>Extensões instaladas</h2><div id="vs-ext"></div>
+  </section>
+
+  <!-- SISTEMA -->
+  <section id="sistema">
+    <div class="grade" id="sis-cartoes"></div>
+    <h2>Serviços</h2><div id="sis-serv"></div>
+    <h2>Processos que mais usam memória</h2><div id="sis-proc"></div>
+  </section>
+</main>
+
+<div id="modal"><div class="caixa">
+  <div class="cab"><b id="m-titulo"></b><span class="sub" id="m-sub"></span><button class="b" style="margin-left:auto" onclick="fecharModal()">Fechar</button></div>
+  <div class="corpo" id="m-corpo"></div>
+  <div class="rod" id="m-rod"></div>
+</div></div>
+<div id="avisos"></div>
+
+<script>
+const TOKEN = document.querySelector('meta[name="painel-token"]').content;
+const PORTAINER = 'http://localhost:9000';
+let ABA = 'inicio', ocupado = false;
+
+const $ = s => document.querySelector(s);
+const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const attr = v => esc(JSON.stringify(v));
+
+function toast(msg, erro){
+  const d = document.createElement('div'); d.className = 'toast' + (erro ? ' erro' : '');
+  d.textContent = msg; $('#avisos').appendChild(d);
+  setTimeout(() => d.remove(), erro ? 9000 : 4500);
+}
+async function get(url){
+  const r = await fetch(url); const j = await r.json();
+  if(!r.ok) throw new Error(j.erro || r.statusText); return j;
+}
+async function post(url, dados, btn){
+  if(btn) btn.disabled = true;
+  try{
+    const r = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json','X-Painel-Token':TOKEN}, body:JSON.stringify(dados)});
+    const j = await r.json();
+    if(!r.ok) throw new Error(j.erro || r.statusText);
+    return j.resultado;
+  } finally { if(btn) btn.disabled = false; }
+}
+async function acao(url, dados, btn, mostrar){
+  try{
+    const res = await post(url, dados, btn);
+    if(mostrar) modalTexto(mostrar, res); else toast(typeof res === 'string' ? res.slice(-600) : 'Feito.');
+    carregar();
+    return res;
+  }catch(e){ toast(e.message, true); }
+}
+function abrir(tipo, caminho){ acao('/api/abrir', {acao:tipo, caminho}); }
+function abrirUrl(url){ acao('/api/abrir', {acao:'url', url}); }
+
+/* ---------- modal ---------- */
+function abrirModal(titulo, sub, html, botoes){
+  $('#m-titulo').textContent = titulo; $('#m-sub').textContent = sub || '';
+  $('#m-corpo').innerHTML = html; $('#m-rod').innerHTML = '';
+  (botoes || []).forEach(b => { const e = document.createElement('button'); e.className = 'b ' + (b.cls||''); e.textContent = b.txt; e.onclick = () => b.fn(e); $('#m-rod').appendChild(e); });
+  $('#modal').classList.add('aberto');
+}
+function fecharModal(){ $('#modal').classList.remove('aberto'); }
+function modalTexto(titulo, texto){ abrirModal(titulo, '', '<pre>' + esc(texto) + '</pre>'); const p = $('#m-corpo pre'); p.scrollTop = p.scrollHeight; }
+function modalEditor(titulo, sub, texto, botoes){
+  abrirModal(titulo, sub, '<textarea id="m-edit" spellcheck="false"></textarea>', botoes);
+  const t = $('#m-edit'); t.value = texto; t.focus();
+  t.addEventListener('keydown', e => { if(e.key === 'Tab'){ e.preventDefault(); const i = t.selectionStart; t.setRangeText('  ', i, t.selectionEnd, 'end'); } });
+}
+document.addEventListener('keydown', e => { if(e.key === 'Escape') fecharModal(); });
+
+/* ---------- abas ---------- */
+document.querySelectorAll('#abas button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('#abas button').forEach(x => x.classList.toggle('ativo', x === b));
+  ABA = b.dataset.aba;
+  document.querySelectorAll('main section').forEach(s => s.classList.toggle('ativo', s.id === ABA));
+  try{ localStorage.setItem('painel-aba', ABA); }catch(e){}
+  carregar(true);
+});
+
+function etqEstado(e){
+  const m = {running:['ok','rodando'], exited:['neutro','parado'], created:['neutro','criado'], paused:['aviso','pausado'], restarting:['aviso','reiniciando'], dead:['erro','morto']};
+  const [c, t] = m[e] || ['neutro', e]; return `<span class="etq ${c}">${esc(t)}</span>`;
+}
+function etqResultado(r){
+  if(!r) return '<span class="etq neutro">nunca rodou</span>';
+  const m = {SUCCESS:'ok', FAILURE:'erro', UNSTABLE:'aviso', ABORTED:'neutro', 'EM ANDAMENTO':'aviso'};
+  const t = {SUCCESS:'sucesso', FAILURE:'falhou', UNSTABLE:'instável', ABORTED:'cancelado', 'EM ANDAMENTO':'rodando…'};
+  return `<span class="etq ${m[r]||'neutro'}">${esc(t[r]||r)}</span>`;
+}
+const mb = n => n >= 1024 ? (n/1024).toFixed(1) + ' GB' : n + ' MB';
+const quando = ms => { if(!ms) return ''; const s = (Date.now()-ms)/1000; return s < 60 ? 'agora' : s < 3600 ? Math.round(s/60)+' min atrás' : s < 86400 ? Math.round(s/3600)+' h atrás' : new Date(ms).toLocaleDateString('pt-BR'); };
+
+/* ---------- INÍCIO ---------- */
+async function carregarInicio(){
+  const r = await get('/api/resumo'); const s = r.sistema;
+  const usoMem = s.mem_total - s.mem_disponivel;
+  $('#cartoes').innerHTML = `
+    <div class="cartao"><h3>Docker</h3>${r.docker.ligado ? `<div class="numero">${r.docker.rodando}<span class="sub"> de ${r.docker.total} containers rodando</span></div>` : '<div class="sub">Desligado (liga sozinho ao usar)</div>'}
+      <button class="b" onclick="irPara('docker')">Gerenciar</button></div>
+    <div class="cartao"><h3>Jenkins</h3>${r.jenkins.respondendo ? `<div class="numero">${r.jenkins.jobs}<span class="sub"> jobs · ${r.jenkins.sucessos} ok · ${r.jenkins.falhas} com falha</span></div>` : `<div class="sub">${r.jenkins.servico === 'active' ? 'Ligando…' : 'Desligado'}</div>`}
+      <button class="b" onclick="irPara('jenkins')">Gerenciar</button></div>
+    <div class="cartao"><h3>Git</h3><div class="numero">${r.git.repos}<span class="sub"> repositórios · ${r.git.com_mudancas} com mudanças</span></div>
+      <button class="b" onclick="irPara('git')">Gerenciar</button></div>
+    <div class="cartao"><h3>VS Code</h3><div class="numero">${r.vscode.recentes}<span class="sub"> abertos recentemente</span></div>
+      <button class="b" onclick="irPara('vscode')">Ver</button></div>
+    <div class="cartao"><h3>Memória</h3><div class="numero">${mb(usoMem)}<span class="sub"> de ${mb(s.mem_total)}</span></div>
+      <div class="barra"><i style="width:${Math.round(usoMem*100/s.mem_total)}%"></i></div></div>
+    <div class="cartao"><h3>Disco</h3><div class="numero">${s.disco_usado} GB<span class="sub"> de ${s.disco_total} GB</span></div>
+      <div class="barra"><i style="width:${Math.round(s.disco_usado*100/s.disco_total)}%"></i></div></div>`;
+}
+function irPara(aba){ document.querySelector(`#abas button[data-aba="${aba}"]`).click(); }
+
+/* ---------- DOCKER ---------- */
+async function carregarDocker(){
+  const d = await get('/api/docker');
+  if(!d.ligado){
+    $('#dk-desligado').innerHTML = `<div class="aviso-box">O Docker está desligado (ele liga sozinho no primeiro comando). <button class="b pri" onclick="acao('/api/docker',{acao:'ligar'},this)">Ligar agora</button></div>`;
+    ['#dk-cont','#dk-proj','#dk-img-lista','#dk-vol'].forEach(s => $(s).innerHTML = '<div class="vazio">Docker desligado.</div>');
+    return;
+  }
+  $('#dk-desligado').innerHTML = '';
+  $('#dk-cont').innerHTML = d.containers.length ? `<table><tr><th>Nome</th><th>Imagem</th><th>Estado</th><th>Portas</th><th>CPU / Memória</th><th>Limite</th><th></th></tr>
+    ${d.containers.map(c => `<tr><td><b>${esc(c.nome)}</b>${c.projeto ? `<div class="sub">compose: ${esc(c.projeto)}</div>` : ''}</td>
+      <td class="mono">${esc(c.imagem)}</td><td>${etqEstado(c.estado)}<div class="sub">${esc(c.status)}</div></td>
+      <td class="mono">${linksPortas(c.portas)}</td><td class="mono">${esc(c.cpu)}<div class="sub">${esc(c.uso_memoria)}</div></td>
+      <td>${c.limite_memoria ? mb(Math.round(c.limite_memoria/1048576)) : '<span class="sub">sem limite</span>'}</td>
+      <td class="acoes">${c.estado === 'running'
+        ? `<button class="b" onclick='dk("stop",${attr(c.nome)},this)'>Parar</button><button class="b" onclick='dk("restart",${attr(c.nome)},this)'>Reiniciar</button>`
+        : `<button class="b pri" onclick='dk("start",${attr(c.nome)},this)'>Iniciar</button>`}
+        <button class="b" onclick='dkLogs(${attr(c.nome)},this)'>Logs</button>
+        <button class="b perigo" onclick='if(confirm("Apagar o container "+${attr(c.nome)}+"?")) dk("rm",${attr(c.nome)},this)'>Apagar</button></td></tr>`).join('')}</table>`
+    : '<div class="vazio">Nenhum container ainda. Crie um no formulário acima.</div>';
+  $('#dk-proj').innerHTML = d.projetos.length ? `<table><tr><th>Projeto</th><th>Status</th><th>Arquivo</th><th></th></tr>
+    ${d.projetos.map(p => { const arq = (p.arquivos||'').split(',')[0]; return `<tr><td><b>${esc(p.nome)}</b></td><td>${esc(p.status)}</td><td class="mono">${esc(p.arquivos)}</td>
+      <td class="acoes"><button class="b" onclick='composeEditar(${attr(arq)})'>Editar</button><button class="b pri" onclick='composeAcao("compose_up",${attr(arq)},this)'>Subir</button><button class="b perigo" onclick='composeAcao("compose_down",${attr(arq)},this)'>Derrubar</button></td></tr>`;}).join('')}</table>`
+    : '<div class="vazio">Nenhum projeto Compose rodando.</div>';
+  $('#dk-img-lista').innerHTML = d.imagens.length ? `<table><tr><th>Imagem</th><th>Tamanho</th><th>Criada</th><th></th></tr>
+    ${d.imagens.map(i => `<tr><td class="mono">${esc(i.nome)}</td><td>${esc(i.tamanho)}</td><td>${esc(i.criada)}</td>
+      <td class="acoes"><button class="b" onclick='$("#dk-img").value=${attr(i.nome)};$("#dk-img").focus()'>Usar</button><button class="b perigo" onclick='if(confirm("Apagar a imagem?")) acao("/api/docker",{acao:"rmi",imagem:${attr(i.id)}},this)'>Apagar</button></td></tr>`).join('')}</table>`
+    : '<div class="vazio">Nenhuma imagem baixada.</div>';
+  $('#dk-vol').innerHTML = d.volumes.length ? `<table><tr><th>Volume</th><th>Driver</th></tr>${d.volumes.map(v => `<tr><td class="mono">${esc(v.nome)}</td><td>${esc(v.driver)}</td></tr>`).join('')}</table>` : '<div class="vazio">Nenhum volume.</div>';
+  carregarArquivosCompose();
+}
+function linksPortas(p){
+  if(!p) return '';
+  const vistas = new Set();
+  return esc(p) + [...p.matchAll(/(?:0\.0\.0\.0|127\.0\.0\.1|\[::\]):(\d+)->/g)].map(m => m[1]).filter(x => !vistas.has(x) && vistas.add(x))
+    .map(x => `<div><a class="b" onclick="abrirUrl('http://localhost:${x}')">abrir :${x}</a></div>`).join('');
+}
+async function carregarArquivosCompose(){
+  try{
+    const r = await get('/api/compose-arquivos'); const sel = $('#dk-arqs'); const atual = sel.value;
+    sel.innerHTML = r.arquivos.length ? r.arquivos.map(a => `<option ${a===atual?'selected':''}>${esc(a)}</option>`).join('') : '<option value="">(nenhum docker-compose.yml em ~/projetos)</option>';
+  }catch(e){}
+}
+function dk(a, nome, btn){ acao('/api/docker', {acao:a, container:nome}, btn); }
+function dkLogs(nome, btn){ acao('/api/docker', {acao:'logs', container:nome}, btn, 'Logs de ' + nome); }
+function dkRun(btn){
+  acao('/api/docker', {acao:'run', imagem:$('#dk-img').value, nome:$('#dk-nome').value, portas:$('#dk-portas').value,
+    memoria:$('#dk-mem').value, env:$('#dk-env').value, reiniciar:$('#dk-rest').checked}, btn);
+}
+function dkPull(btn){ acao('/api/docker', {acao:'pull', imagem:$('#dk-img').value}, btn, 'docker pull'); }
+async function composeEditar(arq){
+  arq = arq || $('#dk-arqs').value; if(!arq) return toast('Escolha um arquivo.', true);
+  try{
+    const txt = await post('/api/docker', {acao:'compose_ver', arquivo:arq});
+    modalEditor('Editar compose', arq, txt, [
+      {txt:'Salvar', cls:'', fn: b => salvarCompose(arq, false, b)},
+      {txt:'Salvar e subir (up -d)', cls:'pri', fn: b => salvarCompose(arq, true, b)}]);
+  }catch(e){ toast(e.message, true); }
+}
+function composeNovo(){
+  const nome = prompt('Nome da pasta do projeto (dentro de ~/projetos):', 'meu-compose'); if(!nome) return;
+  const arq = '~/projetos/' + nome + '/docker-compose.yml';
+  modalEditor('Novo docker-compose.yml', arq, `services:\n  web:\n    image: nginx:alpine\n    container_name: ${nome}-web\n    ports:\n      - "8081:80"\n    mem_limit: 1g\n    restart: unless-stopped\n`, [
+    {txt:'Salvar', fn: b => salvarCompose(arq, false, b)}, {txt:'Salvar e subir (up -d)', cls:'pri', fn: b => salvarCompose(arq, true, b)}]);
+}
+async function salvarCompose(arq, subir, btn){
+  try{
+    const msg = await post('/api/docker', {acao:'compose_salvar', arquivo:arq, conteudo:$('#m-edit').value}, btn);
+    toast(msg);
+    if(subir){ const r = await post('/api/docker', {acao:'compose_up', arquivo:arq}, btn); modalTexto('docker compose up -d', r); }
+    else fecharModal();
+    carregar();
+  }catch(e){ toast(e.message, true); }
+}
+function composeAcao(a, arq, btn){
+  arq = arq || $('#dk-arqs').value; if(!arq) return toast('Escolha um arquivo.', true);
+  acao('/api/docker', {acao:a, arquivo:arq}, btn, a === 'compose_up' ? 'docker compose up -d' : 'docker compose down');
+}
+
+/* ---------- JENKINS ---------- */
+async function carregarJenkins(){
+  const j = await get('/api/jenkins');
+  if(!j.respondendo){
+    $('#jk-estado').innerHTML = j.servico === 'active'
+      ? `<div class="aviso-box">O Jenkins está ligando (leva cerca de 1 minuto). Esta página atualiza sozinha.</div>`
+      : `<div class="aviso-box">O Jenkins está desligado. <button class="b pri" onclick="acao('/api/jenkins',{acao:'ligar'},this)">Ligar o Jenkins</button></div>`;
+    $('#jk-jobs').innerHTML = ''; return;
+  }
+  $('#jk-estado').innerHTML = `<div class="sub" style="margin-bottom:10px"><span class="ponto ok"></span> Jenkins ligado em ${esc(j.url)} · <a class="b" onclick="if(confirm('Desligar o Jenkins? (libera ~500 MB de memória)')) acao('/api/jenkins',{acao:'desligar'},this)">Desligar</a></div>`;
+  $('#jk-jobs').innerHTML = j.jobs.length ? `<table><tr><th>Job</th><th>Tipo</th><th>Último build</th><th>Resultado</th><th></th></tr>
+    ${j.jobs.map(x => `<tr><td><b>${esc(x.nome)}</b></td><td class="sub">${esc(x.tipo.replace('WorkflowJob','Pipeline').replace('FreeStyleProject','Freestyle'))}</td>
+      <td>${x.ultimo ? '#' + x.ultimo + ' <span class="sub">' + quando(x.quando) + '</span>' : '—'}</td><td>${etqResultado(x.resultado)}</td>
+      <td class="acoes"><button class="b pri" onclick='jk("construir",${attr(x.nome)},this)'>Construir</button>
+        ${x.ultimo ? `<button class="b" onclick='jkConsole(${attr(x.nome)},this)'>Console</button>` : ''}
+        ${x.tipo === 'WorkflowJob' ? `<button class="b" onclick='jkEditar(${attr(x.nome)},this)'>Editar script</button>` : ''}
+        <button class="b" onclick='abrirUrl(${attr(x.url.replace(/^https?:\/\/[^/]+/, "http://localhost:8080"))})'>Abrir</button>
+        <button class="b perigo" onclick='if(confirm("Apagar o job "+${attr(x.nome)}+"?")) jk("apagar",${attr(x.nome)},this)'>Apagar</button></td></tr>`).join('')}</table>`
+    : '<div class="vazio">Nenhum job ainda. Crie um pipeline no formulário acima.</div>';
+}
+function jk(a, nome, btn){ acao('/api/jenkins', {acao:a, job:nome}, btn); }
+function jkConsole(nome, btn){ acao('/api/jenkins', {acao:'console', job:nome}, btn, 'Saída do console – ' + nome); }
+async function jkEditar(nome, btn){
+  try{
+    const s = await post('/api/jenkins', {acao:'ver_script', job:nome}, btn);
+    modalEditor('Script do pipeline', nome, s, [
+      {txt:'Salvar', fn: async b => { try{ toast(await post('/api/jenkins', {acao:'salvar_script', job:nome, script:$('#m-edit').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }},
+      {txt:'Salvar e construir', cls:'pri', fn: async b => { try{ await post('/api/jenkins', {acao:'salvar_script', job:nome, script:$('#m-edit').value}, b); toast(await post('/api/jenkins', {acao:'construir', job:nome}, b)); fecharModal(); carregar(); }catch(e){ toast(e.message, true); } }}]);
+  }catch(e){ toast(e.message, true); }
+}
+async function jkNovo(){
+  const nome = $('#jk-novo').value.trim(); if(!nome) return toast('Dê um nome ao pipeline.', true);
+  const m = await get('/api/modelo-pipeline');
+  modalEditor('Novo pipeline', nome, m.script, [
+    {txt:'Criar', fn: async b => { try{ toast(await post('/api/jenkins', {acao:'criar', job:nome, script:$('#m-edit').value}, b)); fecharModal(); carregar(); }catch(e){ toast(e.message, true); } }},
+    {txt:'Criar e construir', cls:'pri', fn: async b => { try{ await post('/api/jenkins', {acao:'criar', job:nome, script:$('#m-edit').value}, b); toast(await post('/api/jenkins', {acao:'construir', job:nome}, b)); fecharModal(); carregar(); }catch(e){ toast(e.message, true); } }}]);
+}
+
+/* ---------- GIT ---------- */
+async function carregarGit(){
+  const g = await get('/api/git');
+  $('#git-ident').innerHTML = g.usuario && g.email
+    ? `<div class="sub" style="margin-bottom:10px">Commits assinados como <b>${esc(g.usuario)}</b> &lt;${esc(g.email)}&gt; · <a class="b" onclick="gitIdent()">Trocar</a></div>`
+    : `<div class="aviso-box">Configure seu nome e e-mail do Git antes do primeiro commit. <button class="b pri" onclick="gitIdent()">Configurar</button></div>`;
+  $('#git-repos').innerHTML = g.repos.length ? g.repos.map(r => `
+    <div class="repo"><div class="topo"><b>${esc(r.nome)}</b><span class="etq neutro">${esc(r.branch)}</span>
+      ${r.mudancas.length ? `<span class="etq aviso">${r.mudancas.length} mudança(s)</span>` : '<span class="etq ok">tudo salvo</span>'}
+      ${r.sincronia ? `<span class="etq neutro">${esc(r.sincronia)}</span>` : ''}
+      <span class="sub mono">${esc(r.caminho)}</span>
+      <span style="margin-left:auto">
+        <button class="b" onclick='abrir("vscode",${attr(r.caminho)})'>VS Code</button>
+        <button class="b" onclick='abrir("terminal",${attr(r.caminho)})'>Terminal</button>
+        ${r.remoto ? `<button class="b" onclick='gitA("pull",${attr(r.caminho)},this)'>Pull</button><button class="b" onclick='gitA("push",${attr(r.caminho)},this)'>Push</button>` : ''}
+      </span></div>
+      ${r.remoto ? `<div class="sub mono">origin: ${esc(r.remoto)}</div>` : ''}
+      <div class="colunas">
+        <div><div class="sub">Arquivos alterados</div><ul class="lista mono">${r.mudancas.map(m => `<li>${esc(m.codigo)} ${esc(m.arquivo)}</li>`).join('') || '<li class="sub">nenhum</li>'}</ul>
+          ${r.mudancas.length ? `<div style="display:flex;gap:6px;margin-top:8px"><input placeholder="mensagem do commit" style="flex:1" id="msg-${btoa(unescape(encodeURIComponent(r.caminho))).replace(/[^a-z0-9]/gi,'')}">
+            <button class="b pri" onclick='gitCommit(${attr(r.caminho)},this)'>Commit</button><button class="b" onclick='acao("/api/git",{acao:"diff",repo:${attr(r.caminho)}},this,"Diferenças")'>Ver diff</button></div>` : ''}</div>
+        <div><div class="sub">Últimos commits</div><ul class="lista">${r.log.map(c => `<li><span class="mono" style="color:var(--acento)">${esc(c.hash)}</span> ${esc(c.msg)} <span class="sub">— ${esc(c.autor)}, ${esc(c.data)}</span></li>`).join('') || '<li class="sub">nenhum commit ainda</li>'}</ul>
+          <div style="display:flex;gap:6px;margin-top:8px"><input list="br-${esc(r.nome)}" placeholder="branch (nova ou existente)" style="flex:1"><datalist id="br-${esc(r.nome)}">${r.branches.map(b => `<option>${esc(b)}</option>`).join('')}</datalist>
+            <button class="b" onclick='gitBranch(${attr(r.caminho)},this)'>Trocar/criar branch</button></div></div>
+      </div></div>`).join('')
+    : `<div class="vazio">Nenhum repositório Git encontrado em ${esc(g.pasta_projetos)}. Crie ou clone um acima.</div>`;
+}
+function gitA(a, repo, btn){ acao('/api/git', {acao:a, repo}, btn, 'git ' + a); }
+function gitCommit(repo, btn){ const msg = btn.previousElementSibling.value; acao('/api/git', {acao:'commit', repo, mensagem:msg}, btn); }
+function gitBranch(repo, btn){ const b = btn.parentElement.querySelector('input').value; acao('/api/git', {acao:'checkout', repo, branch:b}, btn); }
+function gitNovo(btn){ acao('/api/git', {acao:'novo', nome:$('#git-novo').value}, btn); }
+function gitClonar(btn){ acao('/api/git', {acao:'clonar', url:$('#git-url').value}, btn, 'git clone'); }
+function gitIdent(){
+  const nome = prompt('Seu nome (aparece nos commits):'); if(!nome) return;
+  const email = prompt('Seu e-mail (o mesmo do GitHub):'); if(!email) return;
+  acao('/api/git', {acao:'configurar', nome, email});
+}
+
+/* ---------- VS CODE ---------- */
+async function carregarVscode(){
+  const v = await get('/api/vscode');
+  $('#vs-rec').innerHTML = v.recentes.length ? `<table><tr><th>Caminho</th><th>Tipo</th><th></th></tr>${v.recentes.map(r => `<tr><td class="mono">${esc(r.caminho)}${r.existe ? '' : ' <span class="etq erro">não existe mais</span>'}</td><td>${esc(r.tipo)}</td>
+    <td class="acoes">${r.existe ? `<button class="b pri" onclick='abrir("vscode",${attr(r.caminho)})'>Abrir no VS Code</button><button class="b" onclick='abrir("terminal",${attr(r.caminho)})'>Terminal</button><button class="b" onclick='abrir("pasta",${attr(r.caminho)})'>Pasta</button>` : ''}</td></tr>`).join('')}</table>`
+    : '<div class="vazio">Nada aberto no VS Code ainda. <button class="b pri" onclick="abrir(\'vscode\',\'~/projetos\')">Abrir ~/projetos no VS Code</button></div>';
+  $('#vs-ext').innerHTML = `<div class="cartao mono">${v.extensoes.map(esc).join(' · ') || '—'}</div>`;
+}
+
+/* ---------- SISTEMA ---------- */
+async function carregarSistema(){
+  const s = await get('/api/sistema'); const usoMem = s.mem_total - s.mem_disponivel;
+  $('#sis-cartoes').innerHTML = `
+    <div class="cartao"><h3>Memória</h3><div class="numero">${mb(usoMem)}<span class="sub"> de ${mb(s.mem_total)}</span></div><div class="barra"><i style="width:${Math.round(usoMem*100/s.mem_total)}%"></i></div><div class="sub">Swap usada: ${mb(s.swap_total - s.swap_livre)}</div></div>
+    <div class="cartao"><h3>Disco</h3><div class="numero">${s.disco_usado} GB<span class="sub"> de ${s.disco_total} GB</span></div><div class="barra"><i style="width:${Math.round(s.disco_usado*100/s.disco_total)}%"></i></div></div>
+    <div class="cartao"><h3>Processador</h3><div class="numero">${s.carga[0]}<span class="sub"> carga (${s.cpus} CPUs)</span></div><div class="sub">5 min: ${s.carga[1]} · 15 min: ${s.carga[2]}</div></div>`;
+  const cor = e => e === 'active' ? 'ok' : e === 'activating' ? 'aviso' : 'neutro';
+  $('#sis-serv').innerHTML = `<div class="cartao">${Object.entries(s.servicos).map(([k,v]) => `<span style="margin-right:18px"><span class="ponto ${cor(v)}"></span> ${esc(k)} <span class="sub">${esc(v)}</span></span>`).join('')}</div>`;
+  $('#sis-proc').innerHTML = `<table><tr><th>PID</th><th>Programa</th><th>Usuário</th><th>Memória</th><th>CPU</th><th>Tempo</th><th></th></tr>
+    ${s.processos.map(p => `<tr><td class="mono">${p.pid}</td><td><b>${esc(p.nome)}</b></td><td>${esc(p.usuario)}</td><td>${mb(p.mem_mb)}</td><td>${esc(p.cpu)}%</td><td class="mono">${esc(p.tempo)}</td>
+      <td class="acoes">${p.seu ? `<button class="b perigo" onclick='if(confirm("Encerrar ${esc(p.nome)}?")) acao("/api/sistema",{acao:"encerrar",pid:${p.pid}},this)'>Encerrar</button>` : ''}</td></tr>`).join('')}</table>`;
+}
+
+/* ---------- ciclo ---------- */
+const CARREGAR = {inicio:carregarInicio, docker:carregarDocker, jenkins:carregarJenkins, git:carregarGit, vscode:carregarVscode, sistema:carregarSistema};
+async function carregar(forcar){
+  if(ocupado && !forcar) return;
+  if(!forcar && (document.activeElement && ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))) return;
+  if($('#modal').classList.contains('aberto') && !forcar) return;
+  ocupado = true;
+  try{ await CARREGAR[ABA](); $('#atualizado').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR'); }
+  catch(e){ $('#atualizado').textContent = 'Erro: ' + e.message; }
+  finally{ ocupado = false; }
+}
+try{ const a = localStorage.getItem('painel-aba'); if(a && CARREGAR[a]) irPara(a); else carregar(true); }catch(e){ carregar(true); }
+setInterval(() => carregar(), 6000);
+</script>
+</body>
+</html>

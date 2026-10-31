@@ -116,7 +116,7 @@ chk  "Papel de parede DevOps Lab como padrão" "readlink -f /usr/share/backgroun
 chk  "Tema Greybird, ícones elementary e fonte Ubuntu" "$XENV xfconf-query -c xsettings -p /Net/ThemeName; xfconf-query -c xsettings -p /Net/IconThemeName; xfconf-query -c xsettings -p /Gtk/FontName" "Ubuntu 10"
 chk  "Painel com menu, atalhos, tarefas, bandeja e relógio" "$XENV xfconf-query -c xfce4-panel -l -v | grep -E '^/plugins/plugin-[0-9]+ '" "whiskermenu"
 chk  "Compositor leve ligado (janelas não deixam rastro ao arrastar)" "$XENV echo \$(xfconf-query -c xfwm4 -p /general/use_compositing) \$(xfconf-query -c xfwm4 -p /general/vblank_mode) \$(xfconf-query -c xfwm4 -p /general/show_frame_shadow)" "true xpresent false"
-chk  "Atalhos confiáveis na Área de Trabalho" "D=\$(xdg-user-dir DESKTOP); ls \"\$D\"; n=0; for f in \"\$D\"/*.desktop; do $XENV gio info -a metadata::xfce-exe-checksum \"\$f\" | grep -q checksum && n=\$((n+1)); done; echo confiaveis=\$n" "confiaveis=4"
+chk  "Atalhos confiáveis na Área de Trabalho" "D=\$(xdg-user-dir DESKTOP); ls \"\$D\"; n=0; for f in \"\$D\"/*.desktop; do $XENV gio info -a metadata::xfce-exe-checksum \"\$f\" | grep -q checksum && n=\$((n+1)); done; echo confiaveis=\$n" "confiaveis=6"
 chk  "Teclado ABNT2 na interface" "$XENV setxkbmap -query" "layout: +br"
 chk  "Integração com o VirtualBox (VBoxClient)" "pgrep -a VBoxClient" "VBoxClient"
 chk  "Firefox com página inicial e favoritos do Lab" "python3 -m json.tool /etc/firefox/policies/policies.json | grep -E 'inicio.html|localhost:8080'" "inicio.html"
@@ -172,6 +172,27 @@ chk "LEIA-ME e atalho projetos na Área de Trabalho" "ls \"\$(xdg-user-dir DESKT
 
 CORES="$(print_tela tela-2-final)"
 if [ "${CORES:-0}" -gt 100 ]; then ok "Tela final desenhada ($CORES cores)"; else bad "Tela final vazia/preta ($CORES cores)"; fi
+
+# ---------------------------------------------------------------- painéis (Painel DevOps e Portainer)
+chk  "Atalhos do Painel DevOps e do Portainer no menu e no painel" "ls /usr/share/applications/painel-devops.desktop /usr/share/applications/portainer-devops-lab.desktop ~/.config/xfce4/panel/launcher-15 ~/.config/xfce4/panel/launcher-16" "portainer-devops-lab.desktop"
+gsh "painel-devops --servidor" >> "$OUT/qa-detalhes.txt"
+PAPI="curl -s -H 'Host: localhost:8090' http://127.0.0.1:8090"
+chk  "Painel DevOps responde em localhost:8090" "$PAPI/saude" '"ok": true'
+chk  "Painel DevOps: Docker (containers do aluno)" "$PAPI/api/docker | python3 -c 'import json,sys; d=json.load(sys.stdin); print(\"ligado\", d[\"ligado\"], len(d.get(\"containers\",[])), \"containers\")'" "ligado True"
+chk  "Painel DevOps: Jenkins (jobs criados)" "$PAPI/api/jenkins | python3 -c 'import json,sys; d=json.load(sys.stdin); print(\"respondendo\", d[\"respondendo\"], [j[\"nome\"] for j in d[\"jobs\"]])'" "respondendo True"
+chk  "Painel DevOps: Git, VS Code e Sistema" "for u in git vscode sistema resumo; do $PAPI/api/\$u | python3 -c 'import json,sys; json.load(sys.stdin); print(\"ok\")'; done | tr '\n' ' '" "^ok ok ok ok"
+chk  "Painel DevOps: recusa ação sem token (segurança)" "curl -s -X POST -H 'Host: localhost:8090' http://127.0.0.1:8090/api/sistema -d '{}'" "Token inv"
+chk  "Painel DevOps: recusa acesso por outro endereço (segurança)" "curl -s -H 'Host: exemplo.com' http://127.0.0.1:8090/api/resumo" "permitido só"
+chk  "Portainer liga e responde em localhost:9000" "docker start portainer >/dev/null; for i in \$(seq 1 60); do curl -s -o /dev/null -w '%{http_code}' http://localhost:9000/api/system/status | grep -q 200 && break; sleep 1; done; curl -s http://localhost:9000/api/system/status" "Version"
+chk  "Portainer: login admin/devops e ambiente local pronto" "J=\$(curl -s -X POST http://localhost:9000/api/auth -H 'Content-Type: application/json' -d '{\"username\":\"admin\",\"password\":\"devops\"}' | python3 -c 'import json,sys; print(json.load(sys.stdin)[\"jwt\"])'); curl -s http://localhost:9000/api/endpoints -H \"Authorization: Bearer \$J\" | python3 -c 'import json,sys; print(\"ambientes:\", [e[\"Name\"] for e in json.load(sys.stdin)])'" "ambientes: ..local"
+log "Portainer: $(gsh "curl -s http://localhost:9000/api/settings/public" | tr -d '\n' | head -c 400)"
+gsh "$XENV setsid -f firefox http://localhost:8090 >/dev/null 2>&1; sleep 25" >/dev/null
+CORES="$(print_tela tela-4-painel-devops)"
+log "Print do Painel DevOps: $CORES cores"
+gsh "$XENV setsid -f firefox http://localhost:9000 >/dev/null 2>&1; sleep 20" >/dev/null
+CORES="$(print_tela tela-5-portainer)"
+log "Print do Portainer: $CORES cores"
+gsh "pkill -u aluno firefox; docker stop portainer >/dev/null; true" >/dev/null
 
 # ---------------------------------------------------------------- análise de desempenho e espaço
 {

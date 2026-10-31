@@ -171,6 +171,7 @@ build {
       "scripts/04-jenkins.sh",
       "scripts/05-interface.sh",
       "scripts/06-finalize.sh",
+      "scripts/07-paineis.sh",
       "scripts/98-enxugar.sh",
       "scripts/99-cleanup.sh"
     ]
