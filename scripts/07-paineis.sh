@@ -33,6 +33,23 @@ for H in /etc/skel "$HOME_DIR"; do
 done
 chown -R "${LAB_USER}:${LAB_USER}" "$HOME_DIR"
 
+# Chaves do GitHub conferidas com as digitais oficiais (docs.github.com): git@github.com
+# funciona sem a pergunta "Are you sure you want to continue connecting?" (aluno e Jenkins)
+if ssh-keyscan -T 15 -t ed25519,ecdsa,rsa github.com 2>/dev/null > /tmp/gh_keys && [ -s /tmp/gh_keys ]; then
+  ssh-keygen -lf /tmp/gh_keys | awk '{print $2}' | sort > /tmp/gh_fp
+  printf '%s\n' SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU SHA256:p2QAMXNIC1TJYWeIOttrVc98/R1BUFWu3/LiyKgUfQM \
+    SHA256:uNiVztksCsDhcc0u9e8BujQXVUpKZIDTMczCvj3tD2s | sort > /tmp/gh_ok
+  if diff -q /tmp/gh_fp /tmp/gh_ok; then
+    sed -i '/^github.com /d' /etc/ssh/ssh_known_hosts 2>/dev/null || true
+    cat /tmp/gh_keys >> /etc/ssh/ssh_known_hosts
+    install -d -o jenkins -g jenkins -m 0700 /var/lib/jenkins/.ssh
+    install -o jenkins -g jenkins -m 0644 /tmp/gh_keys /var/lib/jenkins/.ssh/known_hosts
+    echo "Chaves do GitHub instaladas."
+  else
+    echo "AVISO: digitais do GitHub não conferem; known_hosts não instalado"; cat /tmp/gh_fp
+  fi
+fi
+
 # Docker ligado durante o teste abaixo
 systemctl start docker
 
@@ -58,6 +75,39 @@ done
 acao /api/jenkins '{"acao":"console","job":"teste-painel"}' | tail -c 600
 acao /api/jenkins '{"acao":"apagar","job":"teste-painel"}'
 test "$OK" = 1
+# Outros tipos de item do Jenkins, gatilhos e credenciais
+ok_j() { echo "$1" | grep -q '"ok": true' || { echo "FALHOU: $1"; exit 1; }; }
+ok_j "$(acao /api/jenkins '{"acao":"criar","tipo":"pasta","job":"teste-pasta"}')"
+ok_j "$(acao /api/jenkins '{"acao":"criar","tipo":"freestyle","job":"teste-free","pasta":"teste-pasta","comandos":"echo freestyle-ok","cron":"H 3 * * *"}')"
+ok_j "$(acao /api/jenkins '{"acao":"construir","job":"teste-pasta/teste-free"}')"
+OK=0
+for _ in $(seq 1 60); do
+  if acao /api/jenkins '{"acao":"console","job":"teste-pasta/teste-free"}' | grep -q 'Finished: SUCCESS'; then OK=1; break; fi
+  sleep 3
+done
+test "$OK" = 1
+acao /api/jenkins '{"acao":"ver_config","job":"teste-pasta/teste-free"}' | grep -q 'H 3 \* \* \*'
+ok_j "$(acao /api/jenkins '{"acao":"salvar_config","job":"teste-pasta/teste-free","cron":"","cron_scm":"H/5 * * * *","valor":"echo mudou"}')"
+acao /api/jenkins '{"acao":"ver_config","job":"teste-pasta/teste-free"}' | grep -q 'echo mudou'
+ok_j "$(acao /api/jenkins '{"acao":"criar","tipo":"pipeline_scm","job":"teste-scm","repo":"https://github.com/jenkinsci/pipeline-examples.git","branch":"master","cron_scm":"H/15 * * * *"}')"
+ok_j "$(acao /api/jenkins '{"acao":"criar","tipo":"multibranch","job":"teste-mb","repo":"https://github.com/jenkinsci/pipeline-examples.git"}')"
+ok_j "$(acao /api/jenkins '{"acao":"copiar","job":"teste-scm","novo":"teste-scm-copia"}')"
+ok_j "$(acao /api/jenkins '{"acao":"desativar","job":"teste-scm-copia"}')"
+ok_j "$(acao /api/jenkins '{"acao":"criar_credencial","tipo":"usuario","id":"teste-token","usuario":"aluno","senha":"x"}')"
+ok_j "$(acao /api/jenkins '{"acao":"criar_credencial","tipo":"segredo","id":"teste-segredo","segredo":"y"}')"
+ssh-keygen -q -t ed25519 -N '' -f /tmp/chave-teste
+ok_j "$(acao /api/jenkins "$(python3 -c 'import json; print(json.dumps({"acao":"criar_credencial","tipo":"ssh","id":"teste-ssh","chave":open("/tmp/chave-teste").read()}))')")"
+acao /api/jenkins '{"acao":"credenciais"}' | python3 -c 'import json,sys; ids={c["id"] for c in json.load(sys.stdin)["resultado"]["credenciais"]}; print(ids); assert {"teste-token","teste-segredo","teste-ssh"} <= ids'
+for c in teste-token teste-segredo teste-ssh; do ok_j "$(acao /api/jenkins "{\"acao\":\"apagar_credencial\",\"id\":\"$c\"}")"; done
+api /api/jenkins | python3 -c 'import json,sys; t={j["nome"]: j["tipo"] for j in json.load(sys.stdin)["jobs"]}; print(t); assert t.get("teste-pasta")=="Pasta" and t.get("teste-pasta/teste-free")=="Freestyle" and t.get("teste-mb")=="Multibranch"'
+for j in teste-pasta teste-scm teste-scm-copia teste-mb; do ok_j "$(acao /api/jenkins "{\"acao\":\"apagar\",\"job\":\"$j\"}")"; done
+rm -f /tmp/chave-teste /tmp/chave-teste.pub
+
+# Git: chave SSH pelo painel (depois apagada; cada aluno gera a sua)
+ok_j "$(acao /api/git '{"acao":"gerar_chave","email":"teste@devops-lab"}')"
+api /api/git | python3 -c 'import json,sys; k=json.load(sys.stdin)["chave"]; assert k["existe"] and k["publica"].startswith("ssh-ed25519"); print("chave ok")'
+rm -f "$HOME_DIR/.ssh/id_ed25519" "$HOME_DIR/.ssh/id_ed25519.pub"
+
 # Ansible, Terraform e Python pelo painel (tarefas com saída ao vivo)
 espera() {  # $1 = resposta do /api/executar ; imprime a saída e falha se o comando falhou
   local id; id="$(echo "$1" | python3 -c 'import json,sys; print(json.load(sys.stdin)["resultado"]["tarefa"])')"

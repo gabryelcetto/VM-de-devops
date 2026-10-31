@@ -102,8 +102,11 @@ def ok_ou_erro(r):
 
 def lancar(cmd, cwd=None):
     """Abre um programa gráfico sem esperar (VS Code, terminal, navegador)."""
-    subprocess.Popen(cmd, cwd=cwd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                     stderr=subprocess.DEVNULL, start_new_session=True)
+    try:
+        subprocess.Popen(cmd, cwd=cwd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                         stderr=subprocess.DEVNULL, start_new_session=True)
+    except FileNotFoundError:
+        raise Erro(f"Programa não encontrado: {cmd[0]}")
 
 
 def dentro_da_home(caminho):
@@ -174,13 +177,15 @@ def info_docker():
                for i in json_linhas(rodar(["docker", "images", "--format", "{{json .}}"])[1])]
     volumes = [{"nome": v.get("Name", ""), "driver": v.get("Driver", "")}
                for v in json_linhas(rodar(["docker", "volume", "ls", "--format", "{{json .}}"])[1])]
+    redes = [{"nome": n.get("Name", ""), "driver": n.get("Driver", ""), "padrao": n.get("Name") in ("bridge", "host", "none")}
+             for n in json_linhas(rodar(["docker", "network", "ls", "--format", "{{json .}}"])[1])]
     projetos = []
     cod, txt = rodar(["docker", "compose", "ls", "-a", "--format", "json"])
     if cod == 0 and txt.startswith("["):
         for p in json.loads(txt):
             projetos.append({"nome": p.get("Name", ""), "status": p.get("Status", ""), "arquivos": p.get("ConfigFiles", "")})
     return {"ligado": True, "servico": "active", "containers": containers, "imagens": imagens,
-            "volumes": volumes, "projetos": projetos,
+            "volumes": volumes, "projetos": projetos, "redes": redes,
             "dockerfiles": [str(r) for r, a in _pastas_projetos() if "Dockerfile" in a]}
 
 
@@ -238,6 +243,29 @@ def acao_docker(d):
             raise Erro("Volume inválido.")
         ok_ou_erro(rodar(["docker", "volume", "rm", nome]))
         return f"Volume '{nome}' apagado."
+    if acao == "rede_criar":
+        nome = d.get("nome", "").strip()
+        if not NOME_OK.match(nome):
+            raise Erro("Nome de rede inválido.")
+        ok_ou_erro(rodar(["docker", "network", "create", nome]))
+        return f"Rede '{nome}' criada. Containers na mesma rede se encontram pelo nome."
+    if acao == "rede_rm":
+        nome = d.get("nome", "").strip()
+        if not NOME_OK.match(nome):
+            raise Erro("Rede inválida.")
+        ok_ou_erro(rodar(["docker", "network", "rm", nome]))
+        return f"Rede '{nome}' apagada."
+    if acao == "exec":
+        alvo, comando = d.get("container", ""), d.get("comando", "").strip()
+        if not REF_OK.match(alvo) or not comando:
+            raise Erro("Informe o container e o comando.")
+        cod, txt = rodar(["docker", "exec", alvo, "sh", "-c", comando], timeout=120)
+        return (txt or "(sem saída)") + ("" if cod == 0 else f"\n\n[terminou com código {cod}]")
+    if acao == "inspecionar":
+        alvo = d.get("container", "")
+        if not REF_OK.match(alvo):
+            raise Erro("Container inválido.")
+        return ok_ou_erro(rodar(["docker", "inspect", alvo]))
     if acao == "limpar":
         return ok_ou_erro(rodar(["docker", "system", "prune", "-f"], timeout=300))[-1500:]
     if acao == "rmi":
@@ -282,6 +310,16 @@ def acao_docker(d):
             if "=" not in e or e.startswith("="):
                 raise Erro(f"Variável inválida: {e} (use NOME=valor)")
             cmd += ["-e", e]
+        cpus = str(d.get("cpus", "")).strip()
+        if cpus:
+            if not re.fullmatch(r"\d{1,2}(\.\d{1,2})?", cpus):
+                raise Erro("CPUs inválido (ex.: 0.5 ou 1).")
+            cmd += ["--cpus", cpus]
+        rede = d.get("rede", "").strip()
+        if rede:
+            if not NOME_OK.match(rede):
+                raise Erro("Rede inválida.")
+            cmd += ["--network", rede]
         if d.get("reiniciar"):
             cmd += ["--restart", "unless-stopped"]
         cmd.append(img)
@@ -360,51 +398,242 @@ def caminho_job(nome):
     return "".join("/job/" + urllib.parse.quote(p, safe="") for p in nome.split("/"))
 
 
+CAMPOS_BUILD = "number,result,timestamp,duration,building"
+CAMPOS_JOB = (f"name,fullName,url,color,_class,buildable,description,inQueue,lastBuild[{CAMPOS_BUILD}],"
+              f"builds[{CAMPOS_BUILD}]{{0,15}}")
+NOMES_TIPO = {"WorkflowJob": "Pipeline", "FreeStyleProject": "Freestyle", "WorkflowMultiBranchProject": "Multibranch",
+              "Folder": "Pasta", "OrganizationFolder": "Organização"}
+
+
+def _job(j):
+    lb = j.get("lastBuild") or {}
+    classe = (j.get("_class") or "").split(".")[-1]
+    return {"nome": j.get("fullName") or j.get("name"), "url": j.get("url"), "classe": classe,
+            "tipo": NOMES_TIPO.get(classe, classe), "cor": j.get("color", ""),
+            "desativado": (j.get("color") or "").startswith("disabled") or j.get("buildable") is False and classe in ("WorkflowJob", "FreeStyleProject"),
+            "na_fila": j.get("inQueue", False), "descricao": j.get("description") or "",
+            "ultimo": lb.get("number"), "resultado": "EM ANDAMENTO" if lb.get("building") else lb.get("result"),
+            "quando": lb.get("timestamp"), "duracao": lb.get("duration"),
+            "historico": [{"n": b.get("number"), "r": "EM ANDAMENTO" if b.get("building") else b.get("result"),
+                           "t": b.get("timestamp"), "d": b.get("duration")} for b in (j.get("builds") or [])],
+            "filhos": len(j.get("jobs") or [])}
+
+
 def info_jenkins():
     servico = servico_ativo("jenkins")
     base = {"servico": servico, "url": JEN.url}
     if servico != "active":
         return {**base, "respondendo": False, "jobs": []}
     try:
-        _, txt = JEN.req("/api/json?tree=jobs[name,fullName,url,color,_class,lastBuild[number,result,timestamp,duration,building],"
-                         "builds[number,result,timestamp,duration,building]{0,15}]")
+        _, txt = JEN.req(f"/api/json?tree=jobs[{CAMPOS_JOB},jobs[{CAMPOS_JOB},jobs[{CAMPOS_JOB}]]]")
     except Erro as e:
         return {**base, "respondendo": False, "jobs": [], "erro": str(e)}
     jobs = []
-    for j in json.loads(txt).get("jobs", []):
-        lb = j.get("lastBuild") or {}
-        jobs.append({"nome": j.get("fullName") or j.get("name"), "url": j.get("url"),
-                     "tipo": (j.get("_class") or "").split(".")[-1], "cor": j.get("color", ""),
-                     "ultimo": lb.get("number"), "resultado": "EM ANDAMENTO" if lb.get("building") else lb.get("result"),
-                     "quando": lb.get("timestamp"), "duracao": lb.get("duration"),
-                     "historico": [{"n": b.get("number"), "r": "EM ANDAMENTO" if b.get("building") else b.get("result"),
-                                    "t": b.get("timestamp"), "d": b.get("duration")} for b in (j.get("builds") or [])]})
-    return {**base, "respondendo": True, "jobs": jobs}
+
+    def andar(lista, nivel):
+        for j in lista:
+            item = _job(j)
+            item["nivel"] = nivel
+            jobs.append(item)
+            andar(j.get("jobs") or [], nivel + 1)
+    andar(json.loads(txt).get("jobs", []), 0)
+    extra = {}
+    try:
+        c = json.loads(JEN.req("/computer/api/json?tree=busyExecutors,totalExecutors")[1])
+        q = json.loads(JEN.req("/queue/api/json?tree=items[task[name],why,inQueueSince]")[1])
+        extra = {"executores": c.get("totalExecutors", 0), "ocupados": c.get("busyExecutors", 0),
+                 "fila": [{"job": i.get("task", {}).get("name"), "motivo": i.get("why")} for i in q.get("items", [])]}
+    except Erro:
+        pass
+    return {**base, "respondendo": True, "jobs": jobs, **extra}
 
 
-MODELO_PIPELINE = """<?xml version='1.1' encoding='UTF-8'?>
-<flow-definition plugin="workflow-job">
-  <description>Criado pelo Painel DevOps</description>
-  <keepDependencies>false</keepDependencies>
-  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps">
-    <script></script>
-    <sandbox>true</sandbox>
-  </definition>
-  <disabled>false</disabled>
-</flow-definition>
-"""
+# ---------- montagem do config.xml de cada tipo de item
+def _el(pai, tag, texto=None, **attrs):
+    e = ET.SubElement(pai, tag, attrs)
+    if texto is not None:
+        e.text = str(texto)
+    return e
+
+
+def _git_scm(pai, url, branch, cred):
+    scm = _el(pai, "scm", **{"class": "hudson.plugins.git.GitSCM", "plugin": "git"})
+    _el(scm, "configVersion", 2)
+    urc = _el(_el(scm, "userRemoteConfigs"), "hudson.plugins.git.UserRemoteConfig")
+    _el(urc, "url", url)
+    if cred:
+        _el(urc, "credentialsId", cred)
+    _el(_el(_el(scm, "branches"), "hudson.plugins.git.BranchSpec"), "name", f"*/{branch or 'main'}")
+    _el(scm, "doGenerateSubmoduleConfigurations", "false")
+    _el(scm, "submoduleCfg", **{"class": "empty-list"})
+    _el(scm, "extensions")
+    return scm
+
+
+CRON_OK = re.compile(r"^[\w*/,\- #@]{1,100}$")
+
+
+def _gatilhos(pai, d):
+    trig = _el(pai, "triggers")
+    for chave, classe in (("cron_scm", "hudson.triggers.SCMTrigger"), ("cron", "hudson.triggers.TimerTrigger")):
+        spec = (d.get(chave) or "").strip()
+        if spec:
+            if not CRON_OK.match(spec):
+                raise Erro(f"Horário inválido: {spec} (ex.: H/5 * * * *)")
+            t = _el(trig, classe)
+            _el(t, "spec", spec)
+            if classe == "hudson.triggers.SCMTrigger":
+                _el(t, "ignorePostCommitHooks", "false")
+    return trig
+
+
+def _url_git(url):
+    url = (url or "").strip()
+    if not re.fullmatch(r"(https://|git@)[\w.@:/~\-]+?(\.git)?/?", url):
+        raise Erro("URL do repositório inválida (ex.: https://github.com/usuario/repo.git ou git@github.com:usuario/repo.git).")
+    return url
+
+
+def xml_item(tipo, d):
+    desc = d.get("descricao") or "Criado pelo Painel DevOps"
+    cred = (d.get("credencial") or "").strip()
+    if cred and not NOME_OK.match(cred):
+        raise Erro("Credencial inválida.")
+    if tipo == "pipeline" or tipo == "pipeline_scm":
+        raiz = ET.Element("flow-definition", plugin="workflow-job")
+        _el(raiz, "description", desc)
+        _el(raiz, "keepDependencies", "false")
+        props = _el(raiz, "properties")
+        if d.get("cron") or d.get("cron_scm"):
+            _gatilhos(_el(props, "org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty"), d)
+        if tipo == "pipeline":
+            df = _el(raiz, "definition", **{"class": "org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition", "plugin": "workflow-cps"})
+            _el(df, "script", d.get("script") or SCRIPT_EXEMPLO)
+            _el(df, "sandbox", "true")
+        else:
+            df = _el(raiz, "definition", **{"class": "org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition", "plugin": "workflow-cps"})
+            _git_scm(df, _url_git(d.get("repo")), d.get("branch"), cred)
+            _el(df, "scriptPath", d.get("jenkinsfile") or "Jenkinsfile")
+            _el(df, "lightweight", "true")
+        _el(raiz, "disabled", "false")
+    elif tipo == "freestyle":
+        raiz = ET.Element("project")
+        _el(raiz, "description", desc)
+        _el(raiz, "keepDependencies", "false")
+        _el(raiz, "properties")
+        if (d.get("repo") or "").strip():
+            _git_scm(raiz, _url_git(d.get("repo")), d.get("branch"), cred)
+        else:
+            _el(raiz, "scm", **{"class": "hudson.scm.NullSCM"})
+        _el(raiz, "canRoam", "true")
+        _el(raiz, "disabled", "false")
+        _el(raiz, "blockBuildWhenDownstreamBuilding", "false")
+        _el(raiz, "blockBuildWhenUpstreamBuilding", "false")
+        _gatilhos(raiz, d)
+        _el(raiz, "concurrentBuild", "false")
+        sh = _el(_el(raiz, "builders"), "hudson.tasks.Shell")
+        _el(sh, "command", d.get("comandos") or 'echo "Ola do Jenkins (Freestyle)!"')
+        _el(raiz, "publishers")
+        _el(raiz, "buildWrappers")
+    elif tipo == "multibranch":
+        mb = "org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject"
+        raiz = ET.Element(mb, plugin="workflow-multibranch")
+        _el(raiz, "description", desc)
+        _el(raiz, "properties")
+        fv = _el(raiz, "folderViews", **{"class": "jenkins.branch.MultiBranchProjectViewHolder", "plugin": "branch-api"})
+        _el(fv, "owner", **{"class": mb, "reference": "../.."})
+        _el(raiz, "healthMetrics")
+        ic = _el(raiz, "icon", **{"class": "jenkins.branch.MetadataActionFolderIcon", "plugin": "branch-api"})
+        _el(ic, "owner", **{"class": mb, "reference": "../.."})
+        orf = _el(raiz, "orphanedItemStrategy", **{"class": "com.cloudbees.hudson.plugins.folder.computed.DefaultOrphanedItemStrategy", "plugin": "cloudbees-folder"})
+        for k, v in (("pruneDeadBranches", "true"), ("daysToKeep", "-1"), ("numToKeep", "-1"), ("abortBuilds", "false")):
+            _el(orf, k, v)
+        tr = _el(_el(raiz, "triggers"), "com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger", plugin="cloudbees-folder")
+        _el(tr, "spec", "H/15 * * * *")
+        _el(tr, "interval", "900000")
+        _el(raiz, "disabled", "false")
+        fontes = _el(raiz, "sources", **{"class": "jenkins.branch.MultiBranchProject$BranchSourceList", "plugin": "branch-api"})
+        bs = _el(_el(fontes, "data"), "jenkins.branch.BranchSource")
+        src = _el(bs, "source", **{"class": "jenkins.plugins.git.GitSCMSource", "plugin": "git"})
+        _el(src, "id", secrets.token_hex(8))
+        _el(src, "remote", _url_git(d.get("repo")))
+        if cred:
+            _el(src, "credentialsId", cred)
+        _el(_el(src, "traits"), "jenkins.plugins.git.traits.BranchDiscoveryTrait")
+        st = _el(bs, "strategy", **{"class": "jenkins.branch.DefaultBranchPropertyStrategy"})
+        _el(st, "properties", **{"class": "empty-list"})
+        _el(fontes, "owner", **{"class": mb, "reference": "../.."})
+        fac = _el(raiz, "factory", **{"class": "org.jenkinsci.plugins.workflow.multibranch.WorkflowBranchProjectFactory"})
+        _el(fac, "owner", **{"class": mb, "reference": "../.."})
+        _el(fac, "scriptPath", d.get("jenkinsfile") or "Jenkinsfile")
+    elif tipo == "pasta":
+        raiz = ET.Element("com.cloudbees.hudson.plugins.folder.Folder", plugin="cloudbees-folder")
+        _el(raiz, "description", desc)
+        _el(raiz, "properties")
+        _el(raiz, "healthMetrics")
+    else:
+        raise Erro("Tipo de item desconhecido.")
+    return b"<?xml version='1.1' encoding='UTF-8'?>\n" + ET.tostring(raiz)
+
+
+MODELO_PIPELINE = None  # (compatibilidade)
 
 SCRIPT_EXEMPLO = """pipeline {
   agent any
   stages {
     stage('Ola') {
       steps {
-        sh 'echo "Ola do Jenkins!"'
+        echo 'Ola do Jenkins!'
       }
     }
   }
 }
 """
+
+CREDS = "/credentials/store/system/domain/_"
+
+
+def info_credenciais():
+    try:
+        _, txt = JEN.req(CREDS + "/api/json?tree=credentials[id,displayName,typeName,description]")
+    except Erro as e:
+        return {"credenciais": [], "erro": str(e)}
+    return {"credenciais": [{"id": c.get("id"), "nome": c.get("displayName"), "tipo": c.get("typeName"),
+                             "descricao": c.get("description") or ""} for c in json.loads(txt).get("credentials", [])]}
+
+
+def criar_credencial(d):
+    tipo, cid = d.get("tipo"), (d.get("id") or "").strip()
+    if not NOME_OK.match(cid):
+        raise Erro("ID inválido: use letras, números, - _ . (ex.: github)")
+    desc = d.get("descricao") or "Criada pelo Painel DevOps"
+    if tipo == "usuario":
+        raiz = ET.Element("com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl")
+        for k, v in (("scope", "GLOBAL"), ("id", cid), ("description", desc), ("username", d.get("usuario", "")),
+                     ("password", d.get("senha", ""))):
+            _el(raiz, k, v)
+    elif tipo == "segredo":
+        raiz = ET.Element("org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl")
+        for k, v in (("scope", "GLOBAL"), ("id", cid), ("description", desc), ("secret", d.get("segredo", ""))):
+            _el(raiz, k, v)
+    elif tipo == "ssh":
+        chave = d.get("chave", "")
+        if d.get("usar_minha_chave"):
+            arq = HOME / ".ssh" / "id_ed25519"
+            if not arq.is_file():
+                raise Erro("Você ainda não tem chave SSH. Gere uma na aba Git.")
+            chave = arq.read_text()
+        if "PRIVATE KEY" not in chave:
+            raise Erro("Cole a chave PRIVADA (começa com -----BEGIN OPENSSH PRIVATE KEY-----).")
+        raiz = ET.Element("com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey")
+        for k, v in (("scope", "GLOBAL"), ("id", cid), ("description", desc), ("username", d.get("usuario") or "git")):
+            _el(raiz, k, v)
+        pk = _el(raiz, "privateKeySource", **{"class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey$DirectEntryPrivateKeySource"})
+        _el(pk, "privateKey", chave)
+    else:
+        raise Erro("Tipo de credencial desconhecido.")
+    JEN.req(CREDS + "/createCredentials", ET.tostring(raiz), "application/xml")
+    return f"Credencial '{cid}' criada. Use o ID '{cid}' nos jobs."
 
 
 def acao_jenkins(d):
@@ -412,25 +641,57 @@ def acao_jenkins(d):
     if acao in ("ligar", "desligar"):
         ok_ou_erro(rodar(["systemctl", "start" if acao == "ligar" else "stop", "jenkins.service"], timeout=900))
         return "Jenkins ligado (pode levar 1 minuto para abrir)." if acao == "ligar" else "Jenkins desligado."
+    if acao == "credenciais":
+        return info_credenciais()
+    if acao == "criar_credencial":
+        return criar_credencial(d)
+    if acao == "apagar_credencial":
+        cid = d.get("id", "")
+        if not NOME_OK.match(cid):
+            raise Erro("Credencial inválida.")
+        JEN.req(f"{CREDS}/credential/{urllib.parse.quote(cid, safe='')}/doDelete", b"")
+        return f"Credencial '{cid}' apagada."
     nome = d.get("job", "").strip()
     if acao == "criar":
+        tipo = d.get("tipo") or "pipeline"
         if not NOME_OK.match(nome):
-            raise Erro("Nome do job inválido: use letras, números, - _ .")
-        raiz = ET.fromstring(MODELO_PIPELINE)
-        raiz.find("./definition/script").text = d.get("script") or SCRIPT_EXEMPLO
-        xml = b"<?xml version='1.1' encoding='UTF-8'?>\n" + ET.tostring(raiz)
-        JEN.req("/createItem?name=" + urllib.parse.quote(nome, safe=""), xml, "application/xml")
-        return f"Pipeline '{nome}' criado."
+            raise Erro("Nome inválido: use letras, números, - _ . (sem espaços)")
+        destino = caminho_job(d["pasta"]) if d.get("pasta") else ""
+        JEN.req(f"{destino}/createItem?name=" + urllib.parse.quote(nome, safe=""), xml_item(tipo, d), "application/xml")
+        completo = f'{d["pasta"]}/{nome}' if d.get("pasta") else nome
+        if tipo == "multibranch":
+            JEN.req(caminho_job(completo) + "/build?delay=0sec", b"")
+            return f"Multibranch '{completo}' criado. O Jenkins está procurando as branches com Jenkinsfile."
+        return f"{ {'pipeline': 'Pipeline', 'pipeline_scm': 'Pipeline do Git', 'freestyle': 'Freestyle', 'pasta': 'Pasta'}[tipo] } '{completo}' criado."
     cj = caminho_job(nome)
     if acao == "construir":
-        JEN.req(cj + "/build?delay=0sec", b"")
+        try:
+            JEN.req(cj + "/build?delay=0sec", b"")
+        except Erro as e:
+            if "400" not in str(e):
+                raise
+            JEN.req(cj + "/buildWithParameters?delay=0sec", b"")
         return f"Construção de '{nome}' iniciada."
+    if acao == "parar":
+        JEN.req(cj + "/lastBuild/stop", b"")
+        return "Pedido de parada enviado."
+    if acao in ("ativar", "desativar"):
+        JEN.req(cj + ("/enable" if acao == "ativar" else "/disable"), b"")
+        return "Job ativado." if acao == "ativar" else "Job desativado (não roda até ser ativado)."
+    if acao == "copiar":
+        novo = d.get("novo", "").strip()
+        if not NOME_OK.match(novo):
+            raise Erro("Nome da cópia inválido.")
+        pai = "/".join(nome.split("/")[:-1])
+        JEN.req(f"{caminho_job(pai) if pai else ''}/createItem?name={urllib.parse.quote(novo, safe='')}&mode=copy&from="
+                + urllib.parse.quote(nome.split("/")[-1], safe=""), b"")
+        return f"Cópia '{novo}' criada."
     if acao == "console":
         n = str(d.get("numero") or "lastBuild")
         if n != "lastBuild" and not n.isdigit():
             raise Erro("Número de build inválido.")
         _, txt = JEN.req(f"{cj}/{n}/consoleText", timeout=30)
-        return txt[-20000:]
+        return txt[-30000:]
     if acao == "etapas":
         try:
             _, txt = JEN.req(cj + "/lastBuild/wfapi/describe", timeout=20)
@@ -440,24 +701,59 @@ def acao_jenkins(d):
         return {"numero": dd.get("id"), "status": dd.get("status"),
                 "etapas": [{"nome": st.get("name"), "status": st.get("status"), "duracao": st.get("durationMillis", 0)}
                            for st in dd.get("stages", [])]}
-    if acao == "ver_script":
-        _, xml = JEN.req(cj + "/config.xml")
-        s = ET.fromstring(xml).find("./definition/script")
-        if s is None:
-            raise Erro("Este job não é um Pipeline com script (ex.: Freestyle ou script vindo do Git). Edite pelo Jenkins.")
-        return s.text or ""
-    if acao == "salvar_script":
+    if acao == "ver_config":
         _, xml = JEN.req(cj + "/config.xml")
         raiz = ET.fromstring(xml)
         s = raiz.find("./definition/script")
-        if s is None:
-            raise Erro("Este job não tem script editável aqui.")
-        s.text = d.get("script", "")
+        if s is not None:
+            campo = "script"
+            valor = s.text or ""
+        elif raiz.find("./builders/hudson.tasks.Shell/command") is not None:
+            campo = "comandos"
+            valor = raiz.find("./builders/hudson.tasks.Shell/command").text or ""
+        else:
+            campo, valor = None, ""
+        trig = raiz.find("./properties/org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty/triggers")
+        if trig is None:
+            trig = raiz.find("./triggers")
+        cron = trig.find("./hudson.triggers.TimerTrigger/spec") if trig is not None else None
+        scm = trig.find("./hudson.triggers.SCMTrigger/spec") if trig is not None else None
+        repo = raiz.find(".//hudson.plugins.git.UserRemoteConfig/url")
+        return {"campo": campo, "valor": valor, "cron": cron.text if cron is not None else "",
+                "cron_scm": scm.text if scm is not None else "", "repo": repo.text if repo is not None else "",
+                "gatilhos_ok": raiz.tag in ("flow-definition", "project")}
+    if acao == "salvar_config":
+        _, xml = JEN.req(cj + "/config.xml")
+        raiz = ET.fromstring(xml)
+        if "valor" in d:
+            alvo = raiz.find("./definition/script")
+            if alvo is None:
+                alvo = raiz.find("./builders/hudson.tasks.Shell/command")
+            if alvo is None:
+                raise Erro("Este item não tem script/comandos editáveis aqui. Use 'Abrir' para editar no Jenkins.")
+            alvo.text = d.get("valor", "")
+        if "cron" in d or "cron_scm" in d:
+            if raiz.tag == "flow-definition":
+                props = raiz.find("./properties")
+                if props is None:
+                    props = _el(raiz, "properties")
+                velho = props.find("./org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty")
+                if velho is not None:
+                    props.remove(velho)
+                if d.get("cron") or d.get("cron_scm"):
+                    _gatilhos(_el(props, "org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty"), d)
+            elif raiz.tag == "project":
+                velho = raiz.find("./triggers")
+                pos = list(raiz).index(velho) if velho is not None else len(raiz)
+                if velho is not None:
+                    raiz.remove(velho)
+                novo_t = _gatilhos(ET.Element("x"), d)
+                raiz.insert(pos, novo_t)
         JEN.req(cj + "/config.xml", b"<?xml version='1.1' encoding='UTF-8'?>\n" + ET.tostring(raiz), "application/xml")
-        return "Script salvo."
+        return "Configuração salva."
     if acao == "apagar":
         JEN.req(cj + "/doDelete", b"")
-        return f"Job '{nome}' apagado."
+        return f"'{nome}' apagado."
     raise Erro("Ação de Jenkins desconhecida.")
 
 
@@ -519,11 +815,24 @@ def commits_por_dia(repos, dias=14):
     return [{"dia": k, "n": v} for k, v in cont.items()]
 
 
+CHAVE = HOME / ".ssh" / "id_ed25519"
+
+
+def info_chave():
+    pub = CHAVE.with_suffix(".pub")
+    if not pub.is_file():
+        return {"existe": False}
+    return {"existe": True, "publica": pub.read_text().strip(), "arquivo": str(pub),
+            "digital": rodar(["ssh-keygen", "-lf", str(pub)])[1]}
+
+
 def info_git():
     nome = rodar(["git", "config", "--global", "user.name"])[1]
     email = rodar(["git", "config", "--global", "user.email"])[1]
+    helper = rodar(["git", "config", "--global", "credential.helper"])[1]
     repos = repos_git()
-    return {"usuario": nome, "email": email, "pasta_projetos": str(PROJETOS),
+    return {"usuario": nome, "email": email, "pasta_projetos": str(PROJETOS), "chave": info_chave(),
+            "token_guardado": "cache" in helper and Path(HOME / ".cache/git/credential/socket").exists(),
             "repos": [info_repo(r) for r in repos], "por_dia": commits_por_dia(repos)}
 
 
@@ -553,10 +862,92 @@ def acao_git(d):
             raise Erro("URL inválida (ex.: https://github.com/usuario/repositorio.git).")
         PROJETOS.mkdir(exist_ok=True)
         return ok_ou_erro(rodar(["git", "clone", url], cwd=str(PROJETOS), timeout=600)) or "Repositório clonado."
+    if acao == "gerar_chave":
+        email = d.get("email", "").strip() or rodar(["git", "config", "--global", "user.email"])[1] or "aluno@devops-lab"
+        if not re.fullmatch(r"[^@\s]+@[^@\s]+", email):
+            raise Erro("E-mail inválido.")
+        if CHAVE.exists() and not d.get("substituir"):
+            raise Erro("Você já tem uma chave SSH. Marque 'substituir' para criar outra (a antiga deixa de funcionar).")
+        CHAVE.parent.mkdir(mode=0o700, exist_ok=True)
+        for f in (CHAVE, CHAVE.with_suffix(".pub")):
+            f.unlink(missing_ok=True)
+        ok_ou_erro(rodar(["ssh-keygen", "-t", "ed25519", "-C", email, "-f", str(CHAVE), "-N", "", "-q"]))
+        return "Chave SSH criada. Agora copie a chave pública e cole no GitHub."
+    if acao == "testar_github":
+        cod, txt = rodar(["ssh", "-T", "-o", "BatchMode=yes", "-o", "StrictHostKeyChecking=accept-new",
+                          "-o", "ConnectTimeout=10", "git@github.com"], timeout=30)
+        if "successfully authenticated" in txt:
+            return "✔ Conectado ao GitHub: " + txt.splitlines()[-1]
+        if "Permission denied" in txt:
+            raise Erro("O GitHub recusou a chave. Confira se a chave pública foi colada em GitHub > Settings > SSH keys.")
+        raise Erro("Não foi possível falar com o GitHub: " + txt[-300:])
+    if acao == "salvar_token":
+        usuario, token = d.get("usuario", "").strip(), d.get("token", "").strip()
+        if not re.fullmatch(r"[A-Za-z0-9\-]{1,39}", usuario) or not re.fullmatch(r"[\w\-]{20,255}", token):
+            raise Erro("Informe seu usuário do GitHub e um token válido (ghp_... ou github_pat_...).")
+        horas = max(1, min(int(d.get("horas") or 8), 24))
+        rodar(["git", "config", "--global", "credential.helper", f"cache --timeout={horas * 3600}"])
+        ok_ou_erro(rodar(["git", "credential", "approve"],
+                         entrada=f"protocol=https\nhost=github.com\nusername={usuario}\npassword={token}\n\n"))
+        return f"Token guardado na memória por {horas} h (não fica salvo em arquivo). Push e pull por HTTPS já funcionam."
+    if acao == "esquecer_token":
+        rodar(["git", "credential-cache", "exit"])
+        return "Token apagado da memória."
     repo = dentro_da_home(d.get("repo", ""))
     if not (repo / ".git").exists():
         raise Erro("Isto não é um repositório Git.")
     g = ["git", "-C", str(repo)]
+    if acao == "remoto":
+        url = d.get("url", "").strip()
+        if not re.fullmatch(r"(https://|git@)[\w.@:/~\-]+?(\.git)?/?", url):
+            raise Erro("URL inválida (ex.: https://github.com/usuario/repo.git ou git@github.com:usuario/repo.git).")
+        tem = "origin" in rodar(g + ["remote"])[1].split()
+        ok_ou_erro(rodar(g + (["remote", "set-url", "origin", url] if tem else ["remote", "add", "origin", url])))
+        return f"Repositório remoto (origin) agora é {url}."
+    if acao == "merge":
+        b = d.get("branch", "").strip()
+        if not BRANCH_OK.match(b):
+            raise Erro("Branch inválida.")
+        cod, txt = rodar(g + ["merge", "--no-edit", b])
+        if cod != 0 and "CONFLICT" in txt:
+            raise Erro("Conflito no merge! Abra no VS Code para resolver os arquivos marcados.\n" + txt[-800:])
+        return ok_ou_erro((cod, txt)) or "Merge feito."
+    if acao == "apagar_branch":
+        b = d.get("branch", "").strip()
+        if not BRANCH_OK.match(b):
+            raise Erro("Branch inválida.")
+        return ok_ou_erro(rodar(g + ["branch", "-D" if d.get("forcar") else "-d", b]))
+    if acao == "tag":
+        t, msg = d.get("tag", "").strip(), d.get("mensagem", "").strip() or "versão"
+        if not re.fullmatch(r"[\w.\-]{1,60}", t):
+            raise Erro("Nome de tag inválido (ex.: v1.0.0).")
+        ok_ou_erro(rodar(g + ["tag", "-a", t, "-m", msg]))
+        return f"Tag {t} criada. Use Push para enviá-la ao GitHub."
+    if acao == "stash":
+        return ok_ou_erro(rodar(g + ["stash", "push", "-u", "-m", d.get("mensagem") or "guardado pelo painel"])) or "Mudanças guardadas."
+    if acao == "stash_pop":
+        return ok_ou_erro(rodar(g + ["stash", "pop"])) or "Mudanças devolvidas."
+    if acao == "descartar":
+        arq = d.get("arquivo", "")
+        alvo = (repo / arq).resolve()
+        if repo not in alvo.parents:
+            raise Erro("Arquivo inválido.")
+        if d.get("novo"):
+            ok_ou_erro(rodar(g + ["clean", "-f", "--", arq]))
+        else:
+            ok_ou_erro(rodar(g + ["restore", "--staged", "--worktree", "--", arq]))
+        return f"Mudanças em {arq} descartadas."
+    if acao == "desfazer_commit":
+        ok_ou_erro(rodar(g + ["reset", "--soft", "HEAD~1"]))
+        return "Último commit desfeito (as mudanças continuam nos arquivos)."
+    if acao == "grafico":
+        return rodar(g + ["log", "--graph", "--oneline", "--decorate", "--all", "-60", "--date=short",
+                          "--pretty=format:%h %d %s (%an, %ad)"])[1] or "(sem commits)"
+    if acao == "info_repo":
+        r = info_repo(str(repo))
+        r["tags"] = rodar(g + ["tag", "--sort=-creatordate"])[1].splitlines()[:30]
+        r["stashes"] = rodar(g + ["stash", "list"])[1].splitlines()
+        return r
     if acao == "commit":
         msg = d.get("mensagem", "").strip()
         if not msg:
@@ -572,10 +963,10 @@ def acao_git(d):
             ok_ou_erro(rodar(g + ["add", "-A"]))
         return ok_ou_erro(rodar(g + ["commit", "-m", msg]))
     if acao in ("pull", "push"):
-        cmd = g + ([acao] if acao == "pull" else ["push", "-u", "origin", "HEAD"])
+        cmd = g + ([acao] if acao == "pull" else ["push", "--follow-tags", "-u", "origin", "HEAD"])
         cod, txt = rodar(cmd, timeout=300)
         if cod != 0 and ("terminal prompts disabled" in txt or "could not read Username" in txt):
-            raise Erro("O GitHub pediu login. Faça este push/pull uma vez pelo terminal (botão Terminal) com seu token.")
+            raise Erro("O GitHub pediu login. Na aba Git, use 'Token do GitHub' (HTTPS) ou 'Chave SSH'.")
         return ok_ou_erro((cod, txt)) or "OK"
     if acao == "checkout":
         b = d.get("branch", "").strip()
@@ -619,7 +1010,7 @@ def acao_abrir(d):
     acao = d.get("acao")
     if acao == "url":
         url = d.get("url", "")
-        if not re.match(r"^http://(localhost|127\.0\.0\.1):\d+(/.*)?$", url):
+        if not re.match(r"^(http://(localhost|127\.0\.0\.1):\d+(/.*)?|https://github\.com/[\w./?=&\-]*)$", url):
             raise Erro("Endereço não permitido.")
         lancar(["firefox", url])
         return "Abrindo no navegador."
@@ -662,10 +1053,23 @@ def info_sistema():
             procs.append({"pid": int(p[0]), "usuario": p[1], "mem_mb": round(int(p[2]) / 1024), "cpu": p[3],
                           "tempo": p[4], "nome": p[5], "seu": p[1] == os.environ.get("USER", HOME.name)})
     servicos = {s: servico_ativo(s) for s in ("docker", "jenkins", "NetworkManager", "lightdm")}
+    portas = []
+    for l in rodar(["ss", "-tlnH"])[1].splitlines():
+        p = l.split()
+        if len(p) >= 4:
+            end = p[3]
+            porta = end.rsplit(":", 1)[-1]
+            if porta.isdigit() and int(porta) not in {p_["porta"] for p_ in portas}:
+                portas.append({"porta": int(porta), "endereco": end, "so_local": end.startswith(("127.", "[::1]"))})
+    conhecidas = {8080: "Jenkins", 8090: "Painel DevOps", 22: "SSH", 53: "DNS", 631: "Impressão"}
+    for p_ in portas:
+        p_["nome"] = conhecidas.get(p_["porta"], "")
+    ip = rodar(["hostname", "-I"])[1].split()
     return {"mem_total": mem.get("MemTotal", 0), "mem_disponivel": mem.get("MemAvailable", 0),
             "swap_total": mem.get("SwapTotal", 0), "swap_livre": mem.get("SwapFree", 0),
             "disco_total": disco.total // 2**30, "disco_usado": (disco.total - disco.free) // 2**30,
-            "carga": [round(x, 2) for x in carga], "cpus": os.cpu_count(), "processos": procs, "servicos": servicos}
+            "carga": [round(x, 2) for x in carga], "cpus": os.cpu_count(), "processos": procs, "servicos": servicos,
+            "portas": sorted(portas, key=lambda x: x["porta"]), "ip": ip}
 
 
 def acao_sistema(d):
@@ -784,9 +1188,23 @@ def acao_executar(d):
         repo = dentro_da_home(d.get("repo", ""))
         if not (repo / ".git").exists():
             raise Erro("Isto não é um repositório Git.")
-        if a in ("pull", "push"):
-            cmd = ["git", a] if a == "pull" else ["git", "push", "-u", "origin", "HEAD"]
+        if a in ("pull", "push", "fetch"):
+            cmd = {"pull": ["git", "pull"], "fetch": ["git", "fetch", "--all", "--prune"],
+                   "push": ["git", "push", "--follow-tags", "-u", "origin", "HEAD"]}[a]
             return iniciar_tarefa("git", f"git {a} ({repo.name})", cmd, cwd=str(repo))
+    if f == "vscode":
+        ext = d.get("extensao", "").strip()
+        if not re.fullmatch(r"[\w\-]+\.[\w.\-]+", ext):
+            raise Erro("ID de extensão inválido (ex.: ms-python.python).")
+        op = "--install-extension" if a == "instalar" else "--uninstall-extension"
+        return iniciar_tarefa("vscode", f"{'instalar' if a == 'instalar' else 'remover'} extensão {ext}", ["code", op, ext])
+    if f == "ansible" and a in ("colecao", "colecoes"):
+        if a == "colecoes":
+            return iniciar_tarefa("ansible", "coleções instaladas", ["ansible-galaxy", "collection", "list"], cwd=str(HOME))
+        col = d.get("colecao", "").strip()
+        if not re.fullmatch(r"[a-z0-9_]+\.[a-z0-9_]+", col):
+            raise Erro("Coleção inválida (ex.: community.mysql).")
+        return iniciar_tarefa("ansible", f"instalar coleção {col}", ["ansible-galaxy", "collection", "install", col], cwd=str(HOME))
     if f == "ansible":
         pb = dentro_da_home(d.get("playbook", ""))
         if a in ("rodar", "checar", "simular"):
@@ -810,7 +1228,8 @@ def acao_executar(d):
         cmds = {"init": ["init", "-input=false", "-no-color"], "validate": ["validate", "-no-color"],
                 "plan": ["plan", "-input=false", "-no-color"], "apply": ["apply", "-auto-approve", "-input=false", "-no-color"],
                 "destroy": ["destroy", "-auto-approve", "-input=false", "-no-color"], "fmt": ["fmt", "-diff", "-no-color"],
-                "output": ["output", "-no-color"], "state": ["state", "list"]}
+                "output": ["output", "-no-color"], "state": ["state", "list"], "show": ["show", "-no-color"],
+                "graph": ["graph"]}
         if a not in cmds:
             raise Erro("Ação do Terraform desconhecida.")
         return iniciar_tarefa("terraform", f"terraform {a} ({pasta.name})", ["terraform"] + cmds[a], cwd=str(pasta))
@@ -836,6 +1255,13 @@ def acao_executar(d):
                 raise Erro("Crie o ambiente (.venv) primeiro.")
             return iniciar_tarefa("python", f"pip install {' '.join(pacotes)}", [py, "-m", "pip", "install"] + pacotes,
                                   cwd=str(pasta))
+        if a == "pytest":
+            return iniciar_tarefa("python", f"pytest ({pasta.name})", [py, "-m", "pytest", "-v"], cwd=str(pasta))
+        if a == "freeze":
+            if not venv_py.exists():
+                raise Erro("Crie o ambiente (.venv) primeiro.")
+            return iniciar_tarefa("python", f"pip freeze > requirements.txt ({pasta.name})",
+                                  ["sh", "-c", f'"{py}" -m pip freeze | tee requirements.txt'], cwd=str(pasta))
         if a == "piplist":
             return iniciar_tarefa("python", f"pip list ({pasta.name})", [py, "-m", "pip", "list"], cwd=str(pasta))
     raise Erro("Ação desconhecida.")
@@ -867,6 +1293,7 @@ def info_ansible():
                     hosts = re.search(r"hosts\s*:\s*(.+)$", txt, re.M)
                     playbooks.append({"arquivo": str(cam), "nome": nome.group(1).strip() if nome else a,
                                       "hosts": hosts.group(1).strip() if hosts else "",
+                                      "inventario": str(raiz / "inventario.ini") if (raiz / "inventario.ini").is_file() else "",
                                       "tarefas": len(re.findall(r"^\s+- name\s*:", txt, re.M))})
     return {"playbooks": playbooks}
 
