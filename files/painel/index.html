@@ -261,12 +261,25 @@ function assistente(titulo, modelos, campos, aoCriar, rotulo){
       const val = m.valores?.[c.id] ?? c.padrao ?? '';
       if(c.tipo === 'area') return `<label class="campo" style="grid-column:1/-1">${esc(c.rot)}<textarea id="a-${c.id}" spellcheck="false" style="min-height:${c.alt||260}px">${esc(val)}</textarea></label>`;
       if(c.tipo === 'check') return `<label class="campo" style="flex-direction:row;align-items:center;gap:8px;color:var(--texto)"><input type="checkbox" id="a-${c.id}" style="width:auto" ${val?'checked':''}>${esc(c.rot)}</label>`;
+      if(c.tipo === 'memoria') return `<label class="campo">${esc(c.rot)}<input id="a-${c.id}" value="${esc(val)}" placeholder="ex.: 512m, 1g, 2g (vazio = sem limite)">
+        <span class="chips" style="margin-top:4px">${['256m','512m','1g','2g','4g',''].map(x => `<button type="button" class="b peq" onclick='const e=document.getElementById("a-${c.id}");e.value=${A(x)};e.dispatchEvent(new Event("input",{bubbles:true}))'>${x || 'sem limite'}</button>`).join('')}</span></label>`;
       if(c.tipo === 'select') return `<label class="campo">${esc(c.rot)}<select id="a-${c.id}">${c.opcoes().map(o => `<option ${o===val?'selected':''}>${esc(o)}</option>`).join('')}</select></label>`;
       return `<label class="campo">${esc(c.rot)}<input id="a-${c.id}" value="${esc(val)}" placeholder="${esc(c.dica||'')}"></label>`;
     }).join('');
   };
   document.querySelectorAll('.modelo').forEach(b => b.onclick = () => { sel = +b.dataset.i; document.querySelectorAll('.modelo').forEach(x => x.classList.toggle('sel', x === b)); desenhar(); });
+  $('#a-campos').addEventListener('input', e => { const c = campos.find(x => 'a-' + x.id === e.target.id); if(c && c.aoMudar) c.aoMudar(e.target.value); });
   desenhar();
+}
+/* troca o limite de memória dentro de um script/compose já escrito */
+const MEM_OK = v => !v || /^\d{1,6}[bkmgBKMG]?$/.test(v.trim());
+function trocarMemoriaScript(id, mem){
+  const t = document.getElementById(id); if(!t || !MEM_OK(mem)) return; mem = mem.trim();
+  t.value = t.value.replace(/ --memory=\S+ --memory-swap=\S+/g, '').replace(/docker run --rm /g, mem ? `docker run --rm --memory=${mem} --memory-swap=${mem} ` : 'docker run --rm ');
+}
+function trocarMemoriaCompose(id, mem){
+  const t = document.getElementById(id); if(!t || !MEM_OK(mem)) return; mem = mem.trim();
+  t.value = t.value.replace(/\n\s+mem_limit: \S+/g, '').replace(/(\n(\s+)image: [^\n]+)/g, (m, linha, ind) => mem ? `${linha}\n${ind}mem_limit: ${mem}` : linha);
 }
 document.addEventListener('keydown', e => { if(e.key === 'Escape' && $('#modal').classList.contains('aberto')) fecharModal(); });
 
@@ -414,7 +427,7 @@ const MODELOS_CONTAINER = [
 function novoContainer(imagem){
   assistente('Novo container', MODELOS_CONTAINER, [
     {id:'imagem', rot:'Imagem', dica:'nginx:alpine'}, {id:'nome', rot:'Nome do container', dica:'meu-app'},
-    {id:'portas', rot:'Portas (PC:container)', dica:'8081:80'}, {id:'memoria', rot:'Limite de memória', dica:'1g, 512m…'},
+    {id:'portas', rot:'Portas (PC:container)', dica:'8081:80'}, {id:'memoria', rot:'Limite de memória', tipo:'memoria'},
     {id:'volumes', rot:'Volumes (nome:/caminho)', dica:'dados:/data'}, {id:'comando', rot:'Comando (opcional)', dica:'sleep infinity'},
     {id:'cpus', rot:'Limite de CPU (opcional)', dica:'0.5 = meia CPU'}, {id:'rede', rot:'Rede (opcional)', dica:'minha-rede'},
     {id:'env', rot:'Variáveis de ambiente (NOME=valor, uma por linha)', tipo:'area', alt:70}, {id:'reiniciar', rot:'Reiniciar sozinho se cair', tipo:'check'},
@@ -433,14 +446,16 @@ function baixarImagem(){
     [{txt:'⬇ Baixar', cls:'pri', fn: b => executar({ferramenta:'docker', acao:'pull', imagem:$('#bx-img').value}, b)}]);
 }
 const MODELOS_COMPOSE = [
-  {nome:'Site Nginx (1 GB)', desc:'1 serviço com limite de memória', valores:{nome:'site', conteudo:`services:\n  web:\n    image: nginx:alpine\n    container_name: site-web\n    ports:\n      - "8081:80"\n    mem_limit: 1g\n    restart: unless-stopped\n`}},
-  {nome:'Nginx + Redis', desc:'2 serviços na mesma rede', valores:{nome:'web-cache', conteudo:`services:\n  web:\n    image: nginx:alpine\n    ports:\n      - "8083:80"\n    depends_on:\n      - cache\n    mem_limit: 256m\n  cache:\n    image: redis:alpine\n    mem_limit: 256m\n`}},
-  {nome:'WordPress + MySQL', desc:'Site completo na porta 8084', valores:{nome:'wordpress', conteudo:`services:\n  db:\n    image: mysql:8.4\n    environment:\n      MYSQL_ROOT_PASSWORD: devops\n      MYSQL_DATABASE: wordpress\n    volumes:\n      - db-dados:/var/lib/mysql\n    mem_limit: 1g\n  wordpress:\n    image: wordpress:latest\n    depends_on:\n      - db\n    ports:\n      - "8084:80"\n    environment:\n      WORDPRESS_DB_HOST: db\n      WORDPRESS_DB_USER: root\n      WORDPRESS_DB_PASSWORD: devops\n      WORDPRESS_DB_NAME: wordpress\n    mem_limit: 512m\nvolumes:\n  db-dados:\n`}},
-  {nome:'Em branco', desc:'Escreva do zero', valores:{nome:'meu-compose', conteudo:`services:\n  app:\n    image: nginx:alpine\n`}},
+  {nome:'Site Nginx', desc:'1 serviço com limite de memória', valores:{nome:'site', memoria:'1g', conteudo:`services:\n  web:\n    image: nginx:alpine\n    container_name: site-web\n    ports:\n      - "8081:80"\n    mem_limit: 1g\n    restart: unless-stopped\n`}},
+  {nome:'Nginx + Redis', desc:'2 serviços na mesma rede', valores:{nome:'web-cache', memoria:'256m', conteudo:`services:\n  web:\n    image: nginx:alpine\n    ports:\n      - "8083:80"\n    depends_on:\n      - cache\n    mem_limit: 256m\n  cache:\n    image: redis:alpine\n    mem_limit: 256m\n`}},
+  {nome:'WordPress + MySQL', desc:'Site completo na porta 8084', valores:{nome:'wordpress', memoria:'', conteudo:`services:\n  db:\n    image: mysql:8.4\n    environment:\n      MYSQL_ROOT_PASSWORD: devops\n      MYSQL_DATABASE: wordpress\n    volumes:\n      - db-dados:/var/lib/mysql\n    mem_limit: 1g\n  wordpress:\n    image: wordpress:latest\n    depends_on:\n      - db\n    ports:\n      - "8084:80"\n    environment:\n      WORDPRESS_DB_HOST: db\n      WORDPRESS_DB_USER: root\n      WORDPRESS_DB_PASSWORD: devops\n      WORDPRESS_DB_NAME: wordpress\n    mem_limit: 512m\nvolumes:\n  db-dados:\n`}},
+  {nome:'Em branco', desc:'Escreva do zero', valores:{nome:'meu-compose', memoria:'', conteudo:`services:\n  app:\n    image: nginx:alpine\n`}},
 ];
 function novoCompose(){
   assistente('Novo projeto Docker Compose', MODELOS_COMPOSE, [
-    {id:'nome', rot:'Nome da pasta (em ~/projetos)'}, {id:'conteudo', rot:'docker-compose.yml', tipo:'area', alt:300}, {id:'subir', rot:'Subir logo depois de criar', tipo:'check', padrao:true}
+    {id:'nome', rot:'Nome da pasta (em ~/projetos)'},
+    {id:'memoria', rot:'Limite de memória de cada serviço', tipo:'memoria', aoMudar: v => trocarMemoriaCompose('a-conteudo', v)},
+    {id:'conteudo', rot:'docker-compose.yml', tipo:'area', alt:300}, {id:'subir', rot:'Subir logo depois de criar', tipo:'check', padrao:true}
   ], async (v, m, b) => {
     try{
       const r = await post('/api/arquivo', {acao:'projeto', nome:v.nome, arquivos:{'docker-compose.yml': v.conteudo}}, b); toast(r.msg);
@@ -547,7 +562,7 @@ const SCRIPTS = {
 };
 const TIPOS_JENKINS = [
   {nome:'Pipeline: Olá', desc:'O mais simples, 2 etapas', valores:{tipo:'pipeline', nome:'ola-jenkins', script:SCRIPTS.ola}},
-  {nome:'Pipeline: Docker (1 GB)', desc:'Container com limite de memória', valores:{tipo:'pipeline', nome:'container-docker', script:SCRIPTS.docker}},
+  {nome:'Pipeline: Docker', desc:'Container com o limite de memória que você escolher', valores:{tipo:'pipeline', nome:'container-docker', memoria:'1g', script:SCRIPTS.docker}},
   {nome:'Pipeline: Docker Compose', desc:'Sobe um docker-compose.yml', valores:{tipo:'pipeline', nome:'subir-compose', script:SCRIPTS.compose}},
   {nome:'Pipeline: Testes Python', desc:'Roda dentro de um container', valores:{tipo:'pipeline', nome:'testes-python', script:SCRIPTS.python}},
   {nome:'Pipeline com parâmetros', desc:'Pergunta valores ao construir', valores:{tipo:'pipeline', nome:'com-parametros', script:SCRIPTS.parametros}},
@@ -571,6 +586,7 @@ async function novoItemJenkins(pasta){
     {id:'credencial', rot:'Credencial (repositório privado)', tipo:'select', opcoes: () => creds, so: temTipo('pipeline_scm','multibranch','freestyle')},
     {id:'cron_scm', rot:'Verificar o Git e rodar se mudou (cron)', dica:'H/5 * * * *  (vazio = não verifica)', so: temTipo('pipeline','pipeline_scm','freestyle')},
     {id:'cron', rot:'Rodar em horários fixos (cron)', dica:'H 8 * * 1-5  (vazio = não)', so: temTipo('pipeline','pipeline_scm','freestyle')},
+    {id:'memoria', rot:'Limite de memória do container', tipo:'memoria', so: m => m.valores.memoria !== undefined, aoMudar: v => trocarMemoriaScript('a-script', v)},
     {id:'script', rot:'Script (Jenkinsfile)', tipo:'area', alt:230, so: temTipo('pipeline')},
     {id:'comandos', rot:'Comandos do terminal (um por linha)', tipo:'area', alt:130, so: temTipo('freestyle')},
     {id:'descricao', rot:'Descrição (opcional)'},
