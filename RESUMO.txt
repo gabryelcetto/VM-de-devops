@@ -1,0 +1,109 @@
+=== Teste do DevOps-Lab.ova no VirtualBox 7.2.22r175245 ===
+Arquivo: DevOps-Lab.ova (1.7G)
+[OK]    Importação do .ova (Arquivo > Importar Appliance)
+ostype="Ubuntu (64-bit)"
+memory=4096
+vram=128
+cpus=2
+ioapic="on"
+paravirtprovider="default"
+graphicscontroller="vboxsvga"
+storagecontrollertype0="IntelAhci"
+storagecontrollerportcount0="1"
+nic1="nat"
+clipboard="bidirectional"
+draganddrop="bidirectional"
+[OK]    boot1: área de trabalho aberta (usuário logado) e rede com IP 10.0.2.15 em 15s
+[OK]    Guest Additions ativos: 7.0.16
+[OK]    Janela do VirtualBox mostra a área de trabalho (13314 cores)
+[OK]    Tela desenhada logo após o login (13219 cores)
+[OK]    Sessão XFCE completa (xfwm4, painel, área de trabalho, xfsettingsd)
+[OK]    Painel do XFCE na tela
+[OK]    Área de trabalho (xfdesktop) na tela
+[OK]    Sem diálogo de primeiro uso do painel
+[OK]    Papel de parede DevOps Lab como padrão
+[OK]    Tema Greybird, ícones elementary e fonte Ubuntu
+[OK]    Painel com menu, atalhos, tarefas, bandeja e relógio
+[OK]    Compositor leve ligado (janelas não deixam rastro ao arrastar)
+[OK]    Atalhos confiáveis na Área de Trabalho
+[OK]    Teclado ABNT2 na interface
+[OK]    Integração com o VirtualBox (VBoxClient)
+[OK]    Firefox com página inicial e favoritos do Lab
+[OK]    VS Code em português, sem chaveiro e sem aceleração de GPU
+[OK]    verificar-lab (logo após o login) sem falhas
+[OK]    Jenkins ligou sozinho e responde em http://localhost:8080 (+8s após a checagem)
+[OK]    Jenkins: login aluno/devops (sem assistente inicial)
+[OK]    Jenkins: anônimo bloqueado
+[OK]    Jenkins: plugins Pipeline, Git, GitHub e Docker ativos
+[OK]    Jenkins: pipeline com Docker roda com sucesso
+=== DevOps-Lab - verificação do ambiente ===
+[OK]    Ubuntu           Ubuntu 24.04.5 LTS
+[OK]    VS Code          1.144.0
+[OK]    Docker           Docker version 29.9.2, build a82e528
+[OK]    Docker Compose   Docker Compose version v5.6.1
+[OK]    Git              git version 2.43.0
+[OK]    Ansible          ansible [core 2.21.5]
+[OK]    Terraform        Terraform v1.17.1
+[OK]    Python           Python 3.12.3
+[OK]    pip              pip 24.0 from /usr/lib/python3/dist-packages/pip (python 3.12)
+[OK]    Java             openjdk version "21.0.12.1" 2026-08-18
+[OK]    Firefox          Mozilla Firefox 159.0
+[OK]    Jenkins          http://localhost:8080 (aluno / devops) - versão 2.580.2
+[OK]    Docker daemon    rodando, usuário aluno tem acesso
+[OK]    verificar-lab: todas as ferramentas OK
+[OK]    Serviços: lightdm, NetworkManager, docker (sob demanda), jenkins
+[OK]    Sessão XFCE do aluno rodando
+[OK]    Internet dentro da VM
+[OK]    docker run hello-world (sem sudo)
+[OK]    Docker Compose sobe um serviço
+[OK]    Firefox instalado
+[OK]    Extensões do VS Code (pt-BR, Python, Docker, Terraform, YAML, Ansible)
+[OK]    apt update funciona (repositórios e chaves OK)
+[OK]    Ansible executa (ping no localhost)
+[OK]    Coleções do Ansible (general, docker, posix)
+[OK]    Terraform executa (init/apply local)
+[OK]    Python venv + pip
+[OK]    Git configura e faz commit
+[OK]    SSH ativo com chaves novas
+[OK]    Identidade única (machine-id gerado)
+[OK]    Idioma pt-BR, teclado ABNT2, fuso de São Paulo
+[OK]    Sudo funciona com a senha devops
+Swap: /swap.img file   2G   -2 
+[OK]    Rede virtio (mais leve com Hyper-V)
+[OK]    Sem serviços desnecessários (rsyslog, sysstat, áudio, protetor de tela)
+[OK]    Boot silencioso (quiet)
+[OK]    LEIA-ME e atalho projetos na Área de Trabalho
+[OK]    Tela final desenhada (13219 cores)
+[OK]    Atalho do Painel DevOps na área de trabalho, no menu e no painel
+[OK]    Painel DevOps responde em localhost:8090
+[OK]    Painel DevOps: aba docker carrega
+[OK]    Painel DevOps: aba jenkins carrega
+[OK]    Painel DevOps: aba git carrega
+[OK]    Painel DevOps: aba vscode carrega
+[OK]    Painel DevOps: aba ansible carrega
+[OK]    Painel DevOps: aba terraform carrega
+[OK]    Painel DevOps: aba python carrega
+[OK]    Painel DevOps: aba sistema carrega
+[OK]    Painel DevOps: aba resumo carrega
+[OK]    Painel DevOps: aba tarefas carrega
+[OK]    Painel DevOps: aba ferramentas carrega
+[OK]    Painel DevOps: Docker ligado e Jenkins respondendo
+[OK]    Painel DevOps: todas as ferramentas instaladas
+[OK]    Painel DevOps: cria container pelo botão (modelo + limite de 256 MB)
+[OK]    Painel DevOps: cria projeto Compose e sobe com saída ao vivo
+[OK]    Painel DevOps: cria Freestyle numa Pasta e roda com sucesso
+[OK]    Painel DevOps: gera chave SSH do Git
+[OK]    GitHub conhecido para SSH (sem pergunta de confiança)
+[OK]    Painel DevOps: recusa ação sem token (segurança)
+[OK]    Painel DevOps: recusa acesso por outro endereço (segurança)
+[OK]    Painel DevOps aberto no Firefox (11831 cores)
+Boot: Startup finished in 1.803s (kernel) + 3.351s (userspace) = 5.154s 
+Memória: Mem.:           3915         929        1398           1        1819        2986
+[OK]    Desligamento pelo botão de energia (ACPI)
+[OK]    boot2-cpu35-vmsvga: área de trabalho aberta (usuário logado) e rede com IP 10.0.2.15 em 25s
+[AVISO] PC lento + VMSVGA: janela do VirtualBox preta (1 cores) - o .ova usa VBoxSVGA; com VMSVGA o aluno deve trocar para VBoxSVGA
+PC lento + VMSVGA - resolução: 1280 x 800
+[OK]    PC lento: tela desenhada (13384 cores)
+PC lento - Startup finished in 4.369s (kernel) + 8.420s (userspace) = 12.789s 
+
+RESULTADO: TODOS OS TESTES PASSARAM

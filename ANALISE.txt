@@ -1,0 +1,189 @@
+===== systemd-analyze =====
+Startup finished in 1.803s (kernel) + 3.351s (userspace) = 5.154s 
+graphical.target reached after 3.315s in userspace.
+
+===== serviços mais lentos =====
+26.895s jenkins.service
+ 7.621s devops-lab-apt-update.service
+ 3.274s docker.service
+ 1.829s dev-sda2.device
+ 1.633s NetworkManager.service
+ 1.066s console-setup.service
+  900ms regen-ssh-host-keys.service
+  881ms apparmor.service
+  628ms virtualbox-guest-utils.service
+  568ms systemd-udev-trigger.service
+  503ms containerd.service
+  475ms udisks2.service
+  274ms keyboard-setup.service
+  190ms user@1000.service
+  188ms polkit.service
+  188ms systemd-resolved.service
+  174ms modprobe@loop.service
+  173ms modprobe@fuse.service
+  168ms grub-common.service
+  165ms systemd-journald.service
+
+===== caminho crítico =====
+The time when unit became active or started is printed after the "@" character.
+The time the unit took to start is printed after the "+" character.
+
+graphical.target @3.315s
+└─lightdm.service @3.262s +52ms
+  └─systemd-user-sessions.service @3.242s +12ms
+    └─network.target @3.236s
+      └─NetworkManager.service @1.602s +1.633s
+        └─dbus.service @1.541s +49ms
+          └─basic.target @1.521s
+            └─paths.target @1.516s
+              └─systemd-ask-password-console.path @959ms
+                └─-.mount @270ms
+                  └─-.slice @270ms
+
+===== memória =====
+               total       usada       livre    compart.  buff/cache  disponível
+Mem.:           3915         929        1398           1        1819        2986
+Swap:           2047           0        2047
+
+===== processos que mais usam memória =====
+  RSS COMMAND
+369532 java
+119020 Xorg
+104648 dockerd
+80180 xfce4-session
+53832 containerd
+51584 xfdesktop
+43120 panel-1-whisker
+42928 xfce4-panel
+42328 xfwm4
+37936 nm-applet
+34148 xfce4-notifyd
+32972 panel-11-systra
+31844 panel-14-action
+31040 python3
+
+===== disco =====
+Sist. Arq.      Tam. Usado Disp. Uso% Montado em
+/dev/sda2        32G  6,7G   24G  23% /
+
+===== maiores pacotes (MB) =====
+    16.3  locales
+    16.4  language-pack-pt-base
+    18.7  perl-modules-5.38
+    19.0  linux-tools-6.8.0-147
+    19.9  iso-codes
+    20.2  humanity-icon-theme
+    21.2  git
+    28.5  python-babel-localedata
+    28.7  libperl5.38t64
+    30.1  cpp-13-x86-64-linux-gnu
+    31.2  docker-compose-plugin
+    35.1  libicu74
+    35.7  vim-runtime
+    37.7  linux-modules-6.8.0-147-generic
+    41.5  mesa-libgallium
+    45.5  docker-ce-cli
+    51.6  jenkins
+    72.4  docker-buildx-plugin
+    84.9  containerd.io
+   111.0  docker-ce
+   123.3  terraform
+   137.0  libllvm20
+   193.6  openjdk-21-jre-headless
+   325.2  firefox
+  1030.5  code
+
+===== pastas grandes =====
+1,1G	/usr/share/code
+326M	/usr/lib/firefox
+168M	/var/lib/jenkins
+52M	/usr/share/java
+194M	/usr/lib/jvm
+39M	/usr/share/ansible
+32M	/usr/lib/modules
+
+===== pacotes removidos no enxugamento =====
+REMOVIDO multipath-tools (2 pacote(s): ubuntu-server multipath-tools)
+REMOVIDO lvm2 (1 pacote(s): lvm2)
+REMOVIDO mdadm (1 pacote(s): mdadm)
+REMOVIDO open-iscsi (1 pacote(s): open-iscsi)
+REMOVIDO bcache-tools (1 pacote(s): bcache-tools)
+REMOVIDO btrfs-progs (1 pacote(s): btrfs-progs)
+REMOVIDO xfsprogs (1 pacote(s): xfsprogs)
+REMOVIDO cryptsetup (3 pacote(s): cryptsetup-initramfs overlayroot cryptsetup)
+REMOVIDO packagekit (3 pacote(s): software-properties-common packagekit-tools packagekit)
+REMOVIDO modemmanager (1 pacote(s): modemmanager)
+MANTIDO  udisks2 (levaria: gvfs)
+REMOVIDO ubuntu-drivers-common (1 pacote(s): ubuntu-drivers-common)
+REMOVIDO open-vm-tools (1 pacote(s): open-vm-tools)
+REMOVIDO fwupd (1 pacote(s): fwupd)
+REMOVIDO pipewire (7 pacote(s): gnome-shell gstreamer1.0-pipewire pipewire-audio pipewire-alsa wireplumber pipewire-pulse pipewire)
+REMOVIDO pipewire-bin (1 pacote(s): pipewire-bin)
+REMOVIDO ubuntu-wallpapers (1 pacote(s): ubuntu-wallpapers)
+REMOVIDO ubuntu-wallpapers-noble (1 pacote(s): ubuntu-wallpapers-noble)
+REMOVIDO python3-botocore (3 pacote(s): python3-boto3 python3-s3transfer python3-botocore)
+REMOVIDO libwebkitgtk-6.0-4 (2 pacote(s): gir1.2-webkit-6.0 libwebkitgtk-6.0-4)
+REMOVIDO apport (2 pacote(s): apport apport-core-dump-handler)
+REMOVIDO apport-symptoms (1 pacote(s): apport-symptoms)
+REMOVIDO pollinate (1 pacote(s): pollinate)
+REMOVIDO ubuntu-release-upgrader-core (3 pacote(s): update-notifier-common update-manager-core ubuntu-release-upgrader-core)
+REMOVIDO cloud-init (1 pacote(s): cloud-init)
+REMOVIDO cloud-guest-utils (1 pacote(s): cloud-guest-utils)
+REMOVIDO landscape-common (1 pacote(s): landscape-common)
+REMOVIDO sosreport (1 pacote(s): sosreport)
+REMOVIDO byobu (1 pacote(s): byobu)
+REMOVIDO lxd-installer (1 pacote(s): lxd-installer)
+REMOVIDO pulseaudio (2 pacote(s): gnome-settings-daemon pulseaudio)
+REMOVIDO sysstat (1 pacote(s): sysstat)
+REMOVIDO rsyslog (1 pacote(s): rsyslog)
+AUTOREMOVE 276 pacote(s)
+
+===== quem puxou pacotes grandes =====
+## libwebkitgtk-6.0-4
+## python3-botocore
+## libllvm20
+  mesa-libgallium
+  mesa-libgallium
+## ubuntu-wallpapers-noble
+
+===== autostart da sessão =====
+/etc/xdg/autostart:
+devops-lab-login.desktop
+nm-applet.desktop
+polkit-gnome-authentication-agent-1.desktop
+xdg-user-dirs.desktop
+xfce4-notifyd.desktop
+xfsettingsd.desktop
+xscreensaver.desktop
+
+/home/aluno/.config/autostart:
+at-spi-dbus-bus.desktop
+light-locker.desktop
+pulseaudio.desktop
+xscreensaver.desktop
+
+===== janelas na tela =====
+"Área de trabalho"
+"main"
+"NetworkManager Applet"
+"nm-applet"
+"Nm-applet"
+"polkit-gnome-authentication-agent-1"
+"Polkit-gnome-authentication-agent-1"
+"Thunar"
+"VBoxClientWndDnD"
+"VBoxShCl"
+"wrapper-2.0"
+"Wrapper-2.0"
+"xfce4-notifyd"
+"Xfce4-notifyd"
+"xfce4-panel"
+"Xfce4-panel"
+"xfce4-session"
+"Xfce4-session"
+"xfdesktop"
+"Xfdesktop"
+"xfsettingsd"
+"Xfsettingsd"
+"xfwm4"
+"Xfwm4"

@@ -1,0 +1,36 @@
+0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
+Interpreting /home/runner/work/VM-de-devops/VM-de-devops/final/DevOps-Lab.ova...
+OK.
+0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
+Disks:
+  vmdisk1	34359738368	-1	http://www.vmware.com/interfaces/specifications/vmdk.html#streamOptimized	DevOps-Lab-disk001.vmdk	-1	-1	
+
+Virtual system 0:
+ 0: Suggested OS type: "Ubuntu_64"
+    (change with "--vsys 0 --ostype <type>"; use "list ostypes" to list all possible values)
+ 1: VM name specified with --vmname: "DevOps-Lab"
+ 2: Suggested VM group "/"
+    (change with "--vsys 0 --group <group>")
+ 3: Suggested VM settings file name "/home/runner/VirtualBox VMs/DevOps-Lab/DevOps-Lab.vbox"
+    (change with "--vsys 0 --settingsfile <filename>")
+ 4: Suggested VM base folder "/home/runner/VirtualBox VMs"
+    (change with "--vsys 0 --basefolder <path>")
+ 5: Product (ignored): DevOps Lab
+ 6: Version (ignored): 1.0
+ 7: Description "Ubuntu 24.04 LTS + XFCE com VS Code, Docker, Docker Compose, Git, Ansible, Terraform, Python e Jenkins. Usuario: aluno / Senha: devops"
+    (change with "--vsys 0 --description <desc>")
+ 8: Number of CPUs: 2
+    (change with "--vsys 0 --cpus <n>")
+ 9: Guest memory: 4096 MB
+    (change with "--vsys 0 --memory <MB>")
+10: USB controller
+    (disable with "--vsys 0 --unit 10 --ignore")
+11: Network adapter: orig NAT, config 6, extra slot=0;type=NAT
+12: SATA controller, type AHCI
+    (disable with "--vsys 0 --unit 12 --ignore")
+13: Hard disk image: source image=DevOps-Lab-disk001.vmdk, target path=DevOps-Lab-disk001.vmdk, controller=12;port=0
+    (change target path with "--vsys 0 --unit 13 --disk path";
+    change controller with "--vsys 0 --unit 13 --controller <index>";
+    change controller port with "--vsys 0 --unit 13 --port <n>";
+    disable with "--vsys 0 --unit 13 --ignore")
+Successfully imported the appliance.
