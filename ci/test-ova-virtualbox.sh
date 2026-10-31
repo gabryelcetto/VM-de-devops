@@ -173,26 +173,26 @@ chk "LEIA-ME e atalho projetos na Área de Trabalho" "ls \"\$(xdg-user-dir DESKT
 CORES="$(print_tela tela-2-final)"
 if [ "${CORES:-0}" -gt 100 ]; then ok "Tela final desenhada ($CORES cores)"; else bad "Tela final vazia/preta ($CORES cores)"; fi
 
-# ---------------------------------------------------------------- painéis (Painel DevOps e Portainer)
-chk  "Atalhos do Painel DevOps e do Portainer no menu e no painel" "ls /usr/share/applications/painel-devops.desktop /usr/share/applications/portainer-devops-lab.desktop ~/.config/xfce4/panel/launcher-15 ~/.config/xfce4/panel/launcher-16" "portainer-devops-lab.desktop"
+# ---------------------------------------------------------------- Painel DevOps (painel visual único)
+chk  "Atalho do Painel DevOps na área de trabalho, no menu e no painel" "ls /usr/share/applications/painel-devops.desktop ~/.config/xfce4/panel/launcher-15; grep -c painel-devops ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml" "painel-devops.desktop"
 gsh "painel-devops --servidor" >> "$OUT/qa-detalhes.txt"
 PAPI="curl -s -H 'Host: localhost:8090' http://127.0.0.1:8090"
+PTOK="T=\$($PAPI/ | sed -n 's/.*name=\"painel-token\" content=\"\\([^\"]*\\)\".*/\\1/p');"
+PPOST="curl -s -X POST -H 'Host: localhost:8090' -H \"X-Painel-Token: \$T\" -H 'Content-Type: application/json' http://127.0.0.1:8090"
 chk  "Painel DevOps responde em localhost:8090" "$PAPI/saude" '"ok": true'
-chk  "Painel DevOps: Docker (containers do aluno)" "$PAPI/api/docker | python3 -c 'import json,sys; d=json.load(sys.stdin); print(\"ligado\", d[\"ligado\"], len(d.get(\"containers\",[])), \"containers\")'" "ligado True"
-chk  "Painel DevOps: Jenkins (jobs criados)" "$PAPI/api/jenkins | python3 -c 'import json,sys; d=json.load(sys.stdin); print(\"respondendo\", d[\"respondendo\"], [j[\"nome\"] for j in d[\"jobs\"]])'" "respondendo True"
-chk  "Painel DevOps: Git, VS Code e Sistema" "for u in git vscode sistema resumo; do $PAPI/api/\$u | python3 -c 'import json,sys; json.load(sys.stdin); print(\"ok\")'; done | tr '\n' ' '" "^ok ok ok ok"
+for a in docker jenkins git vscode ansible terraform python sistema resumo tarefas ferramentas; do
+  chk "Painel DevOps: aba $a carrega" "$PAPI/api/$a | python3 -c 'import json,sys; d=json.load(sys.stdin); print(\"ok\" if \"erro\" not in d else d)'" "^ok$"
+done
+chk  "Painel DevOps: Docker ligado e Jenkins respondendo" "$PAPI/api/resumo | python3 -c 'import json,sys; d=json.load(sys.stdin); print(\"docker\", d[\"docker\"][\"ligado\"], \"jenkins\", d[\"jenkins\"][\"respondendo\"])'" "docker True jenkins True"
+chk  "Painel DevOps: todas as ferramentas instaladas" "$PAPI/api/ferramentas | python3 -c 'import json,sys; f=json.load(sys.stdin)[\"ferramentas\"]; print(len(f), \"falhando:\", [x[\"nome\"] for x in f if not x[\"ok\"]] or \"nenhuma\")'" "falhando: nenhuma"
+chk  "Painel DevOps: cria container pelo botão (modelo + limite de 256 MB)" "$PTOK $PPOST/api/docker -d '{\"acao\":\"run\",\"imagem\":\"nginx:alpine\",\"nome\":\"painel-web\",\"portas\":\"8091:80\",\"memoria\":\"256m\"}'; sleep 3; curl -s -o /dev/null -w 'http=%{http_code} ' http://localhost:8091; docker inspect -f 'mem={{.HostConfig.Memory}}' painel-web" "http=200 mem=268435456"
+chk  "Painel DevOps: cria projeto Compose e sobe com saída ao vivo" "$PTOK $PPOST/api/arquivo -d '{\"acao\":\"projeto\",\"nome\":\"qa-compose\",\"arquivos\":{\"docker-compose.yml\":\"services:\\n  web:\\n    image: nginx:alpine\\n    ports:\\n      - \\\"8092:80\\\"\\n    mem_limit: 1g\\n\"}}' >/dev/null; I=\$($PPOST/api/executar -d '{\"ferramenta\":\"docker\",\"acao\":\"compose_up\",\"arquivo\":\"~/projetos/qa-compose/docker-compose.yml\"}' | python3 -c 'import json,sys; print(json.load(sys.stdin)[\"resultado\"][\"tarefa\"])'); for i in \$(seq 1 60); do $PAPI/api/tarefa?id=\$I | grep -q '\"fim\": true' && break; sleep 2; done; $PAPI/api/tarefa?id=\$I | python3 -c 'import json,sys; t=json.load(sys.stdin); print(\"codigo\", t[\"codigo\"])'; curl -s -o /dev/null -w 'http=%{http_code}' http://localhost:8092" "codigo 0.*http=200"
 chk  "Painel DevOps: recusa ação sem token (segurança)" "curl -s -X POST -H 'Host: localhost:8090' http://127.0.0.1:8090/api/sistema -d '{}'" "Token inv"
 chk  "Painel DevOps: recusa acesso por outro endereço (segurança)" "curl -s -H 'Host: exemplo.com' http://127.0.0.1:8090/api/resumo" "permitido só"
-chk  "Portainer liga e responde em localhost:9000" "docker start portainer >/dev/null; for i in \$(seq 1 60); do curl -s -o /dev/null -w '%{http_code}' http://localhost:9000/api/system/status | grep -q 200 && break; sleep 1; done; curl -s http://localhost:9000/api/system/status" "Version"
-chk  "Portainer: login admin/devops e ambiente local pronto" "J=\$(curl -s -X POST http://localhost:9000/api/auth -H 'Content-Type: application/json' -d '{\"username\":\"admin\",\"password\":\"devops\"}' | python3 -c 'import json,sys; print(json.load(sys.stdin)[\"jwt\"])'); curl -s http://localhost:9000/api/endpoints -H \"Authorization: Bearer \$J\" | python3 -c 'import json,sys; print(\"ambientes:\", [e[\"Name\"] for e in json.load(sys.stdin)])'" "ambientes: ..local"
-log "Portainer: $(gsh "curl -s http://localhost:9000/api/settings/public" | tr -d '\n' | head -c 400)"
-gsh "$XENV setsid -f firefox http://localhost:8090 >/dev/null 2>&1; sleep 25" >/dev/null
+gsh "$XENV setsid -f firefox http://localhost:8090 >/dev/null 2>&1; sleep 30" >/dev/null
 CORES="$(print_tela tela-4-painel-devops)"
-log "Print do Painel DevOps: $CORES cores"
-gsh "$XENV setsid -f firefox http://localhost:9000 >/dev/null 2>&1; sleep 20" >/dev/null
-CORES="$(print_tela tela-5-portainer)"
-log "Print do Portainer: $CORES cores"
-gsh "pkill -u aluno firefox; docker stop portainer >/dev/null; true" >/dev/null
+if [ "${CORES:-0}" -gt 100 ]; then ok "Painel DevOps aberto no Firefox ($CORES cores)"; else bad "Painel DevOps não apareceu no Firefox ($CORES cores)"; fi
+gsh "pkill -u aluno firefox; docker rm -f painel-web >/dev/null; cd ~/projetos/qa-compose && docker compose down >/dev/null 2>&1; rm -rf ~/projetos/qa-compose; true" >/dev/null
 
 # ---------------------------------------------------------------- análise de desempenho e espaço
 {

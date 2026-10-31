@@ -19,7 +19,6 @@
         <value type="int" value="6"/>
         <value type="int" value="7"/>
         <value type="int" value="15"/>
-        <value type="int" value="16"/>
         <value type="int" value="8"/>
         <value type="int" value="9"/>
         <value type="int" value="10"/>
@@ -41,7 +40,6 @@
         <value type="string" value="firefox.desktop"/>
         <value type="string" value="jenkins-devops-lab.desktop"/>
         <value type="string" value="painel-devops.desktop"/>
-        <value type="string" value="portainer-devops-lab.desktop"/>
         <value type="string" value="thunar.desktop"/>
         <value type="string" value="org.xfce.mousepad.desktop"/>
         <value type="string" value="xfce4-taskmanager.desktop"/>
@@ -79,11 +77,6 @@
     <property name="plugin-15" type="string" value="launcher">
       <property name="items" type="array">
         <value type="string" value="painel-devops.desktop"/>
-      </property>
-    </property>
-    <property name="plugin-16" type="string" value="launcher">
-      <property name="items" type="array">
-        <value type="string" value="portainer-devops-lab.desktop"/>
       </property>
     </property>
     <property name="plugin-8" type="string" value="separator">

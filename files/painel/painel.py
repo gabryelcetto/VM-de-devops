@@ -34,8 +34,7 @@ TOKEN = secrets.token_urlsafe(24)
 HOSTS_OK = {f"localhost:{PORTA}", f"127.0.0.1:{PORTA}"}
 
 CONF_ARQ = HOME / ".config" / "devops-lab" / "painel.json"
-CONF = {"jenkins_url": "http://localhost:8080", "jenkins_usuario": "aluno", "jenkins_senha": "devops",
-        "portainer_url": "http://localhost:9000"}
+CONF = {"jenkins_url": "http://localhost:8080", "jenkins_usuario": "aluno", "jenkins_senha": "devops"}
 try:
     CONF.update(json.loads(CONF_ARQ.read_text()))
 except Exception:
@@ -50,6 +49,36 @@ MEM_OK = re.compile(r"^\d{1,6}[bkmgBKMG]?$")
 
 class Erro(Exception):
     pass
+
+
+HIST = {"t": [], "cpu": [], "mem": [], "max": 120}
+
+
+def _ler_cpu():
+    v = [int(x) for x in Path("/proc/stat").read_text().splitlines()[0].split()[1:]]
+    ocioso = v[3] + (v[4] if len(v) > 4 else 0)
+    return sum(v), ocioso
+
+
+def amostrador():
+    ant = _ler_cpu()
+    while True:
+        time.sleep(5)
+        try:
+            atual = _ler_cpu()
+            total, ocioso = atual[0] - ant[0], atual[1] - ant[1]
+            ant = atual
+            cpu = round(100 * (total - ocioso) / total, 1) if total else 0
+            mem = {}
+            for l in Path("/proc/meminfo").read_text().splitlines():
+                k, val = l.split(":", 1)
+                mem[k] = int(val.split()[0]) // 1024
+            for k, val in (("t", int(time.time() * 1000)), ("cpu", cpu),
+                           ("mem", mem["MemTotal"] - mem["MemAvailable"])):
+                HIST[k].append(val)
+                del HIST[k][:-HIST["max"]]
+        except Exception:
+            pass
 
 
 # ---------------------------------------------------------------- utilidades
@@ -151,7 +180,8 @@ def info_docker():
         for p in json.loads(txt):
             projetos.append({"nome": p.get("Name", ""), "status": p.get("Status", ""), "arquivos": p.get("ConfigFiles", "")})
     return {"ligado": True, "servico": "active", "containers": containers, "imagens": imagens,
-            "volumes": volumes, "projetos": projetos, "portainer": CONF["portainer_url"]}
+            "volumes": volumes, "projetos": projetos,
+            "dockerfiles": [str(r) for r, a in _pastas_projetos() if "Dockerfile" in a]}
 
 
 def arquivos_compose():
@@ -189,6 +219,27 @@ def acao_docker(d):
         if not REF_OK.match(alvo):
             raise Erro("Container inválido.")
         return rodar(["docker", "logs", "--tail", "300", "--timestamps", alvo], timeout=30)[1] or "(sem logs)"
+    if acao == "terminal":
+        alvo = d.get("container", "")
+        if not REF_OK.match(alvo):
+            raise Erro("Container inválido.")
+        lancar(["xfce4-terminal", f"--title=Terminal do container {alvo}", "-x", "docker", "exec", "-it", alvo,
+                "sh", "-c", "command -v bash >/dev/null && exec bash || exec sh"])
+        return "Abrindo um terminal dentro do container."
+    if acao == "volume_criar":
+        nome = d.get("nome", "").strip()
+        if not NOME_OK.match(nome):
+            raise Erro("Nome de volume inválido.")
+        ok_ou_erro(rodar(["docker", "volume", "create", nome]))
+        return f"Volume '{nome}' criado."
+    if acao == "volume_rm":
+        nome = d.get("nome", "").strip()
+        if not NOME_OK.match(nome):
+            raise Erro("Volume inválido.")
+        ok_ou_erro(rodar(["docker", "volume", "rm", nome]))
+        return f"Volume '{nome}' apagado."
+    if acao == "limpar":
+        return ok_ou_erro(rodar(["docker", "system", "prune", "-f"], timeout=300))[-1500:]
     if acao == "rmi":
         img = d.get("imagem", "")
         if not REF_OK.match(img):
@@ -206,6 +257,14 @@ def acao_docker(d):
         if not REF_OK.match(img):
             raise Erro("Informe a imagem (ex.: nginx:alpine).")
         cmd = ["docker", "run", "-d"]
+        for v in [x.strip() for x in d.get("volumes", "").replace(";", ",").split(",") if x.strip()]:
+            orig, _, dest = v.partition(":")
+            if not dest.startswith("/") or not (NOME_OK.match(orig) or orig.startswith(("/home/", "~/"))):
+                raise Erro(f"Volume inválido: {v} (use nome-do-volume:/caminho ou ~/pasta:/caminho)")
+            if orig.startswith("~/"):
+                orig = str(dentro_da_home(orig))
+            cmd += ["-v", f"{orig}:{dest}"]
+        comando = d.get("comando", "").strip()
         if nome:
             if not NOME_OK.match(nome):
                 raise Erro("Nome inválido: use letras, números, - _ .")
@@ -226,6 +285,9 @@ def acao_docker(d):
         if d.get("reiniciar"):
             cmd += ["--restart", "unless-stopped"]
         cmd.append(img)
+        if comando:
+            import shlex
+            cmd += shlex.split(comando)
         return "Container criado: " + ok_ou_erro(rodar(cmd, timeout=900))[-200:]
     if acao in ("compose_up", "compose_down", "compose_ver"):
         arq = arquivo_permitido(d.get("arquivo", ""))
@@ -304,7 +366,8 @@ def info_jenkins():
     if servico != "active":
         return {**base, "respondendo": False, "jobs": []}
     try:
-        _, txt = JEN.req("/api/json?tree=jobs[name,fullName,url,color,_class,lastBuild[number,result,timestamp,duration,building]]")
+        _, txt = JEN.req("/api/json?tree=jobs[name,fullName,url,color,_class,lastBuild[number,result,timestamp,duration,building],"
+                         "builds[number,result,timestamp,duration,building]{0,15}]")
     except Erro as e:
         return {**base, "respondendo": False, "jobs": [], "erro": str(e)}
     jobs = []
@@ -313,7 +376,9 @@ def info_jenkins():
         jobs.append({"nome": j.get("fullName") or j.get("name"), "url": j.get("url"),
                      "tipo": (j.get("_class") or "").split(".")[-1], "cor": j.get("color", ""),
                      "ultimo": lb.get("number"), "resultado": "EM ANDAMENTO" if lb.get("building") else lb.get("result"),
-                     "quando": lb.get("timestamp"), "duracao": lb.get("duration")})
+                     "quando": lb.get("timestamp"), "duracao": lb.get("duration"),
+                     "historico": [{"n": b.get("number"), "r": "EM ANDAMENTO" if b.get("building") else b.get("result"),
+                                    "t": b.get("timestamp"), "d": b.get("duration")} for b in (j.get("builds") or [])]})
     return {**base, "respondendo": True, "jobs": jobs}
 
 
@@ -366,6 +431,15 @@ def acao_jenkins(d):
             raise Erro("Número de build inválido.")
         _, txt = JEN.req(f"{cj}/{n}/consoleText", timeout=30)
         return txt[-20000:]
+    if acao == "etapas":
+        try:
+            _, txt = JEN.req(cj + "/lastBuild/wfapi/describe", timeout=20)
+        except Erro:
+            return {"etapas": []}
+        dd = json.loads(txt)
+        return {"numero": dd.get("id"), "status": dd.get("status"),
+                "etapas": [{"nome": st.get("name"), "status": st.get("status"), "duracao": st.get("durationMillis", 0)}
+                           for st in dd.get("stages", [])]}
     if acao == "ver_script":
         _, xml = JEN.req(cj + "/config.xml")
         s = ET.fromstring(xml).find("./definition/script")
@@ -433,11 +507,24 @@ def info_repo(caminho):
             "sincronia": m.group(1) if m else ""}
 
 
+def commits_por_dia(repos, dias=14):
+    import datetime
+    hoje = datetime.date.today()
+    cont = {(hoje - datetime.timedelta(days=i)).isoformat(): 0 for i in range(dias - 1, -1, -1)}
+    for r in repos:
+        cod, txt = rodar(["git", "-C", r, "log", "--all", f"--since={dias}.days", "--format=%ad", "--date=short"])
+        for l in txt.splitlines():
+            if l in cont:
+                cont[l] += 1
+    return [{"dia": k, "n": v} for k, v in cont.items()]
+
+
 def info_git():
     nome = rodar(["git", "config", "--global", "user.name"])[1]
     email = rodar(["git", "config", "--global", "user.email"])[1]
+    repos = repos_git()
     return {"usuario": nome, "email": email, "pasta_projetos": str(PROJETOS),
-            "repos": [info_repo(r) for r in repos_git()]}
+            "repos": [info_repo(r) for r in repos], "por_dia": commits_por_dia(repos)}
 
 
 def acao_git(d):
@@ -474,7 +561,15 @@ def acao_git(d):
         msg = d.get("mensagem", "").strip()
         if not msg:
             raise Erro("Escreva a mensagem do commit.")
-        ok_ou_erro(rodar(g + ["add", "-A"]))
+        arquivos = d.get("arquivos")
+        if arquivos:
+            for a in arquivos:
+                alvo = (repo / a).resolve()
+                if alvo != repo and repo not in alvo.parents:
+                    raise Erro(f"Arquivo fora do repositório: {a}")
+            ok_ou_erro(rodar(g + ["add", "-A", "--"] + list(arquivos)))
+        else:
+            ok_ou_erro(rodar(g + ["add", "-A"]))
         return ok_ou_erro(rodar(g + ["commit", "-m", msg]))
     if acao in ("pull", "push"):
         cmd = g + ([acao] if acao == "pull" else ["push", "-u", "origin", "HEAD"])
@@ -515,7 +610,9 @@ def vscode_recentes():
 
 def info_vscode():
     ext = rodar(["code", "--list-extensions"], timeout=60)[1].splitlines()
-    return {"recentes": vscode_recentes(), "extensoes": [e for e in ext if "." in e]}
+    pastas = sorted(str(p) for p in PROJETOS.iterdir() if p.is_dir() and not p.name.startswith(".")) \
+        if PROJETOS.is_dir() else []
+    return {"recentes": vscode_recentes(), "extensoes": [e for e in ext if "." in e], "pastas": pastas}
 
 
 def acao_abrir(d):
@@ -526,10 +623,16 @@ def acao_abrir(d):
             raise Erro("Endereço não permitido.")
         lancar(["firefox", url])
         return "Abrindo no navegador."
-    if acao == "portainer":
-        lancar(["/usr/local/bin/abrir-portainer"])
-        return "Abrindo o Portainer (pode levar alguns segundos na primeira vez)."
     caminho = dentro_da_home(d.get("caminho", str(PROJETOS)))
+    if acao == "novo_arquivo":
+        nome = d.get("nome", "").strip()
+        if not re.fullmatch(r"[\w.\- ]{1,100}", nome):
+            raise Erro("Nome de arquivo inválido.")
+        alvo = caminho / nome
+        if not alvo.exists():
+            alvo.write_text(d.get("conteudo", ""))
+        lancar(["code", str(caminho), str(alvo)])
+        return f"Abrindo {nome} no VS Code."
     if acao == "vscode":
         lancar(["code", str(caminho)])
         return "Abrindo no VS Code."
@@ -581,15 +684,301 @@ def acao_sistema(d):
     raise Erro("Ação desconhecida.")
 
 
+# ---------------------------------------------------------------- tarefas (comandos longos com saída ao vivo)
+TAREFAS = {}
+TAREFAS_TRAVA = threading.Lock()
+PROCESSOS = {}
+
+
+def parar_tarefa(d):
+    p = PROCESSOS.get(d.get("id", ""))
+    if not p:
+        return "A tarefa já terminou."
+    try:
+        os.killpg(p.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        pass
+    return "Tarefa interrompida."
+
+
+def iniciar_tarefa(ferramenta, titulo, cmd, cwd=None, env_extra=None):
+    tid = secrets.token_hex(6)
+    t = {"id": tid, "ferramenta": ferramenta, "titulo": titulo, "comando": " ".join(cmd), "pasta": cwd or "",
+         "linhas": [], "fim": False, "codigo": None, "inicio": int(time.time() * 1000), "duracao": 0}
+    with TAREFAS_TRAVA:
+        TAREFAS[tid] = t
+        for velho in sorted(TAREFAS.values(), key=lambda x: x["inicio"])[:-60]:
+            TAREFAS.pop(velho["id"], None)
+
+    def correr():
+        env = dict(os.environ, GIT_TERMINAL_PROMPT="0", ANSIBLE_FORCE_COLOR="0", PYTHONUNBUFFERED="1",
+                   TF_IN_AUTOMATION="1", **(env_extra or {}))
+        try:
+            p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+                                 text=True, errors="replace", env=env, bufsize=1, start_new_session=True)
+            PROCESSOS[tid] = p
+            for linha in p.stdout:
+                t["linhas"].append(re.sub(r"\x1b\[[0-9;]*[A-Za-z]", "", linha.rstrip("\n")))
+                if len(t["linhas"]) > 5000:
+                    del t["linhas"][:1000]
+            t["codigo"] = p.wait()
+        except FileNotFoundError:
+            t["linhas"].append(f"pasta não encontrada: {cwd}" if cwd and not os.path.isdir(cwd)
+                               else f"comando não encontrado: {cmd[0]}")
+            t["codigo"] = 127
+        except Exception as e:
+            t["linhas"].append(f"erro: {e}")
+            t["codigo"] = 1
+        t["duracao"] = int(time.time() * 1000) - t["inicio"]
+        t["fim"] = True
+        PROCESSOS.pop(tid, None)
+
+    threading.Thread(target=correr, daemon=True).start()
+    return {"tarefa": tid, "titulo": titulo}
+
+
+def ver_tarefa(q):
+    t = TAREFAS.get(q.get("id", [""])[0])
+    if not t:
+        raise Erro("Tarefa não encontrada.")
+    desde = int(q.get("desde", ["0"])[0])
+    return {**{k: t[k] for k in ("id", "ferramenta", "titulo", "comando", "fim", "codigo", "inicio", "duracao")},
+            "linhas": t["linhas"][desde:], "total": len(t["linhas"])}
+
+
+def listar_tarefas():
+    return {"tarefas": [{k: t[k] for k in ("id", "ferramenta", "titulo", "fim", "codigo", "inicio", "duracao")}
+                        for t in sorted(TAREFAS.values(), key=lambda x: -x["inicio"])][:30]}
+
+
+def acao_executar(d):
+    """Comandos longos das ferramentas, sempre com saída ao vivo."""
+    f, a = d.get("ferramenta"), d.get("acao")
+    if f == "docker":
+        if a == "pull":
+            img = d.get("imagem", "").strip()
+            if not REF_OK.match(img):
+                raise Erro("Nome de imagem inválido (ex.: nginx:alpine).")
+            return iniciar_tarefa("docker", f"docker pull {img}", ["docker", "pull", img])
+        if a in ("compose_up", "compose_down", "compose_logs"):
+            arq = arquivo_permitido(d.get("arquivo", ""))
+            if not arq.is_file():
+                raise Erro("Arquivo compose não encontrado.")
+            extra = {"compose_up": ["up", "-d", "--remove-orphans"], "compose_down": ["down"],
+                     "compose_logs": ["logs", "--tail", "200", "--no-color"]}[a]
+            return iniciar_tarefa("docker", f"docker compose {' '.join(extra[:2])} ({arq.parent.name})",
+                                  ["docker", "compose", "-f", str(arq)] + extra, cwd=str(arq.parent))
+        if a == "build":
+            pasta = dentro_da_home(d.get("pasta", ""))
+            tag = d.get("tag", "").strip() or pasta.name.lower()
+            if not REF_OK.match(tag) or not (pasta / "Dockerfile").is_file():
+                raise Erro("Pasta sem Dockerfile ou nome de imagem inválido.")
+            return iniciar_tarefa("docker", f"docker build -t {tag}", ["docker", "build", "-t", tag, "."], cwd=str(pasta))
+    if f == "git":
+        if a == "clonar":
+            url = d.get("url", "").strip()
+            if not re.fullmatch(r"(https://|git@)[\w.@:/~\-]+?(\.git)?/?", url):
+                raise Erro("URL inválida (ex.: https://github.com/usuario/repositorio.git).")
+            PROJETOS.mkdir(exist_ok=True)
+            return iniciar_tarefa("git", f"git clone {url}", ["git", "clone", "--progress", url], cwd=str(PROJETOS))
+        repo = dentro_da_home(d.get("repo", ""))
+        if not (repo / ".git").exists():
+            raise Erro("Isto não é um repositório Git.")
+        if a in ("pull", "push"):
+            cmd = ["git", a] if a == "pull" else ["git", "push", "-u", "origin", "HEAD"]
+            return iniciar_tarefa("git", f"git {a} ({repo.name})", cmd, cwd=str(repo))
+    if f == "ansible":
+        pb = dentro_da_home(d.get("playbook", ""))
+        if a in ("rodar", "checar", "simular"):
+            if not pb.is_file():
+                raise Erro("Playbook não encontrado.")
+            inv = pb.parent / "inventario.ini"
+            cmd = ["ansible-playbook", "-i", str(inv) if inv.is_file() else "localhost,", "-c", "local", pb.name]
+            cmd += {"rodar": [], "checar": ["--syntax-check"], "simular": ["--check", "--diff"]}[a]
+            return iniciar_tarefa("ansible", f"ansible-playbook {pb.name}" + ("" if a == "rodar" else f" ({a})"),
+                                  cmd, cwd=str(pb.parent))
+        if a == "adhoc":
+            mod, args = d.get("modulo", "ping").strip(), d.get("args", "").strip()
+            if not re.fullmatch(r"[a-z0-9_.]{1,80}", mod):
+                raise Erro("Módulo inválido.")
+            cmd = ["ansible", "localhost", "-c", "local", "-m", mod] + (["-a", args] if args else [])
+            return iniciar_tarefa("ansible", f"ansible -m {mod}", cmd, cwd=str(HOME))
+    if f == "terraform":
+        pasta = dentro_da_home(d.get("pasta", ""))
+        if not any(pasta.glob("*.tf")):
+            raise Erro("Esta pasta não tem arquivos .tf.")
+        cmds = {"init": ["init", "-input=false", "-no-color"], "validate": ["validate", "-no-color"],
+                "plan": ["plan", "-input=false", "-no-color"], "apply": ["apply", "-auto-approve", "-input=false", "-no-color"],
+                "destroy": ["destroy", "-auto-approve", "-input=false", "-no-color"], "fmt": ["fmt", "-diff", "-no-color"],
+                "output": ["output", "-no-color"], "state": ["state", "list"]}
+        if a not in cmds:
+            raise Erro("Ação do Terraform desconhecida.")
+        return iniciar_tarefa("terraform", f"terraform {a} ({pasta.name})", ["terraform"] + cmds[a], cwd=str(pasta))
+    if f == "python":
+        pasta = dentro_da_home(d.get("pasta", ""))
+        venv_py = pasta / ".venv" / "bin" / "python"
+        py = str(venv_py) if venv_py.exists() else "python3"
+        if a == "rodar":
+            script = dentro_da_home(d.get("script", ""))
+            if script.suffix != ".py" or not script.is_file():
+                raise Erro("Escolha um arquivo .py.")
+            return iniciar_tarefa("python", f"python {script.name}", [py, "-u", script.name], cwd=str(script.parent))
+        if a == "venv":
+            return iniciar_tarefa("python", f"criar .venv ({pasta.name})", ["python3", "-m", "venv", ".venv"], cwd=str(pasta))
+        if a == "pip":
+            pacotes = d.get("pacotes", "").split()
+            if not pacotes and (pasta / "requirements.txt").is_file():
+                pacotes = ["-r", "requirements.txt"]
+            for pk in pacotes:
+                if pk != "-r" and not re.fullmatch(r"[A-Za-z0-9_.\-\[\]=<>~!,]+", pk):
+                    raise Erro(f"Pacote inválido: {pk}")
+            if not venv_py.exists():
+                raise Erro("Crie o ambiente (.venv) primeiro.")
+            return iniciar_tarefa("python", f"pip install {' '.join(pacotes)}", [py, "-m", "pip", "install"] + pacotes,
+                                  cwd=str(pasta))
+        if a == "piplist":
+            return iniciar_tarefa("python", f"pip list ({pasta.name})", [py, "-m", "pip", "list"], cwd=str(pasta))
+    raise Erro("Ação desconhecida.")
+
+
+# ---------------------------------------------------------------- Ansible, Terraform, Python, arquivos
+def _pastas_projetos(prof_max=3):
+    if not PROJETOS.is_dir():
+        return
+    for raiz, dirs, arqs in os.walk(PROJETOS):
+        prof = len(Path(raiz).relative_to(PROJETOS).parts)
+        dirs[:] = [x for x in dirs if not x.startswith(".") and x not in ("node_modules", "venv", ".venv", "__pycache__")
+                   and prof < prof_max]
+        yield Path(raiz), arqs
+
+
+def info_ansible():
+    playbooks = []
+    for raiz, arqs in _pastas_projetos():
+        for a in arqs:
+            if a.endswith((".yml", ".yaml")) and not re.fullmatch(r"(docker-)?compose.*", a):
+                cam = raiz / a
+                try:
+                    txt = cam.read_text(errors="replace")[:20000]
+                except OSError:
+                    continue
+                if re.search(r"^\s*-?\s*hosts\s*:", txt, re.M):
+                    nome = re.search(r"^\s*-\s*name\s*:\s*(.+)$", txt, re.M)
+                    hosts = re.search(r"hosts\s*:\s*(.+)$", txt, re.M)
+                    playbooks.append({"arquivo": str(cam), "nome": nome.group(1).strip() if nome else a,
+                                      "hosts": hosts.group(1).strip() if hosts else "",
+                                      "tarefas": len(re.findall(r"^\s+- name\s*:", txt, re.M))})
+    return {"playbooks": playbooks}
+
+
+def info_terraform():
+    projetos = []
+    for raiz, arqs in _pastas_projetos():
+        tfs = sorted(a for a in arqs if a.endswith(".tf"))
+        if not tfs:
+            continue
+        recursos = []
+        estado = raiz / "terraform.tfstate"
+        if estado.is_file():
+            try:
+                for r in json.loads(estado.read_text()).get("resources", []):
+                    if r.get("mode") == "managed":
+                        recursos.append(f'{r.get("type")}.{r.get("name")}')
+            except Exception:
+                pass
+        projetos.append({"pasta": str(raiz), "nome": raiz.name, "arquivos": tfs,
+                         "iniciado": (raiz / ".terraform").is_dir(), "recursos": recursos})
+    return {"projetos": projetos}
+
+
+def info_python():
+    projetos = []
+    for raiz, arqs in _pastas_projetos(2):
+        pys = sorted(a for a in arqs if a.endswith(".py"))
+        if not pys and "requirements.txt" not in arqs:
+            continue
+        projetos.append({"pasta": str(raiz), "nome": raiz.name, "scripts": pys, "venv": (raiz / ".venv").is_dir(),
+                         "requirements": "requirements.txt" in arqs})
+    return {"projetos": projetos, "versao": rodar(["python3", "--version"])[1]}
+
+
+_FERR = {"quando": 0, "dados": []}
+
+
+def info_ferramentas():
+    if time.time() - _FERR["quando"] < 600 and _FERR["dados"]:
+        return {"ferramentas": _FERR["dados"]}
+    lista = [("Docker", ["docker", "--version"]), ("Docker Compose", ["docker", "compose", "version", "--short"]),
+             ("Git", ["git", "--version"]), ("VS Code", ["code", "--version"]), ("Ansible", ["ansible", "--version"]),
+             ("Terraform", ["terraform", "-version"]), ("Python", ["python3", "--version"]),
+             ("Java", ["java", "-version"]), ("Firefox", ["firefox", "--version"])]
+    dados = []
+    for nome, cmd in lista:
+        cod, txt = rodar(cmd, timeout=30)
+        dados.append({"nome": nome, "ok": cod == 0, "versao": (txt.splitlines() or [""])[0][:80]})
+    try:
+        _, v = JEN.req("/login", timeout=5)
+        jv = re.search(r"Jenkins ([\d.]+)", v)
+        dados.append({"nome": "Jenkins", "ok": True, "versao": "Jenkins " + (jv.group(1) if jv else "")})
+    except Erro:
+        dados.append({"nome": "Jenkins", "ok": servico_ativo("jenkins") == "active", "versao": "ligando ou desligado"})
+    _FERR.update(quando=time.time(), dados=dados)
+    return {"ferramentas": dados}
+
+
+def acao_arquivo(d):
+    acao = d.get("acao")
+    cam = dentro_da_home(d.get("caminho", "")) if acao in ("ler", "salvar") else None
+    if acao == "ler":
+        if not cam.is_file():
+            return ""
+        if cam.stat().st_size > 1_000_000:
+            raise Erro("Arquivo grande demais para editar aqui.")
+        return cam.read_text(errors="replace")
+    if acao == "salvar":
+        cam.parent.mkdir(parents=True, exist_ok=True)
+        if cam.exists():
+            shutil.copy2(cam, cam.with_name(cam.name + ".bak"))
+        cam.write_text(d.get("conteudo", ""))
+        return f"Salvo: {cam.name}"
+    if acao == "projeto":
+        nome = d.get("nome", "").strip()
+        if not NOME_OK.match(nome):
+            raise Erro("Nome inválido: use letras, números, - _ .")
+        pasta = PROJETOS / nome
+        if pasta.exists() and any(pasta.iterdir()):
+            raise Erro(f"Já existe ~/projetos/{nome}. Escolha outro nome.")
+        for rel, conteudo in (d.get("arquivos") or {}).items():
+            alvo = (pasta / rel).resolve()
+            if pasta.resolve() not in alvo.parents:
+                raise Erro("Caminho de arquivo inválido.")
+            alvo.parent.mkdir(parents=True, exist_ok=True)
+            alvo.write_text(conteudo)
+        pasta.mkdir(parents=True, exist_ok=True)
+        if d.get("git"):
+            rodar(["git", "init", "-q", "-b", "main", str(pasta)])
+        return {"pasta": str(pasta), "msg": f"Projeto criado em ~/projetos/{nome}."}
+    raise Erro("Ação desconhecida.")
+
+
 # ---------------------------------------------------------------- resumo
 def resumo():
     s = info_sistema()
     dk = {"ligado": docker_ligado()}
     if dk["ligado"]:
         cont = json_linhas(rodar(["docker", "ps", "-a", "--format", "{{json .}}"])[1])
-        dk.update(total=len(cont), rodando=sum(1 for c in cont if c.get("State") == "running"))
+        estados = {}
+        for c in cont:
+            estados[c.get("State", "?")] = estados.get(c.get("State", "?"), 0) + 1
+        dk.update(total=len(cont), rodando=estados.get("running", 0), estados=estados,
+                  imagens=len(rodar(["docker", "images", "-q"])[1].split()))
     j = info_jenkins()
     jobs = j.get("jobs", [])
+    builds = []
+    for x in jobs:
+        for b in x.get("historico", []):
+            builds.append({"job": x["nome"], **b})
+    builds.sort(key=lambda b: b.get("t") or 0)
     repos = repos_git()
     pend = 0
     for r in repos:
@@ -598,16 +987,26 @@ def resumo():
             "jenkins": {"servico": j["servico"], "respondendo": j.get("respondendo"), "jobs": len(jobs),
                         "falhas": sum(1 for x in jobs if x.get("resultado") == "FAILURE"),
                         "sucessos": sum(1 for x in jobs if x.get("resultado") == "SUCCESS")},
-            "git": {"repos": len(repos), "com_mudancas": pend},
-            "vscode": {"recentes": len(vscode_recentes())}}
+            "builds": builds[-30:], "historico": {k: HIST[k] for k in ("t", "cpu", "mem")},
+            "git": {"repos": len(repos), "com_mudancas": pend, "por_dia": commits_por_dia(repos)},
+            "vscode": {"recentes": len(vscode_recentes())},
+            "ansible": {"playbooks": len(info_ansible()["playbooks"])},
+            "terraform": (lambda t: {"projetos": len(t["projetos"]), "recursos": sum(len(p["recursos"]) for p in t["projetos"])})(info_terraform()),
+            "python": {"projetos": len(info_python()["projetos"])},
+            "tarefas": listar_tarefas()["tarefas"][:12]}
 
 
 GETS = {"/api/resumo": resumo, "/api/docker": info_docker, "/api/jenkins": info_jenkins, "/api/git": info_git,
         "/api/vscode": info_vscode, "/api/sistema": info_sistema,
         "/api/compose-arquivos": lambda: {"arquivos": arquivos_compose()},
-        "/api/modelo-pipeline": lambda: {"script": SCRIPT_EXEMPLO}}
+        "/api/modelo-pipeline": lambda: {"script": SCRIPT_EXEMPLO},
+        "/api/historico": lambda: {k: HIST[k] for k in ("t", "cpu", "mem")},
+        "/api/ansible": info_ansible, "/api/terraform": info_terraform, "/api/python": info_python,
+        "/api/ferramentas": info_ferramentas, "/api/tarefas": listar_tarefas}
+GETS_Q = {"/api/tarefa": ver_tarefa}
 POSTS = {"/api/docker": acao_docker, "/api/jenkins": acao_jenkins, "/api/git": acao_git,
-         "/api/abrir": acao_abrir, "/api/sistema": acao_sistema}
+         "/api/abrir": acao_abrir, "/api/sistema": acao_sistema, "/api/executar": acao_executar,
+         "/api/arquivo": acao_arquivo, "/api/tarefa-parar": parar_tarefa}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -637,7 +1036,13 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if not self.host_ok():
             return
-        caminho = urllib.parse.urlparse(self.path).path
+        url = urllib.parse.urlparse(self.path)
+        caminho = url.path
+        if caminho in GETS_Q:
+            try:
+                return self.responder(200, GETS_Q[caminho](urllib.parse.parse_qs(url.query)))
+            except Erro as e:
+                return self.responder(404, {"erro": str(e)})
         if caminho == "/saude":
             return self.responder(200, {"ok": True})
         if caminho in ("/", "/index.html"):
@@ -675,6 +1080,7 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     os.environ["GIT_TERMINAL_PROMPT"] = "0"
+    threading.Thread(target=amostrador, daemon=True).start()
     srv = ThreadingHTTPServer(("127.0.0.1", PORTA), Handler)
     srv.daemon_threads = True
     print(f"Painel DevOps em http://localhost:{PORTA}", flush=True)

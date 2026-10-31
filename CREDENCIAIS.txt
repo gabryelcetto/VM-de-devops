@@ -108,7 +108,6 @@ Pasta de trabalho .. /home/aluno/projetos
   SSH                    aluno        devops
   Root                   (sudo -i)    devops
   Jenkins                aluno        devops
-  Portainer (Docker)     admin        devops
   Painel DevOps          (sem login)  só abre dentro da VM
 
 ================================================================
