@@ -51,7 +51,7 @@ $APT update
 $APT install code \
              docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
              terraform \
-             ansible-core
+             ansible-core python3-requests
 
 # ---------------------------------------------------------------- Coleções do Ansible
 # ansible-core (~8 MB) + as coleções mais usadas em aula, no lugar do pacote

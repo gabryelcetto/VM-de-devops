@@ -7,6 +7,7 @@ aberta no navegador não consegue mandar comandos para cá.
 Só usa a biblioteca padrão do Python.
 """
 import base64
+import html as html_mod
 import http.cookiejar
 import json
 import os
@@ -82,11 +83,12 @@ def amostrador():
 
 
 # ---------------------------------------------------------------- utilidades
-def rodar(cmd, cwd=None, timeout=120, entrada=None):
-    """Executa sem shell; devolve (código, saída+erro)."""
+def rodar(cmd, cwd=None, timeout=120, entrada=None, so_saida=False):
+    """Executa sem shell; devolve (código, saída+erro). so_saida=True ignora os avisos (stderr),
+    para analisar a saída sem misturar mensagens como "warning: ..."."""
     try:
         p = subprocess.run(cmd, cwd=cwd, input=entrada, capture_output=True, text=True, timeout=timeout)
-        return p.returncode, (p.stdout + p.stderr).strip()
+        return p.returncode, (p.stdout if so_saida else p.stdout + p.stderr).strip()
     except FileNotFoundError:
         return 127, f"comando não encontrado: {cmd[0]}"
     except subprocess.TimeoutExpired:
@@ -145,6 +147,11 @@ def docker_ligado():
     return rodar(["docker", "info", "--format", "{{.ServerVersion}}"], timeout=30)[0] == 0
 
 
+# imagens "de base": sem comando, o container abre um shell/interpretador e para na hora
+IMAGENS_BASE = {"python", "ubuntu", "debian", "alpine", "busybox", "node", "fedora", "centos", "rockylinux", "almalinux",
+                "archlinux", "golang", "openjdk", "eclipse-temurin", "ruby", "php", "rust", "gcc", "amazonlinux", "oraclelinux"}
+
+
 def info_docker():
     if not docker_ligado():
         return {"ligado": False, "servico": servico_ativo("docker")}
@@ -153,11 +160,13 @@ def info_docker():
     limites = {}
     if ids:
         cod, txt = rodar(["docker", "inspect", "--format",
-                          "{{.Id}} {{.HostConfig.Memory}} {{index .Config.Labels \"com.docker.compose.project\"}}"] + ids)
+                          '{{json .Id}}\t{{json .HostConfig.Memory}}\t{{json .Config.Labels}}'] + ids, so_saida=True)
         for linha in txt.splitlines():
-            partes = linha.split(" ")
-            if len(partes) >= 2:
-                limites[partes[0]] = {"memoria": int(partes[1] or 0), "projeto": partes[2] if len(partes) > 2 else ""}
+            try:
+                cid, memoria, rotulos = (json.loads(x) for x in linha.split("\t"))
+            except ValueError:
+                continue
+            limites[cid] = {"memoria": int(memoria or 0), "projeto": (rotulos or {}).get("com.docker.compose.project", "")}
     uso = {}
     if any(c.get("State") == "running" for c in cont):
         for s in json_linhas(rodar(["docker", "stats", "--no-stream", "--no-trunc", "--format", "{{json .}}"], timeout=40)[1]):
@@ -323,10 +332,29 @@ def acao_docker(d):
         if d.get("reiniciar"):
             cmd += ["--restart", "unless-stopped"]
         cmd.append(img)
+        aviso = ""
+        nome_img = img.split("/")[-1].split(":")[0].split("@")[0]
+        if not comando and nome_img in IMAGENS_BASE:
+            comando = "sleep infinity"
+            aviso = (f"\nA imagem {nome_img} não tem um programa que fique rodando sozinho, então usei o comando "
+                     "sleep infinity para o container continuar ligado. Use o Terminal dele para trabalhar.")
         if comando:
             import shlex
             cmd += shlex.split(comando)
-        return "Container criado: " + ok_ou_erro(rodar(cmd, timeout=900))[-200:]
+        saida = ok_ou_erro(rodar(cmd, timeout=900))
+        achado = re.findall(r"\b[0-9a-f]{64}\b", saida)  # o id (a saída também pode ter o download da imagem)
+        cid = achado[-1][:12] if achado else nome
+        time.sleep(2)
+        estado = rodar(["docker", "inspect", "-f", "{{.State.Status}} {{.State.ExitCode}}", cid], so_saida=True)[1].split()
+        if estado and estado[0] == "exited":
+            logs = rodar(["docker", "logs", "--tail", "15", cid])[1]
+            if nome_img == "hello-world":
+                return "O container hello-world rodou e terminou, como esperado:\n" + logs[-1200:]
+            explicacao = ("O programa principal do container terminou, então ele parou. Imagens de base precisam de um comando "
+                          "que continue rodando (ex.: sleep infinity ou um servidor)." if estado[1:] == ["0"]
+                          else f"O container parou com erro (código {estado[1] if len(estado) > 1 else '?'}). Veja os logs:")
+            raise Erro(f"Container {nome or cid} criado, mas parou logo em seguida.\n{explicacao}\n{logs[-1200:]}".strip())
+        return f"Container {nome or cid} criado e rodando.{aviso}"
     if acao in ("compose_up", "compose_down", "compose_ver"):
         arq = arquivo_permitido(d.get("arquivo", ""))
         if not arq.is_file():
@@ -383,13 +411,69 @@ class Jenkins:
             if e.code == 403 and dados is not None and self.crumb is not None:
                 self.crumb = None  # crumb vencido: tenta de novo uma vez
                 return self.req(caminho, dados, tipo, timeout)
-            corpo = e.read().decode("utf-8", "replace")
-            raise Erro(f"Jenkins respondeu {e.code}: {re.sub('<[^>]+>', ' ', corpo)[:300].strip()}")
+            texto = _texto_erro(e.read().decode("utf-8", "replace"))
+            if e.code >= 500:
+                m = re.search(r"Logging ID=([0-9a-f-]{36})", texto)
+                causa = _causa_no_log(m.group(1) if m else "")
+                raise ErroJenkins(e.code, f"O Jenkins teve um erro interno (código {e.code})" + (
+                    f". Causa no log do Jenkins: {causa}" if causa else
+                    ". Tente de novo em alguns segundos; se continuar, reinicie o Jenkins na aba Sistema."))
+            if "already exists" in texto or "já existe" in texto.lower():
+                raise ErroJenkins(e.code, "Já existe um item com esse nome no Jenkins. Escolha outro nome ou apague o antigo.")
+            if e.code == 404:
+                raise ErroJenkins(e.code, "Esse item não existe (mais) no Jenkins. A lista vai ser atualizada.")
+            raise ErroJenkins(e.code, f"O Jenkins recusou o pedido (código {e.code}): {texto[:300]}")
         except (urllib.error.URLError, OSError) as e:
             raise Erro(f"Jenkins não respondeu ({e}).")
 
 
+class ErroJenkins(Erro):
+    def __init__(self, codigo, msg):
+        super().__init__(msg)
+        self.codigo = codigo
+
+
+def _texto_erro(corpo):
+    """Texto útil de uma página de erro do Jenkins (sem menu, busca, rodapé…)."""
+    t = re.sub(r"(?is)<(script|style|head|header|footer|nav)\b[^>]*>.*?</\1>", " ", corpo)
+    t = html_mod.unescape(re.sub(r"<[^>]+>", " ", t))
+    for lixo in ("Skip to content", "Sign in", "log out", "REST API", "Dashboard", "Search"):
+        t = t.replace(lixo, " ")
+    t = re.sub(r"Jenkins\s+\d+\.\d+(\.\d+)?", " ", t)
+    t = re.sub(r"\s+", " ", t).strip()
+    return re.sub(r"^(Jenkins( - Jenkins)?\s*)+", "", t).strip()
+
+
+def _causa_no_log(logid):
+    """Acha no log do Jenkins a exceção ligada ao "Logging ID" da página de erro
+    (o aluno está no grupo systemd-journal, que pode ler o log)."""
+    if not logid:
+        return ""
+    cod, txt = rodar(["journalctl", "-u", "jenkins", "--since", "-20min", "--no-pager", "-o", "cat"], timeout=20, so_saida=True)
+    if cod != 0 or logid not in txt:
+        return ""
+    linhas = txt.splitlines()
+    inicio = max(i for i, l in enumerate(linhas) if logid in l)
+    causa = ""
+    for l in linhas[inicio + 1:inicio + 80]:
+        l = l.strip()
+        if re.match(r"^\d{4}-\d{2}-\d{2} ", l):  # começou outra mensagem do log
+            break
+        m = re.match(r"^(Caused by: )?([\w.$]+(?:Exception|Error))(: .*)?$", l)
+        if m:
+            causa = (m.group(2).split(".")[-1] + (m.group(3) or ""))[:300]
+    return causa
+
+
 JEN = Jenkins()
+
+
+def job_existe(nome):
+    try:
+        JEN.req(caminho_job(nome) + "/api/json?tree=name")
+        return True
+    except Erro:
+        return False
 
 
 def caminho_job(nome):
@@ -657,8 +741,18 @@ def acao_jenkins(d):
         if not NOME_OK.match(nome):
             raise Erro("Nome inválido: use letras, números, - _ . (sem espaços)")
         destino = caminho_job(d["pasta"]) if d.get("pasta") else ""
-        JEN.req(f"{destino}/createItem?name=" + urllib.parse.quote(nome, safe=""), xml_item(tipo, d), "application/xml")
         completo = f'{d["pasta"]}/{nome}' if d.get("pasta") else nome
+        url, xml = f"{destino}/createItem?name=" + urllib.parse.quote(nome, safe=""), xml_item(tipo, d)
+        try:
+            JEN.req(url, xml, "application/xml")
+        except ErroJenkins as e:
+            # erro interno do Jenkins: às vezes o item é criado mesmo assim; senão, tenta mais uma vez
+            if e.codigo < 500:
+                raise
+            time.sleep(2)
+            if not job_existe(completo):
+                time.sleep(3)
+                JEN.req(url, xml, "application/xml")
         if tipo == "multibranch":
             JEN.req(caminho_job(completo) + "/build?delay=0sec", b"")
             return f"Multibranch '{completo}' criado. O Jenkins está procurando as branches com Jenkinsfile."
@@ -784,19 +878,19 @@ def repos_git():
 
 def info_repo(caminho):
     g = ["git", "-C", caminho]
-    branch = rodar(g + ["branch", "--show-current"])[1] or "(sem branch)"
-    status = rodar(g + ["status", "--porcelain=v1", "-b"])[1].splitlines()
+    branch = rodar(g + ["branch", "--show-current"], so_saida=True)[1] or "(sem branch)"
+    status = rodar(g + ["status", "--porcelain=v1", "-b"], so_saida=True)[1].splitlines()
     cab = status[0] if status and status[0].startswith("##") else ""
-    mudancas = [{"codigo": l[:2], "arquivo": l[3:]} for l in status if not l.startswith("##")]
+    mudancas = [{"codigo": l[:2], "arquivo": l[3:]} for l in status if len(l) > 3 and l[2] == " " and not l.startswith("##")]
     log = []
-    cod, txt = rodar(g + ["log", "-8", "--date=format:%d/%m %H:%M", "--pretty=format:%h\x1f%ad\x1f%an\x1f%s"])
+    cod, txt = rodar(g + ["log", "-8", "--date=format:%d/%m %H:%M", "--pretty=format:%h\x1f%ad\x1f%an\x1f%s"], so_saida=True)
     if cod == 0:
         for l in txt.splitlines():
             p = l.split("\x1f")
             if len(p) == 4:
                 log.append({"hash": p[0], "data": p[1], "autor": p[2], "msg": p[3]})
-    branches = [b.strip() for b in rodar(g + ["branch", "--format=%(refname:short)"])[1].splitlines() if b.strip()]
-    remoto = rodar(g + ["remote", "get-url", "origin"])[1] if rodar(g + ["remote"])[1] else ""
+    branches = [b.strip() for b in rodar(g + ["branch", "--format=%(refname:short)"], so_saida=True)[1].splitlines() if b.strip()]
+    remoto = rodar(g + ["remote", "get-url", "origin"], so_saida=True)[1] if rodar(g + ["remote"], so_saida=True)[1] else ""
     m = re.search(r"\[(.*)\]", cab)
     return {"caminho": caminho, "nome": os.path.basename(caminho), "branch": branch, "branches": branches,
             "mudancas": mudancas, "log": log, "remoto": re.sub(r"//[^/@]+@", "//", remoto),
@@ -938,6 +1032,8 @@ def acao_git(d):
             ok_ou_erro(rodar(g + ["restore", "--staged", "--worktree", "--", arq]))
         return f"Mudanças em {arq} descartadas."
     if acao == "desfazer_commit":
+        if rodar(g + ["rev-parse", "--verify", "-q", "HEAD~1"])[0] != 0:
+            raise Erro("Este repositório só tem um commit: não existe commit anterior para voltar.")
         ok_ou_erro(rodar(g + ["reset", "--soft", "HEAD~1"]))
         return "Último commit desfeito (as mudanças continuam nos arquivos)."
     if acao == "grafico":
@@ -1423,7 +1519,25 @@ def resumo():
             "tarefas": listar_tarefas()["tarefas"][:12]}
 
 
-GETS = {"/api/resumo": resumo, "/api/docker": info_docker, "/api/jenkins": info_jenkins, "/api/git": info_git,
+def saude_lab():
+    mem = {}
+    for l in Path("/proc/meminfo").read_text().splitlines():
+        k, v = l.split(":", 1)
+        mem[k] = int(v.split()[0]) // 1024
+    jenkins = servico_ativo("jenkins")
+    respondendo = False
+    if jenkins == "active":
+        try:
+            with urllib.request.urlopen(JEN.url + "/login", timeout=1.5) as r:
+                respondendo = r.status == 200
+        except Exception:
+            respondendo = False
+    return {"docker": servico_ativo("docker"), "jenkins": jenkins, "jenkins_respondendo": respondendo,
+            "mem_total": mem.get("MemTotal", 0), "mem_disponivel": mem.get("MemAvailable", 0),
+            "tarefas_rodando": sum(1 for t in listar_tarefas()["tarefas"] if not t.get("fim"))}
+
+
+GETS = {"/api/saude-lab": saude_lab, "/api/resumo": resumo, "/api/docker": info_docker, "/api/jenkins": info_jenkins, "/api/git": info_git,
         "/api/vscode": info_vscode, "/api/sistema": info_sistema,
         "/api/compose-arquivos": lambda: {"arquivos": arquivos_compose()},
         "/api/modelo-pipeline": lambda: {"script": SCRIPT_EXEMPLO},

@@ -7,154 +7,259 @@
 <title>Painel DevOps</title>
 <style>
 :root{
-  --fundo:#0d1820; --lado:#0a131a; --cartao:#14232e; --cartao2:#1a2e3c; --borda:#243c4b; --texto:#e6eef2; --fraco:#8fa6b3;
-  --acento:#2fc4b2; --acento2:#2f9bd6; --ok:#3ccf7a; --aviso:#f2b84b; --erro:#ef6a6a; --raio:12px;
+  --lado:#18212b; --lado-texto:#b6c2ce; --lado-fraco:#7d8b99; --lado-ativo:#243243; --lado-linha:#263342;
+  --fundo:#f2f4f7; --sup:#ffffff; --sup2:#f7f9fb; --borda:#dce2e9; --borda2:#c6cfd9;
+  --texto:#1c2632; --fraco:#5b6a7a; --fraco2:#8a97a5;
+  --acento:#0d7c72; --acento-esc:#09625a; --acento-claro:#e2f2f0;
+  --ok:#1e8f4e; --ok-claro:#e3f4ea; --erro:#c93636; --erro-claro:#fbe8e8;
+  --aviso:#a86d08; --aviso-claro:#fcf1d9; --info:#2565c7; --info-claro:#e6eefb;
   --mono:'Ubuntu Mono','DejaVu Sans Mono',monospace;
+  --raio:8px;
 }
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:var(--fundo);color:var(--texto);font:14px/1.45 'Ubuntu','DejaVu Sans',sans-serif}
-body{display:flex}
-aside{width:210px;flex:none;background:var(--lado);border-right:1px solid var(--borda);display:flex;flex-direction:column;padding:16px 10px;gap:2px;height:100vh;overflow:auto}
-aside .logo{font-size:18px;font-weight:700;padding:4px 10px 16px;display:flex;align-items:center;gap:8px}
-aside .logo span{color:var(--acento)}
-aside button{display:flex;align-items:center;gap:10px;background:none;border:0;color:var(--fraco);padding:9px 12px;border-radius:9px;font:inherit;cursor:pointer;text-align:left}
-aside button svg{width:18px;height:18px;flex:none}
-aside button:hover{background:var(--cartao);color:var(--texto)}
-aside button.ativo{background:var(--acento);color:#04201c;font-weight:700}
-aside .sep{height:1px;background:var(--borda);margin:10px 6px}
-aside .rodape{margin-top:auto;font-size:11.5px;color:var(--fraco);padding:10px}
-#conteudo{flex:1;min-width:0;overflow:auto;height:100vh}
-.topo{display:flex;align-items:center;gap:12px;padding:18px 26px 6px;flex-wrap:wrap}
-.topo h1{margin:0;font-size:21px}
-.topo p{margin:2px 0 0;color:var(--fraco)}
-.topo .acoes{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
-main{padding:12px 26px 60px}
+html,body{margin:0;height:100%}
+body{display:flex;background:var(--fundo);color:var(--texto);font:14px/1.5 'Ubuntu','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--info)}
+:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+
+/* ---------- menu lateral ---------- */
+aside{width:224px;flex:none;background:var(--lado);color:var(--lado-texto);display:flex;flex-direction:column;height:100vh;overflow:auto}
+.marca{display:flex;align-items:center;gap:10px;padding:18px 18px 14px}
+.marca svg{width:30px;height:30px;flex:none}
+.marca b{display:block;color:#fff;font-size:15px;line-height:1.2}
+.marca span{font-size:12px;color:var(--lado-fraco)}
+nav{display:flex;flex-direction:column;padding:4px 10px;gap:1px}
+nav .grupo{font-size:12px;color:var(--lado-fraco);padding:16px 10px 6px}
+nav button{display:flex;align-items:center;gap:11px;background:none;border:0;color:var(--lado-texto);padding:8px 10px;border-radius:6px;cursor:pointer;text-align:left;position:relative}
+nav button svg{width:18px;height:18px;flex:none;opacity:.85}
+nav button:hover{background:#1f2a36;color:#fff}
+nav button.ativo{background:var(--lado-ativo);color:#fff;font-weight:500}
+nav button.ativo::before{content:"";position:absolute;left:-10px;top:7px;bottom:7px;width:3px;border-radius:0 3px 3px 0;background:#3cc6b6}
+nav button .cont{margin-left:auto;font-size:11.5px;color:var(--lado-fraco)}
+.saude{margin-top:auto;padding:14px 18px 16px;border-top:1px solid var(--lado-linha);font-size:12.5px;display:flex;flex-direction:column;gap:7px}
+.saude .lin{display:flex;align-items:center;gap:8px}
+.saude .lin span:last-child{margin-left:auto;color:var(--lado-fraco)}
+.saude .medidor{height:5px;background:#2b3846;border-radius:3px;overflow:hidden}
+.saude .medidor i{display:block;height:100%;background:#3cc6b6}
+.saude .medidor.alto i{background:#e0a02c}
+.saude .atualizado{color:var(--lado-fraco);font-size:11.5px}
+
+/* ---------- área principal ---------- */
+#conteudo{flex:1;min-width:0;height:100vh;overflow:auto;display:flex;flex-direction:column}
+.cab-pag{display:flex;align-items:flex-start;gap:16px;padding:22px 28px 0;flex-wrap:wrap}
+.cab-pag h1{margin:0;font-size:21px;font-weight:500;letter-spacing:-.01em}
+.cab-pag p{margin:3px 0 0;color:var(--fraco)}
+.cab-pag .acoes{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#ajuda{padding:0 28px}
+.ajuda{margin-top:14px;background:var(--info-claro);border:1px solid #c9daf6;border-radius:var(--raio);padding:12px 16px 12px 14px;color:#1c3c6e}
+.ajuda ol{margin:0;padding-left:20px}
+.ajuda li{margin:3px 0}
+.abas{display:flex;gap:2px;padding:0 28px;margin-top:16px;border-bottom:1px solid var(--borda)}
+.abas button{background:none;border:0;padding:9px 12px 10px;color:var(--fraco);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;display:flex;gap:7px;align-items:center}
+.abas button:hover{color:var(--texto)}
+.abas button.ativo{color:var(--texto);border-bottom-color:var(--acento);font-weight:500}
+.abas button .cont{font-size:12px;background:#e7ebf0;color:var(--fraco);border-radius:10px;padding:0 7px}
+main{padding:18px 28px 60px;flex:1}
 section{display:none} section.ativo{display:block}
-details.ajuda{background:#13283a;border:1px solid #1f4560;border-radius:var(--raio);padding:10px 14px;margin:0 0 14px}
-details.ajuda summary{cursor:pointer;color:#7cc4f5;font-weight:600}
-details.ajuda ol{margin:8px 0 2px;padding-left:20px;color:var(--texto)} details.ajuda li{margin:3px 0}
-h2{font-size:15px;margin:22px 0 10px;color:var(--texto);display:flex;align-items:center;gap:8px}
-.grade{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
-.grade.kpi{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
-.grade.dois{grid-template-columns:repeat(auto-fill,minmax(420px,1fr))}
-.cartao{background:var(--cartao);border:1px solid var(--borda);border-radius:var(--raio);padding:14px 16px;min-width:0}
-.cartao h3{margin:0 0 8px;font-size:14px;display:flex;align-items:center;gap:8px}
-.kpi .cartao{cursor:pointer;transition:border-color .15s, transform .15s}
-.kpi .cartao:hover{border-color:var(--acento);transform:translateY(-2px)}
-.kpi .rot{color:var(--fraco);font-size:12.5px}
-.kpi .num{font-size:28px;font-weight:700;margin-top:4px}
-.kpi .det{color:var(--fraco);font-size:12px}
+h2{font-size:15px;font-weight:500;margin:26px 0 10px;display:flex;align-items:center;gap:10px}
+h2:first-child{margin-top:4px}
+h2 .sub{font-weight:400}
 .sub{color:var(--fraco);font-size:12.5px}
-.mono{font-family:var(--mono);font-size:13px}
-.barra{height:8px;background:#0a131a;border-radius:6px;overflow:hidden;margin:8px 0 4px}
-.barra i{display:block;height:100%;background:linear-gradient(90deg,var(--acento),var(--acento2));border-radius:6px}
-.barra.alto i{background:linear-gradient(90deg,var(--aviso),var(--erro))}
-.etq{display:inline-block;padding:1px 9px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap}
-.etq.ok{background:#173d2a;color:var(--ok)} .etq.erro{background:#432222;color:var(--erro)}
-.etq.aviso{background:#43361b;color:var(--aviso)} .etq.neutro{background:#243c4b;color:var(--fraco)} .etq.azul{background:#173750;color:#7cc4f5}
-button.b{background:var(--cartao2);color:var(--texto);border:1px solid var(--borda);border-radius:8px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-button.b:hover{border-color:var(--acento)}
-button.b.pri{background:var(--acento);color:#04201c;border-color:var(--acento);font-weight:700}
-button.b.pri:hover{filter:brightness(1.08)}
-button.b.perigo:hover{border-color:var(--erro);color:var(--erro)}
-button.b.peq{padding:4px 9px;font-size:12.5px}
-button.b:disabled{opacity:.5;cursor:wait}
-input,select,textarea{background:#0a131a;color:var(--texto);border:1px solid var(--borda);border-radius:8px;padding:8px 10px;font:inherit;width:100%}
-textarea{font-family:var(--mono);min-height:360px;tab-size:2;line-height:1.4;resize:vertical}
-input:focus,textarea:focus,select:focus{outline:2px solid var(--acento);outline-offset:-1px}
-label.campo{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--fraco)}
-.campos{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:12px}
-.vazio{color:var(--fraco);padding:26px;text-align:center;background:var(--cartao);border:1px dashed var(--borda);border-radius:var(--raio)}
-.vazio b{color:var(--texto);display:block;font-size:15px;margin-bottom:4px}
-.aviso-box{background:#2a2614;border:1px solid #5a4a1c;color:#f6dc9a;padding:10px 14px;border-radius:var(--raio);margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.item{background:var(--cartao);border:1px solid var(--borda);border-radius:var(--raio);padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
-.item .cab{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.item .cab b{font-size:15px;overflow:hidden;text-overflow:ellipsis}
-.item .linha{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
-.lista{margin:0;padding:0;list-style:none;max-height:200px;overflow:auto}
-.lista li{padding:5px 0;border-bottom:1px solid #1d3341;font-size:13px;display:flex;gap:8px;align-items:center}
-.lista li:last-child{border:0}
+.mono{font-family:var(--mono);font-size:13.5px}
+.fraco{color:var(--fraco)}
+
+/* ---------- superfícies ---------- */
+.painel{background:var(--sup);border:1px solid var(--borda);border-radius:var(--raio);min-width:0}
+.painel > h3{margin:0;padding:13px 16px;font-size:14px;font-weight:500;border-bottom:1px solid var(--borda);display:flex;align-items:center;gap:8px}
+.painel .corpo-p{padding:14px 16px}
+.duas{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(420px,1fr))}
+.faixa{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));background:var(--sup);border:1px solid var(--borda);border-radius:var(--raio);margin-bottom:16px}
+.faixa > div{padding:13px 16px;border-right:1px solid var(--borda);min-width:0}
+.faixa > div:last-child{border-right:0}
+.faixa .r{color:var(--fraco);font-size:12.5px}
+.faixa .n{font-size:22px;font-weight:500;margin-top:2px;line-height:1.3}
+.faixa .d{color:var(--fraco);font-size:12.5px}
+.faixa .clic{cursor:pointer}
+.faixa .clic:hover{background:var(--sup2)}
+.medidor{height:6px;background:#e7ebf0;border-radius:3px;overflow:hidden;margin-top:8px}
+.medidor i{display:block;height:100%;background:var(--acento);border-radius:3px}
+.medidor.alto i{background:var(--aviso)}
+
+/* ---------- tabelas ---------- */
+.ferramentas{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.ferramentas input[type=search]{max-width:280px}
+.ferramentas .sub{margin-left:auto}
+table.t{width:100%;border-collapse:separate;border-spacing:0;background:var(--sup);border:1px solid var(--borda);border-radius:var(--raio);overflow:hidden}
+table.t th{text-align:left;font-weight:500;font-size:12.5px;color:var(--fraco);background:var(--sup2);padding:9px 14px;border-bottom:1px solid var(--borda);white-space:nowrap}
+table.t td{padding:10px 14px;border-bottom:1px solid #e9edf2;vertical-align:middle}
+table.t tr:last-child td{border-bottom:0}
+table.t tbody tr:hover td{background:#fafbfc}
+table.t td.acoes{text-align:right;white-space:nowrap;width:1%}
+table.t td.acoes > *{margin-left:4px}
+table.t .nome{font-weight:500}
+table.t .nome + .sub{margin-top:1px}
+table.t tr.clic{cursor:pointer}
+.cel-nome{display:flex;align-items:center;gap:10px;min-width:0}
+.cel-nome > div{min-width:0}
+.cel-nome .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:420px}
+.desativado td{opacity:.6}
+
+/* ---------- estados ---------- */
+.st{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.st::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--fraco2);flex:none}
+.st.ok::before{background:var(--ok)} .st.erro::before{background:var(--erro)} .st.aviso::before{background:var(--aviso)} .st.info::before{background:var(--info)}
+.st.anim::before{animation:pulso 1.2s ease-in-out infinite}
+@keyframes pulso{50%{opacity:.35}}
+.etq{display:inline-block;padding:1px 8px;border-radius:4px;font-size:12px;white-space:nowrap;background:#eaeef2;color:var(--fraco);line-height:1.6}
+.etq.ok{background:var(--ok-claro);color:var(--ok)} .etq.erro{background:var(--erro-claro);color:var(--erro)}
+.etq.aviso{background:var(--aviso-claro);color:var(--aviso)} .etq.info{background:var(--info-claro);color:var(--info)}
+.etq.acento{background:var(--acento-claro);color:var(--acento-esc)}
+.historico{display:inline-flex;gap:3px;vertical-align:middle}
+.historico i{width:9px;height:14px;border-radius:2px;display:inline-block;cursor:pointer}
+.etapas{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.etapas span{font-size:11.5px;padding:0 7px;border-radius:4px;background:#eaeef2;color:var(--fraco);line-height:1.7}
+.etapas span.SUCCESS{background:var(--ok-claro);color:var(--ok)} .etapas span.FAILED{background:var(--erro-claro);color:var(--erro)}
+.etapas span.IN_PROGRESS{background:var(--aviso-claro);color:var(--aviso)}
+
+/* ---------- botões e campos ---------- */
+.b{background:var(--sup);border:1px solid var(--borda2);border-radius:6px;padding:6px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;line-height:1.4;color:var(--texto)}
+.b:hover{background:var(--sup2);border-color:#b3bfcb}
+.b svg{width:15px;height:15px;flex:none}
+.b.pri{background:var(--acento);border-color:var(--acento);color:#fff}
+.b.pri:hover{background:var(--acento-esc);border-color:var(--acento-esc)}
+.b.perigo{color:var(--erro)}
+.b.perigo:hover{border-color:var(--erro);background:var(--erro-claro)}
+.b.peq{padding:4px 9px;font-size:13px}
+.b.icone{padding:5px;width:30px;height:30px;justify-content:center}
+.b.leve{border-color:transparent;background:none}
+.b.leve:hover{background:#e9edf2}
+.b:disabled{opacity:.55;cursor:wait}
+.grupo-b{display:inline-flex}
+.grupo-b .b{border-radius:0;margin-left:-1px}
+.grupo-b .b:first-child{border-radius:6px 0 0 6px;margin-left:0}
+.grupo-b .b:last-child{border-radius:0 6px 6px 0}
+input,select,textarea{background:#fff;border:1px solid var(--borda2);border-radius:6px;padding:7px 10px;width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acento);box-shadow:0 0 0 3px var(--acento-claro)}
+textarea{font-family:var(--mono);font-size:13.5px;min-height:360px;tab-size:2;line-height:1.45;resize:vertical}
+label.campo{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--fraco)}
+label.campo .dica{font-size:12px;color:var(--fraco2)}
+label.check{display:flex;align-items:center;gap:8px;color:var(--texto);font-size:13.5px}
+label.check input{width:auto}
+.campos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.campos .largo{grid-column:1/-1}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.historico{display:flex;gap:3px;align-items:center}
-.historico i{width:12px;height:12px;border-radius:3px;display:inline-block;cursor:pointer}
-.etapas{display:flex;gap:4px;flex-wrap:wrap}
-.etapas span{font-size:11.5px;padding:3px 8px;border-radius:6px;background:#243c4b}
-.etapas span.SUCCESS{background:#173d2a;color:var(--ok)} .etapas span.FAILED{background:#432222;color:var(--erro)}
-.etapas span.IN_PROGRESS{background:#43361b;color:var(--aviso)}
-.modelos{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
-.modelo{background:var(--cartao2);border:2px solid var(--borda);border-radius:10px;padding:12px;cursor:pointer;text-align:left;color:var(--texto);font:inherit}
-.modelo:hover{border-color:var(--acento2)}
-.modelo.sel{border-color:var(--acento);background:#173a3a}
-.modelo b{display:block;margin-bottom:3px}
-.modelo span{color:var(--fraco);font-size:12px}
+
+/* ---------- vazio e avisos na página ---------- */
+.vazio{background:var(--sup);border:1px dashed var(--borda2);border-radius:var(--raio);padding:36px 20px;text-align:center;color:var(--fraco)}
+.vazio b{display:block;color:var(--texto);font-size:15px;font-weight:500;margin-bottom:4px}
+.vazio .chips{justify-content:center;margin-top:14px}
+.faixa-aviso{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--aviso-claro);border:1px solid #efd9a6;color:#6e4a06;border-radius:var(--raio);padding:11px 14px;margin-bottom:14px}
+.faixa-aviso.info{background:var(--info-claro);border-color:#c9daf6;color:#1c3c6e}
+.faixa-aviso .b{margin-left:auto}
+
+/* ---------- configurações (Git) ---------- */
+.config{background:var(--sup);border:1px solid var(--borda);border-radius:var(--raio)}
+.config .item-c{display:flex;gap:20px;padding:16px 18px;border-bottom:1px solid var(--borda);align-items:flex-start;flex-wrap:wrap}
+.config .item-c:last-child{border-bottom:0}
+.config .item-c > div:first-child{flex:1;min-width:260px}
+.config .item-c b{font-weight:500;display:flex;gap:8px;align-items:center}
+.config .item-c p{margin:3px 0 0;color:var(--fraco);font-size:13px}
+.config .item-c .valor{font-family:var(--mono);font-size:12.5px;color:var(--fraco);word-break:break-all;margin-top:6px;max-height:40px;overflow:hidden}
+
+/* ---------- janela (modal) ---------- */
+#modal{position:fixed;inset:0;background:rgba(17,25,34,.45);display:none;align-items:center;justify-content:center;z-index:20;padding:24px}
+#modal.aberto{display:flex}
+#modal .caixa{background:var(--sup);border-radius:10px;width:min(1080px,100%);max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(15,23,32,.25)}
+#modal .mcab{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--borda);gap:10px}
+#modal .mcab b{font-size:16px;font-weight:500}
+#modal .mcab .x{margin-left:auto}
+#modal .corpo{padding:18px 20px;overflow:auto}
+#modal .rod{padding:12px 20px;border-top:1px solid var(--borda);display:flex;gap:8px;justify-content:flex-end;align-items:center;background:var(--sup2);border-radius:0 0 10px 10px}
+#modal .rod:empty{display:none}
+pre.saida{margin:0;white-space:pre-wrap;word-break:break-word;font-family:var(--mono);font-size:13px;background:#1c2530;color:#d6dee7;padding:14px;border-radius:6px;min-height:220px;max-height:60vh;overflow:auto}
+/* assistente: modelos à esquerda, formulário à direita */
+.assist{display:grid;grid-template-columns:250px 1fr;gap:22px;min-height:380px}
+.assist h4{margin:0 0 8px;font-size:13px;font-weight:500;color:var(--fraco)}
+.modelos{display:flex;flex-direction:column;gap:4px}
+.modelo{background:none;border:1px solid transparent;border-radius:6px;padding:8px 10px;cursor:pointer;text-align:left}
+.modelo:hover{background:var(--sup2);border-color:var(--borda)}
+.modelo.sel{background:var(--acento-claro);border-color:#a9d9d3}
+.modelo b{display:block;font-weight:500}
+.modelo span{color:var(--fraco);font-size:12.5px}
+.grade-modelos{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.grade-modelos .modelo{border-color:var(--borda)}
+
+/* ---------- menu "⋯" ---------- */
+.menu-pop{position:fixed;z-index:40;background:var(--sup);border:1px solid var(--borda);border-radius:8px;box-shadow:0 10px 28px rgba(15,23,32,.18);padding:4px;min-width:190px}
+.menu-pop button{display:flex;width:100%;align-items:center;gap:9px;background:none;border:0;padding:7px 10px;border-radius:5px;cursor:pointer;text-align:left}
+.menu-pop button:hover{background:var(--sup2)}
+.menu-pop button.perigo{color:var(--erro)}
+.menu-pop button svg{width:15px;height:15px;color:var(--fraco)}
+.menu-pop hr{border:0;border-top:1px solid var(--borda);margin:4px 2px}
+
+/* ---------- avisos ---------- */
+#avisos{position:fixed;right:20px;bottom:20px;display:flex;flex-direction:column;gap:8px;z-index:50;max-width:440px}
+.toast{background:var(--sup);border:1px solid var(--borda);border-left:4px solid var(--ok);padding:11px 14px;border-radius:6px;white-space:pre-wrap;box-shadow:0 8px 24px rgba(15,23,32,.14);animation:entra .18s ease-out}
+.toast.erro{border-left-color:var(--erro)}
+@keyframes entra{from{transform:translateY(6px);opacity:0}}
+.girando{display:inline-block;width:13px;height:13px;border:2px solid var(--aviso);border-right-color:transparent;border-radius:50%;animation:gira .8s linear infinite;flex:none;vertical-align:-2px}
+@keyframes gira{to{transform:rotate(360deg)}}
+
+/* ---------- gráficos ---------- */
 svg.graf{width:100%;display:block}
 svg.graf text{fill:var(--fraco);font-size:11px;font-family:inherit}
-.legenda{display:flex;gap:14px;font-size:12px;color:var(--fraco);flex-wrap:wrap;margin-top:6px}
-.legenda i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-table{width:100%;border-collapse:collapse}
-th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--borda);vertical-align:middle}
-th{color:var(--fraco);font-weight:600;font-size:12px}
-tr:last-child td{border-bottom:0}
-.atv{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid #1d3341;cursor:pointer;border-radius:6px}
-.atv:hover{background:#172935}
-.atv:last-child{border:0}
+.legenda{display:flex;gap:14px;font-size:12.5px;color:var(--fraco);flex-wrap:wrap;margin-top:8px}
+.legenda i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.lista-atv{display:flex;flex-direction:column}
+.atv{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #edf0f4;cursor:pointer}
+.atv:last-child{border-bottom:0}
+.atv:hover .tit{color:var(--acento-esc)}
 .atv .tit{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ferr{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--cartao2);border-radius:8px;min-width:0}
-.ponto{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--fraco);flex:none}
-.ponto.ok{background:var(--ok)} .ponto.erro{background:var(--erro)} .ponto.aviso{background:var(--aviso)}
-.chave{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #1d3341}
-.chave:last-child{border:0}
-#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:20;padding:20px}
-#modal.aberto{display:flex}
-#modal .caixa{background:var(--cartao);border:1px solid var(--borda);border-radius:14px;width:min(1100px,100%);max-height:92vh;display:flex;flex-direction:column}
-#modal .mcab{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid var(--borda);gap:10px}
-#modal .mcab b{font-size:16px}
-#modal .corpo{padding:16px 18px;overflow:auto}
-#modal pre{margin:0;white-space:pre-wrap;word-break:break-word;font-family:var(--mono);font-size:13px;background:#071016;padding:12px;border-radius:8px;min-height:200px;max-height:62vh;overflow:auto}
-#modal .rod{padding:12px 18px;border-top:1px solid var(--borda);display:flex;gap:8px;justify-content:flex-end;align-items:center}
-#avisos{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;z-index:30;max-width:460px}
-.toast{background:var(--cartao2);border:1px solid var(--borda);border-left:4px solid var(--acento);padding:10px 14px;border-radius:8px;white-space:pre-wrap;box-shadow:0 6px 20px rgba(0,0,0,.35)}
-.toast.erro{border-left-color:var(--erro)}
-.girando{display:inline-block;width:12px;height:12px;border:2px solid var(--aviso);border-right-color:transparent;border-radius:50%;animation:gira .8s linear infinite;flex:none}
-@keyframes gira{to{transform:rotate(360deg)}}
-@media (max-width:900px){aside{width:64px} aside button span, aside .logo span, aside .rodape{display:none} .grade.dois{grid-template-columns:1fr}}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:900px){
+  aside{width:62px} nav button span, nav .grupo, .marca div, .saude{display:none} nav button.ativo::before{display:none}
+  .assist{grid-template-columns:1fr} .campos{grid-template-columns:1fr} .duas{grid-template-columns:1fr}
+  .cab-pag,#ajuda,.abas,main{padding-left:16px;padding-right:16px}
+}
 </style>
 </head>
 <body>
-<aside id="menu">
-  <div class="logo">∞ <span>Painel DevOps</span></div>
-  <button data-aba="inicio" class="ativo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Início</span></button>
-  <div class="sep"></div>
-  <button data-aba="docker"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="10" width="5" height="4"/><rect x="8" y="10" width="5" height="4"/><rect x="13" y="10" width="5" height="4"/><rect x="8" y="6" width="5" height="4"/><path d="M2 14h19c-1 4-5 6-10 6S3 18 2 14z"/></svg><span>Docker</span></button>
-  <button data-aba="jenkins"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="19" cy="12" r="2.5"/><path d="M7.5 12h2M14.5 12h2"/></svg><span>Jenkins</span></button>
-  <button data-aba="git"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="5" r="2.5"/><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="9" r="2.5"/><path d="M6 7.5v9M18 11.5c0 4-6 3-11.5 6"/></svg><span>Git</span></button>
-  <button data-aba="vscode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3l4 2v14l-4 2L7 13l-4 3-1-1V9l1-1 4 3L17 3zM17 8l-5 4 5 4z"/></svg><span>VS Code</span></button>
-  <button data-aba="ansible"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 17l4-10 4 10M10 13l5 2.5"/></svg><span>Ansible</span></button>
-  <button data-aba="terraform"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4l5 3v6L3 10zM9.5 7.5l5 3v6l-5-3zM16 10.5l5-3v6l-5 3zM9.5 15l5 3v4l-5-3z"/></svg><span>Terraform</span></button>
-  <button data-aba="python"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3c-4 0-4 1.5-4 3v2h4.5v1H6c-2 0-3 1.5-3 4s1 4 3 4h1.5v-2.5c0-1.5 1-2.5 2.5-2.5h4.5c1.5 0 2.5-1 2.5-2.5V6c0-1.5-1-3-5-3z"/><path d="M12 21c4 0 4-1.5 4-3v-2h-4.5v-1H18c2 0 3-1.5 3-4"/></svg><span>Python</span></button>
-  <div class="sep"></div>
-  <button data-aba="atividades"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="17" r="3"/></svg><span>Atividades</span></button>
-  <button data-aba="sistema"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4M6 12l3-3 3 2 4-4"/></svg><span>Sistema</span></button>
-  <div class="rodape" id="atualizado">—</div>
+<aside>
+  <div class="marca">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#0d7c72"/><path d="M9.5 20.5c-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5c4.3 0 8.7 9 13 9 2.5 0 4.5-2 4.5-4.5s-2-4.5-4.5-4.5c-4.3 0-8.7 9-13 9z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+    <div><b>Painel DevOps</b><span>DevOps-Lab</span></div>
+  </div>
+  <nav id="menu">
+    <button data-aba="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Visão geral</span></button>
+    <div class="grupo">Ferramentas</div>
+    <button data-aba="docker"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="10" width="5" height="4"/><rect x="8" y="10" width="5" height="4"/><rect x="13" y="10" width="5" height="4"/><rect x="8" y="6" width="5" height="4"/><path d="M2 14h19c-1 4-5 6-10 6S3 18 2 14z"/></svg><span>Docker</span><span class="cont" id="n-docker"></span></button>
+    <button data-aba="jenkins"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="19" cy="12" r="2.5"/><path d="M7.5 12h2M14.5 12h2"/></svg><span>Jenkins</span><span class="cont" id="n-jenkins"></span></button>
+    <button data-aba="git"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="5" r="2.5"/><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="9" r="2.5"/><path d="M6 7.5v9M18 11.5c0 4-6 3-11.5 6"/></svg><span>Git</span></button>
+    <button data-aba="vscode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3l4 2v14l-4 2L7 13l-4 3-1-1V9l1-1 4 3L17 3zM17 8l-5 4 5 4z"/></svg><span>VS Code</span></button>
+    <button data-aba="ansible"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 17l4-10 4 10M10 13l5 2.5"/></svg><span>Ansible</span></button>
+    <button data-aba="terraform"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4l5 3v6L3 10zM9.5 7.5l5 3v6l-5-3zM16 10.5l5-3v6l-5 3zM9.5 15l5 3v4l-5-3z"/></svg><span>Terraform</span></button>
+    <button data-aba="python"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3c-4 0-4 1.5-4 3v2h4.5v1H6c-2 0-3 1.5-3 4s1 4 3 4h1.5v-2.5c0-1.5 1-2.5 2.5-2.5h4.5c1.5 0 2.5-1 2.5-2.5V6c0-1.5-1-3-5-3z"/><path d="M12 21c4 0 4-1.5 4-3v-2h-4.5v-1H18c2 0 3-1.5 3-4"/></svg><span>Python</span></button>
+    <div class="grupo">Laboratório</div>
+    <button data-aba="atividades"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="17" r="3"/></svg><span>Atividades</span><span class="cont" id="n-atividades"></span></button>
+    <button data-aba="sistema"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4M6 12l3-3 3 2 4-4"/></svg><span>Sistema</span></button>
+  </nav>
+  <div class="saude" id="saude">
+    <div class="lin"><span class="st" id="sd-docker">Docker</span><span id="sd-docker-t">—</span></div>
+    <div class="lin"><span class="st" id="sd-jenkins">Jenkins</span><span id="sd-jenkins-t">—</span></div>
+    <div class="lin"><span>Memória</span><span id="sd-mem">—</span></div>
+    <div class="medidor" id="sd-mem-b"><i style="width:0"></i></div>
+    <div class="atualizado" id="atualizado">—</div>
+  </div>
 </aside>
 
 <div id="conteudo">
-  <div class="topo"><div><h1 id="titulo">Início</h1><p id="descricao"></p></div><div class="acoes" id="acoes-topo"></div></div>
+  <header class="cab-pag"><div><h1 id="titulo">Visão geral</h1><p id="descricao"></p></div><div class="acoes" id="acoes-topo"></div></header>
+  <div id="ajuda"></div>
+  <div id="sub-abas"></div>
   <main>
-    <div id="ajuda"></div>
-    <section id="inicio" class="ativo">
-      <div class="grade kpi" id="kpis"></div>
-      <div class="grade dois" style="margin-top:14px">
-        <div class="cartao"><h3>Processador e memória (ao vivo)</h3><div id="g-sis"></div><div class="legenda"><span><i style="background:var(--acento2)"></i>CPU %</span><span><i style="background:var(--acento)"></i>Memória usada</span></div></div>
-        <div class="cartao"><h3>Builds do Jenkins</h3><div id="g-builds"></div></div>
-        <div class="cartao"><h3>Containers</h3><div id="g-cont"></div></div>
-        <div class="cartao"><h3>Commits por dia (14 dias)</h3><div id="g-commits"></div></div>
-      </div>
-      <div class="grade dois" style="margin-top:14px">
-        <div class="cartao"><h3>Atividade recente</h3><div id="atividade-inicio"></div></div>
-        <div class="cartao"><h3>Ferramentas instaladas</h3><div class="grade" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px" id="ferramentas"><div class="sub">Conferindo versões…</div></div></div>
-      </div>
-    </section>
+    <section id="inicio" class="ativo"></section>
     <section id="docker"></section>
     <section id="jenkins"></section>
     <section id="git"></section>
@@ -167,12 +272,12 @@ tr:last-child td{border-bottom:0}
   </main>
 </div>
 
-<div id="modal"><div class="caixa">
-  <div class="mcab"><b id="m-titulo"></b><span class="sub" id="m-sub"></span><button class="b" style="margin-left:auto" onclick="fecharModal()">Fechar ✕</button></div>
+<div id="modal" role="dialog" aria-modal="true"><div class="caixa">
+  <div class="mcab"><b id="m-titulo"></b><span class="sub" id="m-sub"></span><button class="b leve icone x" title="Fechar (Esc)" onclick="fecharModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="corpo" id="m-corpo"></div>
   <div class="rod" id="m-rod"></div>
 </div></div>
-<div id="avisos"></div>
+<div id="avisos" aria-live="polite"></div>
 
 <script>
 const TOKEN = document.querySelector('meta[name="painel-token"]').content;
@@ -180,14 +285,60 @@ let ABA = 'inicio', ocupado = false, DADOS = {};
 const $ = s => document.querySelector(s);
 const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const A = v => esc(JSON.stringify(v));
-const mb = n => n >= 1024 ? (n/1024).toFixed(1) + ' GB' : Math.round(n) + ' MB';
-const quando = ms => { if(!ms) return ''; const s = (Date.now()-ms)/1000; return s < 60 ? 'agora' : s < 3600 ? Math.round(s/60)+' min atrás' : s < 86400 ? Math.round(s/3600)+' h atrás' : new Date(ms).toLocaleDateString('pt-BR'); };
-const dur = ms => !ms ? '' : ms < 1000 ? ms + ' ms' : ms < 60000 ? (ms/1000).toFixed(1) + ' s' : Math.floor(ms/60000) + ' min ' + Math.round(ms%60000/1000) + ' s';
+const J = v => JSON.stringify(v);   /* valor dentro do JS de BT() e M() (que já escapam) */
+const mb = n => n >= 1024 ? (n/1024).toFixed(1).replace('.', ',') + ' GB' : Math.round(n) + ' MB';
+const quando = ms => { if(!ms) return ''; const s = (Date.now()-ms)/1000; return s < 60 ? 'agora' : s < 3600 ? 'há ' + Math.round(s/60) + ' min' : s < 86400 ? 'há ' + Math.round(s/3600) + ' h' : new Date(ms).toLocaleDateString('pt-BR'); };
+const dur = ms => !ms ? '' : ms < 1000 ? ms + ' ms' : ms < 60000 ? (ms/1000).toFixed(1).replace('.', ',') + ' s' : Math.floor(ms/60000) + ' min ' + Math.round(ms%60000/1000) + ' s';
 const base = c => c.split('/').pop();
 const pai = c => c.replace(/\/[^/]+$/, '');
+const curto = c => String(c || '').replace(/^\/home\/[^/]+/, '~');
+
+/* ================= ícones ================= */
+const I = {
+  play:'<path d="M7 4l13 8-13 8z"/>', parar:'<rect x="6" y="6" width="12" height="12" rx="1"/>', reiniciar:'<path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/>',
+  terminal:'<path d="M4 17l6-6-6-6M12 19h8"/>', logs:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h6"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>', lixo:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+  mais:'<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>', novo:'<path d="M12 5v14M5 12h14"/>',
+  abrir:'<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>', editar:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+  copiar:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>', relogio:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  chave:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3"/>', branch:'<circle cx="6" cy="5" r="2.5"/><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="7" r="2.5"/><path d="M6 7.5v9M18 9.5c0 5-12 2-12 7"/>',
+  subir:'<path d="M12 19V5M5 12l7-7 7 7"/>', descer:'<path d="M12 5v14M19 12l-7 7-7-7"/>', pasta:'<path d="M3 6a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/>',
+  codigo:'<path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/>', baixar:'<path d="M12 3v12M6 10l6 6 6-6M4 21h16"/>', busca:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+  ajuda:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17v.5"/>', ok:'<path d="M5 12l5 5 9-10"/>',
+  energia:'<path d="M12 3v9M6.3 6.3a8 8 0 1 0 11.4 0"/>', compose:'<rect x="3" y="4" width="8" height="7" rx="1"/><rect x="13" y="4" width="8" height="7" rx="1"/><rect x="8" y="13" width="8" height="7" rx="1"/>',
+  imagem:'<path d="M12 3l9 5v8l-9 5-9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/>', rede:'<circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4M12 11.5l-6 5M12 11.5l6 5"/>',
+  disco:'<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>', limpar:'<path d="M4 20l7-7M14 4l6 6-8 8-6-6z"/>',
+};
+const ico = n => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n] || ''}</svg>`;
+/* botão: BT('Texto', 'js', {pri, perigo, icone:'play', so_icone, titulo}) */
+function BT(txt, js, o){
+  o = o || {};
+  const cls = ['b', 'peq', o.pri ? 'pri' : '', o.perigo ? 'perigo' : '', o.so_icone ? 'icone' : ''].join(' ');
+  return `<button class="${cls}" title="${esc(o.titulo || (o.so_icone ? txt : ''))}" onclick="${esc(js)}">${o.icone ? ico(o.icone) : ''}${o.so_icone ? '' : esc(txt)}</button>`;
+}
+/* menu "⋯": itens = [{t, js, i, p (perigo)} ou '-'] */
+function M(itens){ return `<button class="b leve icone" title="Mais ações" onclick='abrirMenu(this, ${A(itens.filter(Boolean))})'>${ico('mais')}</button>`; }
+function abrirMenu(btn, itens){
+  fecharMenu();
+  const m = document.createElement('div'); m.className = 'menu-pop'; m.id = 'menu-pop';
+  itens.forEach(it => {
+    if(it === '-'){ m.appendChild(document.createElement('hr')); return; }
+    const e = document.createElement('button'); if(it.p) e.className = 'perigo';
+    e.innerHTML = (it.i ? ico(it.i) : '') + esc(it.t);
+    e.onclick = ev => { ev.stopPropagation(); fecharMenu(); try{ new Function(it.js).call(btn); }catch(x){ toast(x.message, true); } };
+    m.appendChild(e);
+  });
+  document.body.appendChild(m);
+  const r = btn.getBoundingClientRect(), w = m.offsetWidth, h = m.offsetHeight;
+  m.style.left = Math.max(8, Math.min(r.right - w, innerWidth - w - 8)) + 'px';
+  m.style.top = (r.bottom + h + 6 > innerHeight ? r.top - h - 4 : r.bottom + 4) + 'px';
+  setTimeout(() => document.addEventListener('click', fecharMenu, {once:true}), 0);
+}
+function fecharMenu(){ const m = $('#menu-pop'); if(m) m.remove(); }
+addEventListener('scroll', fecharMenu, true);
 
 /* ================= comunicação ================= */
-function toast(msg, erro){ const d = document.createElement('div'); d.className = 'toast' + (erro ? ' erro' : ''); d.textContent = msg; $('#avisos').appendChild(d); setTimeout(() => d.remove(), erro ? 9000 : 4500); }
+function toast(msg, erro){ const d = document.createElement('div'); d.className = 'toast' + (erro ? ' erro' : ''); d.textContent = msg; $('#avisos').appendChild(d); setTimeout(() => d.remove(), erro ? 10000 : 5000); }
 async function get(url){ const r = await fetch(url); const j = await r.json(); if(!r.ok) throw new Error(j.erro || r.statusText); return j; }
 async function post(url, dados, btn){
   if(btn) btn.disabled = true;
@@ -214,22 +365,22 @@ function abrirUrl(url){ acao('/api/abrir', {acao:'url', url}); }
 /* ================= janelas ================= */
 let consoleTimer = null;
 function abrirModal(titulo, sub, html, botoes){
-  clearTimeout(consoleTimer);
+  clearTimeout(consoleTimer); fecharMenu();
   $('#m-titulo').textContent = titulo; $('#m-sub').textContent = sub || '';
   $('#m-corpo').innerHTML = html; $('#m-rod').innerHTML = '';
   (botoes || []).forEach(b => { const e = document.createElement('button'); e.className = 'b ' + (b.cls||''); e.innerHTML = b.txt; e.onclick = () => b.fn(e); $('#m-rod').appendChild(e); });
   $('#modal').classList.add('aberto');
 }
 function fecharModal(){ clearTimeout(consoleTimer); $('#modal').classList.remove('aberto'); carregar(true); }
-function modalTexto(titulo, texto){ abrirModal(titulo, '', '<pre>' + esc(texto) + '</pre>'); const p = $('#m-corpo pre'); p.scrollTop = p.scrollHeight; }
+function modalTexto(titulo, texto){ abrirModal(titulo, '', '<pre class="saida">' + esc(texto) + '</pre>'); const p = $('#m-corpo pre'); p.scrollTop = p.scrollHeight; }
 function modalEditor(titulo, sub, texto, botoes){
   abrirModal(titulo, sub, '<textarea id="m-edit" spellcheck="false"></textarea>', botoes);
   const t = $('#m-edit'); t.value = texto; t.focus();
   t.addEventListener('keydown', e => { if(e.key === 'Tab'){ e.preventDefault(); t.setRangeText('  ', t.selectionStart, t.selectionEnd, 'end'); } });
 }
 function abrirConsole(id, titulo){
-  abrirModal(titulo, 'saída ao vivo', '<div id="c-estado" style="margin-bottom:8px"></div><pre id="c-saida"></pre>',
-    [{txt:'■ Parar', cls:'perigo', fn: b => post('/api/tarefa-parar', {id}, b).then(toast).catch(e => toast(e.message, true))}]);
+  abrirModal(titulo, '', '<div id="c-estado" style="margin-bottom:10px"></div><pre id="c-saida" class="saida"></pre>',
+    [{txt:ico('parar') + 'Parar', cls:'perigo', fn: b => post('/api/tarefa-parar', {id}, b).then(toast).catch(e => toast(e.message, true))}]);
   let desde = 0;
   const passo = async () => {
     try{
@@ -238,19 +389,20 @@ function abrirConsole(id, titulo){
       const noFim = pre.scrollTop + pre.clientHeight >= pre.scrollHeight - 30;
       if(t.linhas.length){ pre.textContent += t.linhas.join('\n') + '\n'; desde = t.total; if(noFim) pre.scrollTop = pre.scrollHeight; }
       $('#c-estado').innerHTML = t.fim
-        ? (t.codigo === 0 ? '<span class="etq ok">✔ concluído</span>' : `<span class="etq erro">✖ terminou com erro (código ${t.codigo})</span>`) + ` <span class="sub">${dur(t.duracao)} · <span class="mono">${esc(t.comando)}</span></span>`
-        : `<span class="girando"></span> <span class="sub">rodando… <span class="mono">${esc(t.comando)}</span></span>`;
+        ? (t.codigo === 0 ? '<span class="st ok">Concluído</span>' : `<span class="st erro">Terminou com erro (código ${t.codigo})</span>`) + ` <span class="sub" style="margin-left:8px">${dur(t.duracao)} · <span class="mono">${esc(t.comando)}</span></span>`
+        : `<span class="st aviso anim">Rodando</span> <span class="sub mono" style="margin-left:8px">${esc(t.comando)}</span>`;
       if(!t.fim) consoleTimer = setTimeout(passo, 700);
     }catch(e){ if($('#c-estado')) $('#c-estado').textContent = e.message; }
   };
   passo();
 }
 function esperarTarefa(id){ return new Promise(res => { const v = async () => { try{ const t = await get('/api/tarefa?id=' + id); if(t.fim) return res(t); }catch(e){ return res(null); } setTimeout(v, 800); }; v(); }); }
-/* criação com modelos clicáveis */
+
+/* criação com modelos: lista de modelos à esquerda, formulário à direita */
 function assistente(titulo, modelos, campos, aoCriar, rotulo){
   let sel = 0;
-  abrirModal(titulo, '', `<div class="sub" style="margin-bottom:8px">1. Escolha um modelo</div><div class="modelos">${modelos.map((m,i) => `<button class="modelo${i?'':' sel'}" data-i="${i}"><b>${esc(m.nome)}</b><span>${esc(m.desc)}</span></button>`).join('')}</div>
-    <div class="sub" style="margin:16px 0 0">2. Ajuste se quiser e clique em <b>${esc(rotulo || 'Criar')}</b></div><div class="campos" id="a-campos"></div>`,
+  abrirModal(titulo, '', `<div class="assist"><div><h4>Modelo</h4><div class="modelos">${modelos.map((m,i) => `<button class="modelo${i?'':' sel'}" data-i="${i}"><b>${esc(m.nome)}</b><span>${esc(m.desc)}</span></button>`).join('')}</div></div>
+    <div><h4>Configuração</h4><div class="campos" id="a-campos"></div></div></div>`,
     [{txt: rotulo || 'Criar', cls:'pri', fn: async b => {
       const v = {}; campos.forEach(c => { const e = document.getElementById('a-' + c.id); if(e) v[c.id] = c.tipo === 'check' ? e.checked : e.value; });
       await aoCriar(v, modelos[sel], b);
@@ -259,15 +411,16 @@ function assistente(titulo, modelos, campos, aoCriar, rotulo){
     const m = modelos[sel];
     $('#a-campos').innerHTML = campos.filter(c => !c.so || c.so(m)).map(c => {
       const val = m.valores?.[c.id] ?? c.padrao ?? '';
-      if(c.tipo === 'area') return `<label class="campo" style="grid-column:1/-1">${esc(c.rot)}<textarea id="a-${c.id}" spellcheck="false" style="min-height:${c.alt||260}px">${esc(val)}</textarea></label>`;
-      if(c.tipo === 'check') return `<label class="campo" style="flex-direction:row;align-items:center;gap:8px;color:var(--texto)"><input type="checkbox" id="a-${c.id}" style="width:auto" ${val?'checked':''}>${esc(c.rot)}</label>`;
-      if(c.tipo === 'memoria') return `<label class="campo">${esc(c.rot)}<input id="a-${c.id}" value="${esc(val)}" placeholder="ex.: 512m, 1g, 2g (vazio = sem limite)">
-        <span class="chips" style="margin-top:4px">${['256m','512m','1g','2g','4g',''].map(x => `<button type="button" class="b peq" onclick='const e=document.getElementById("a-${c.id}");e.value=${A(x)};e.dispatchEvent(new Event("input",{bubbles:true}))'>${x || 'sem limite'}</button>`).join('')}</span></label>`;
-      if(c.tipo === 'select') return `<label class="campo">${esc(c.rot)}<select id="a-${c.id}">${c.opcoes().map(o => `<option ${o===val?'selected':''}>${esc(o)}</option>`).join('')}</select></label>`;
-      return `<label class="campo">${esc(c.rot)}<input id="a-${c.id}" value="${esc(val)}" placeholder="${esc(c.dica||'')}"></label>`;
+      const dica = c.ajuda ? `<span class="dica">${esc(c.ajuda)}</span>` : '';
+      if(c.tipo === 'area') return `<label class="campo largo">${esc(c.rot)}<textarea id="a-${c.id}" spellcheck="false" style="min-height:${c.alt||260}px">${esc(val)}</textarea>${dica}</label>`;
+      if(c.tipo === 'check') return `<label class="check largo"><input type="checkbox" id="a-${c.id}" ${val?'checked':''}>${esc(c.rot)}</label>`;
+      if(c.tipo === 'memoria') return `<label class="campo">${esc(c.rot)}<input id="a-${c.id}" value="${esc(val)}" placeholder="ex.: 512m, 1g (vazio = sem limite)">
+        <span class="chips">${['256m','512m','1g','2g',''].map(x => `<button type="button" class="b peq" onclick='const e=document.getElementById("a-${c.id}");e.value=${A(x)};e.dispatchEvent(new Event("input",{bubbles:true}))'>${x || 'sem limite'}</button>`).join('')}</span></label>`;
+      if(c.tipo === 'select') return `<label class="campo">${esc(c.rot)}<select id="a-${c.id}">${c.opcoes().map(o => `<option ${o===val?'selected':''}>${esc(o)}</option>`).join('')}</select>${dica}</label>`;
+      return `<label class="campo${c.largo ? ' largo' : ''}">${esc(c.rot)}<input id="a-${c.id}" value="${esc(val)}" placeholder="${esc(c.dica||'')}">${dica}</label>`;
     }).join('');
   };
-  document.querySelectorAll('.modelo').forEach(b => b.onclick = () => { sel = +b.dataset.i; document.querySelectorAll('.modelo').forEach(x => x.classList.toggle('sel', x === b)); desenhar(); });
+  document.querySelectorAll('#modal .modelo').forEach(b => b.onclick = () => { sel = +b.dataset.i; document.querySelectorAll('#modal .modelo').forEach(x => x.classList.toggle('sel', x === b)); desenhar(); });
   $('#a-campos').addEventListener('input', e => { const c = campos.find(x => 'a-' + x.id === e.target.id); if(c && c.aoMudar) c.aoMudar(e.target.value); });
   desenhar();
 }
@@ -281,136 +434,218 @@ function trocarMemoriaCompose(id, mem){
   const t = document.getElementById(id); if(!t || !MEM_OK(mem)) return; mem = mem.trim();
   t.value = t.value.replace(/\n\s+mem_limit: \S+/g, '').replace(/(\n(\s+)image: [^\n]+)/g, (m, linha, ind) => mem ? `${linha}\n${ind}mem_limit: ${mem}` : linha);
 }
-document.addEventListener('keydown', e => { if(e.key === 'Escape' && $('#modal').classList.contains('aberto')) fecharModal(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape'){ if($('#menu-pop')) return fecharMenu(); if($('#modal').classList.contains('aberto')) fecharModal(); } });
 
 /* ================= gráficos ================= */
+const COR = {cpu:'#2565c7', mem:'#0d7c72', grade:'#e6ebf0', vazio:'#d5dce4'};
 function graficoLinha(el, t, series, maxes){
   const W = 600, H = 170, P = 34;
-  if(t.length < 2){ el.innerHTML = '<div class="sub" style="padding:30px 0;text-align:center">Coletando dados… o gráfico aparece em alguns segundos.</div>'; return; }
+  if(t.length < 2){ el.innerHTML = '<div class="sub" style="padding:36px 0;text-align:center">Coletando dados — o gráfico aparece em alguns segundos.</div>'; return; }
   const x = i => P + (W - P - 8) * i / (t.length - 1);
   let svg = `<svg class="graf" viewBox="0 0 ${W} ${H}">`;
-  [0, .5, 1].forEach(f => { const y = 8 + (H - 30) * (1 - f); svg += `<line x1="${P}" x2="${W-8}" y1="${y}" y2="${y}" stroke="#243c4b"/><text x="2" y="${y+4}">${Math.round(f*100)}%</text>`; });
+  [0, .5, 1].forEach(f => { const y = 8 + (H - 30) * (1 - f); svg += `<line x1="${P}" x2="${W-8}" y1="${y}" y2="${y}" stroke="${COR.grade}"/><text x="2" y="${y+4}">${Math.round(f*100)}%</text>`; });
   series.forEach((s, k) => {
     const pts = s.v.map((v, i) => `${x(i).toFixed(1)},${(8 + (H-30) * (1 - Math.min(v, maxes[k]) / maxes[k])).toFixed(1)}`).join(' ');
-    svg += `<polygon points="${P},${H-22} ${pts} ${x(s.v.length-1).toFixed(1)},${H-22}" fill="${s.cor}" opacity=".12"/><polyline points="${pts}" fill="none" stroke="${s.cor}" stroke-width="2.2" stroke-linejoin="round"/>`;
+    svg += `<polygon points="${P},${H-22} ${pts} ${x(s.v.length-1).toFixed(1)},${H-22}" fill="${s.cor}" opacity=".08"/><polyline points="${pts}" fill="none" stroke="${s.cor}" stroke-width="2" stroke-linejoin="round"/>`;
   });
   const hm = ms => new Date(ms).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
   el.innerHTML = svg + `<text x="${P}" y="${H-4}">${hm(t[0])}</text><text x="${W-42}" y="${H-4}">${hm(t[t.length-1])}</text></svg>`;
 }
 function graficoRosca(el, partes){
   const total = partes.reduce((a, p) => a + p.v, 0);
-  if(!total){ el.innerHTML = vazio('Nenhum container ainda', '', `<button class="b pri" onclick="irPara('docker');novoContainer()">+ Criar o primeiro</button>`); return; }
+  if(!total){ el.innerHTML = vazio('Nenhum container ainda', 'Crie um a partir de um modelo pronto.', BT('Novo container', "irPara('docker');novoContainer()", {pri:1, icone:'novo'})); return; }
   let ang = -Math.PI/2, svg = `<svg class="graf" viewBox="0 0 330 150" style="max-width:440px">`;
-  const R = 62, r = 38, cx = 75, cy = 75, P = (a, rr) => `${(cx + rr*Math.cos(a)).toFixed(2)},${(cy + rr*Math.sin(a)).toFixed(2)}`;
+  const R = 62, r = 42, cx = 75, cy = 75, P = (a, rr) => `${(cx + rr*Math.cos(a)).toFixed(2)},${(cy + rr*Math.sin(a)).toFixed(2)}`;
   partes.filter(p => p.v).forEach(p => {
     const a2 = ang + 2*Math.PI * p.v / total, g = a2 - ang > Math.PI ? 1 : 0;
     svg += p.v === total ? `<circle cx="${cx}" cy="${cy}" r="${(R+r)/2}" fill="none" stroke="${p.cor}" stroke-width="${R-r}"/>`
       : `<path d="M${P(ang,R)} A${R},${R} 0 ${g} 1 ${P(a2,R)} L${P(a2,r)} A${r},${r} 0 ${g} 0 ${P(ang,r)}Z" fill="${p.cor}"/>`;
     ang = a2;
   });
-  svg += `<text x="${cx}" y="${cy+8}" text-anchor="middle" style="font-size:24px;font-weight:700;fill:#e6eef2">${total}</text>`;
-  partes.forEach((p, i) => svg += `<rect x="175" y="${32+i*26}" width="12" height="12" rx="3" fill="${p.cor}"/><text x="194" y="${43+i*26}" style="font-size:13px;fill:#e6eef2">${esc(p.n)}: ${p.v}</text>`);
+  svg += `<text x="${cx}" y="${cy+8}" text-anchor="middle" style="font-size:24px;fill:#1c2632">${total}</text>`;
+  partes.forEach((p, i) => svg += `<rect x="175" y="${32+i*26}" width="12" height="12" rx="2" fill="${p.cor}"/><text x="194" y="${43+i*26}" style="font-size:13px;fill:#1c2632">${esc(p.n)}: ${p.v}</text>`);
   el.innerHTML = svg + '</svg>';
 }
 function graficoBarras(el, itens, cor){
   const W = 600, H = 160, max = Math.max(1, ...itens.map(i => i.v)), bw = (W - 20) / itens.length;
   let svg = `<svg class="graf" viewBox="0 0 ${W} ${H}">`;
   itens.forEach((it, i) => { const h = (H - 36) * it.v / max, x = 10 + i*bw;
-    svg += `<rect x="${(x+3).toFixed(1)}" y="${(H-22-h).toFixed(1)}" width="${(bw-6).toFixed(1)}" height="${Math.max(h, 2).toFixed(1)}" rx="3" fill="${it.v ? cor : '#243c4b'}"><title>${esc(it.r)}: ${it.v}</title></rect>`;
+    svg += `<rect x="${(x+3).toFixed(1)}" y="${(H-22-h).toFixed(1)}" width="${(bw-6).toFixed(1)}" height="${Math.max(h, 2).toFixed(1)}" rx="2" fill="${it.v ? cor : COR.vazio}"><title>${esc(it.r)}: ${it.v}</title></rect>`;
     if(it.v) svg += `<text x="${(x+bw/2).toFixed(1)}" y="${(H-26-h).toFixed(1)}" text-anchor="middle">${it.v}</text>`;
     if(i % 2 === 0) svg += `<text x="${(x+bw/2).toFixed(1)}" y="${H-6}" text-anchor="middle">${esc(it.r)}</text>`; });
   el.innerHTML = svg + '</svg>';
 }
-const COR_BUILD = r => ({SUCCESS:'#3ccf7a', FAILURE:'#ef6a6a', UNSTABLE:'#f2b84b', ABORTED:'#8fa6b3', 'EM ANDAMENTO':'#2f9bd6'})[r] || '#5b7280';
+const COR_BUILD = r => ({SUCCESS:'#1e8f4e', FAILURE:'#c93636', UNSTABLE:'#a86d08', ABORTED:'#8a97a5', 'EM ANDAMENTO':'#2565c7'})[r] || '#c6cfd9';
 function graficoBuilds(el, builds){
-  if(!builds.length){ el.innerHTML = vazio('Nenhum build ainda', '', `<button class="b pri" onclick="irPara('jenkins');novoPipeline()">+ Criar um pipeline</button>`); return; }
+  if(!builds.length){ el.innerHTML = vazio('Nenhum build ainda', 'Crie um pipeline e clique em Construir.', BT('Novo item no Jenkins', "irPara('jenkins');novoItemJenkins()", {pri:1, icone:'novo'})); return; }
   const W = 600, H = 160, max = Math.max(1000, ...builds.map(b => b.d || 0)), bw = (W - 20) / Math.max(builds.length, 12);
   let svg = `<svg class="graf" viewBox="0 0 ${W} ${H}">`;
   builds.forEach((b, i) => { const h = Math.max(6, (H - 34) * (b.d || 0) / max), x = 10 + i*bw;
-    svg += `<rect x="${(x+2).toFixed(1)}" y="${(H-22-h).toFixed(1)}" width="${(bw-4).toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="${COR_BUILD(b.r)}" style="cursor:pointer" onclick='acao("/api/jenkins",{acao:"console",job:${A(b.job)},numero:${b.n}},null,${A(b.job + " #" + b.n)})'><title>${esc(b.job)} #${b.n} — ${esc(b.r||'')} — ${dur(b.d)}</title></rect>`; });
-  el.innerHTML = svg + `<text x="10" y="${H-6}">mais antigos</text><text x="${W-90}" y="${H-6}">mais recentes</text></svg><div class="legenda"><span><i style="background:#3ccf7a"></i>sucesso</span><span><i style="background:#ef6a6a"></i>falha</span><span><i style="background:#2f9bd6"></i>rodando</span><span>altura = duração · clique para ver o console</span></div>`;
+    svg += `<rect x="${(x+2).toFixed(1)}" y="${(H-22-h).toFixed(1)}" width="${(bw-4).toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${COR_BUILD(b.r)}" style="cursor:pointer" onclick='acao("/api/jenkins",{acao:"console",job:${A(b.job)},numero:${b.n}},null,${A(b.job + " #" + b.n)})'><title>${esc(b.job)} #${b.n} — ${esc(b.r||'')} — ${dur(b.d)}</title></rect>`; });
+  el.innerHTML = svg + `<text x="10" y="${H-6}">mais antigos</text><text x="${W-90}" y="${H-6}">mais recentes</text></svg><div class="legenda"><span><i style="background:#1e8f4e"></i>Sucesso</span><span><i style="background:#c93636"></i>Falha</span><span><i style="background:#2565c7"></i>Rodando</span><span>Altura = duração. Clique para ver o console.</span></div>`;
 }
 
 /* ================= navegação ================= */
 const PAGINAS = {
-  inicio:['Início','Tudo o que você criou nas ferramentas do laboratório, num lugar só.'],
-  docker:['Docker','Containers, projetos Compose, imagens e volumes.'],
-  jenkins:['Jenkins','Pipelines: criar, editar, construir e acompanhar ao vivo.'],
-  git:['Git','Seus repositórios: mudanças, commits, branches, push e pull.'],
-  vscode:['VS Code','Abra seus projetos e arquivos no editor.'],
+  inicio:['Visão geral','O que está rodando no laboratório e o que você criou em cada ferramenta.'],
+  docker:['Docker','Containers, projetos Compose, imagens, volumes e redes.'],
+  jenkins:['Jenkins','Pipelines e outros jobs: criar, construir e acompanhar ao vivo.'],
+  git:['Git','Seus repositórios e o acesso ao GitHub.'],
+  vscode:['VS Code','Abra seus projetos no editor e gerencie as extensões.'],
   ansible:['Ansible','Playbooks e comandos de automação nesta máquina.'],
   terraform:['Terraform','Infraestrutura como código: init, plan, apply e destroy.'],
   python:['Python','Projetos, ambientes virtuais, pacotes e scripts.'],
   atividades:['Atividades','Tudo o que você rodou pelo painel, com a saída completa.'],
   sistema:['Sistema','Memória, processador, serviços e programas em execução.'],
 };
+const SUBABAS = {
+  docker:[['containers','Containers'],['compose','Compose'],['imagens','Imagens'],['armazenamento','Volumes e redes']],
+  jenkins:[['itens','Itens'],['credenciais','Credenciais']],
+  git:[['repos','Repositórios'],['acesso','Acesso ao GitHub']],
+  vscode:[['projetos','Projetos'],['extensoes','Extensões']],
+};
+const SUB = {}; try{ Object.assign(SUB, JSON.parse(localStorage.getItem('painel-sub') || '{}')); }catch(e){}
+const sub = aba => SUB[aba] || (SUBABAS[aba] ? SUBABAS[aba][0][0] : '');
 const AJUDA = {
-  inicio:['Clique num indicador para ir à ferramenta.','Use os botões verdes "+" para criar algo novo a partir de um modelo.','Tudo o que você roda aparece em "Atividade recente" — clique para ver a saída.'],
-  docker:['<b>+ Novo container</b>: escolha um modelo (site, banco de dados…), ajuste porta e memória e clique em Criar.','Com o container rodando, o botão <b>🌐 :porta</b> abre o site dele no navegador.','<b>Projeto Compose</b> sobe vários containers juntos a partir de um docker-compose.yml.','<b>Redes</b> fazem containers se encontrarem pelo nome; <b>volumes</b> guardam dados mesmo se o container for apagado.'],
-  jenkins:['<b>+ Novo item</b>: Pipeline (script), Pipeline do Git (usa o Jenkinsfile do repositório), Freestyle (comandos), Multibranch (uma branch = um job) ou Pasta.','Repositório privado? Primeiro crie uma <b>🔑 Credencial</b> (token ou chave SSH) e escolha-a ao criar o job.','<b>⏰ Gatilhos</b> fazem o job rodar sozinho: a cada mudança no Git ou em horários fixos.','Os quadradinhos coloridos são os últimos builds: verde = sucesso, vermelho = falha. Clique para ver o console.'],
-  git:['Primeiro configure seu <b>nome e e-mail</b> (aparecem nos commits).','Para falar com o GitHub: use a <b>Chave SSH</b> (gerar → copiar → colar no GitHub → testar) <i>ou</i> guarde um <b>Token</b> para endereços https.','Fluxo do dia a dia: altere arquivos → <b>✔ Commit</b> → <b>⬆ Push</b>.','<b>⎇ Branches e merge</b>: crie uma branch para cada tarefa e depois traga de volta com merge.'],
-  vscode:['Clique em <b>Abrir no VS Code</b> para editar um projeto.','<b>+ Arquivo</b> cria um arquivo novo já aberto no editor.','Instale extensões com um clique na lista de sugestões.'],
-  ansible:['<b>+ Novo playbook</b> cria um playbook a partir de um modelo e já roda.','<b>Simular (--check)</b> mostra o que mudaria sem mudar nada.','<b>Inventário</b> lista as máquinas que o Ansible controla (aqui, esta própria máquina).'],
-  terraform:['Siga os botões na ordem: <b>1 Init → 2 Validate → 3 Plan → 4 Apply</b>.','<b>Plan</b> mostra o que vai ser criado; <b>Apply</b> cria de verdade; <b>Destroy</b> apaga tudo que o projeto criou.','O modelo "Variáveis e saídas" funciona sem internet.'],
-  python:['<b>+ Novo projeto</b> cria a pasta, o ambiente .venv e instala os pacotes.','Clique em <b>▶ arquivo.py</b> para rodar e ver a saída ao vivo.','<b>Salvar requirements</b> grava os pacotes instalados no requirements.txt.'],
-  atividades:['Cada comando que você roda pelo painel fica aqui. Clique para ver a saída completa.'],
-  sistema:['Acompanhe memória e processador ao vivo.','Desligue o Jenkins quando não estiver usando para liberar memória.','<b>Portas abertas</b> mostra os serviços rodando e abre cada um no navegador.'],
+  inicio:['Clique num indicador para ir à ferramenta.','Os botões "Novo…" de cada aba criam algo a partir de um modelo pronto.','Tudo o que você roda aparece em Atividade recente; clique para ver a saída.'],
+  docker:['Novo container: escolha um modelo (site, banco de dados…), ajuste porta e memória e clique em Criar e iniciar.','Com o container rodando, clique na porta (ex.: :8081) para abrir o site no navegador.','Um container fica ligado enquanto o programa principal dele estiver rodando. Imagens de base (python, ubuntu, alpine) precisam de um comando que não termine, como sleep infinity.','Compose sobe vários containers juntos a partir de um docker-compose.yml.'],
+  jenkins:['Novo item: Pipeline (script), Pipeline do Git (Jenkinsfile do repositório), Freestyle (comandos), Multibranch ou Pasta.','Repositório privado? Cadastre antes uma credencial (token ou chave SSH) na aba Credenciais.','Os quadradinhos são os últimos builds: verde = sucesso, vermelho = falha. Clique para ver o console.','No menu ⋯ de cada job: editar, gatilhos (rodar sozinho), copiar, desativar e apagar.'],
+  git:['Antes do primeiro commit, configure seu nome e e-mail em Acesso ao GitHub.','Para falar com o GitHub use a chave SSH (gerar, copiar, colar no GitHub e testar) ou guarde um token para endereços https.','No dia a dia: altere arquivos, clique em Commit e depois em Push.'],
+  vscode:['Abrir no VS Code edita o projeto inteiro.','Novo arquivo cria o arquivo e já abre no editor.'],
+  ansible:['Novo playbook cria um playbook a partir de um modelo e já roda.','Simular (--check) mostra o que mudaria sem mudar nada.','Comando rápido roda um módulo direto, sem playbook.'],
+  terraform:['Siga a ordem dos botões: Init, Validate, Plan e Apply.','Plan mostra o que vai ser criado; Apply cria de verdade; Destroy apaga tudo que o projeto criou.','O modelo Variáveis e saídas funciona até sem internet.'],
+  python:['Novo projeto cria a pasta, o ambiente .venv e instala os pacotes.','Clique no nome de um script para rodar e ver a saída ao vivo.'],
+  atividades:['Cada comando rodado pelo painel fica aqui. Clique para ver a saída completa.'],
+  sistema:['Desligue o Jenkins quando não estiver usando: libera cerca de 500 MB de memória.','Portas abertas mostra os serviços rodando; clique para abrir no navegador.'],
 };
-const BOTOES = {
-  inicio:`<button class="b pri" onclick="irPara('docker');novoContainer()">+ Container</button><button class="b pri" onclick="irPara('jenkins');novoItemJenkins()">+ Pipeline</button><button class="b" onclick="irPara('git');novoRepo()">+ Repositório</button>`,
-  docker:`<button class="b pri" onclick="novoContainer()">+ Novo container</button><button class="b" onclick="novoCompose()">+ Projeto Compose</button><button class="b" onclick="novaImagem()">+ Imagem (Dockerfile)</button><button class="b" onclick="baixarImagem()">⬇ Baixar imagem</button>`,
-  jenkins:`<button class="b pri" onclick="novoItemJenkins()">+ Novo item</button><button class="b" onclick="credenciais()">🔑 Credenciais</button><button class="b" onclick="abrirUrl('http://localhost:8080')">Abrir Jenkins</button>`,
-  git:`<button class="b pri" onclick="novoRepo()">+ Novo repositório</button><button class="b" onclick="clonarRepo()">⬇ Clonar do GitHub</button><button class="b" onclick="gitIdent()">Meu nome e e-mail</button>`,
-  vscode:`<button class="b pri" onclick="abrir('vscode','~/projetos')">Abrir ~/projetos no VS Code</button>`,
-  ansible:`<button class="b pri" onclick="novoPlaybook()">+ Novo playbook</button><button class="b" onclick="adhoc()">⚡ Comando rápido</button><button class="b" onclick="colecoes()">📦 Coleções</button>`,
-  terraform:`<button class="b pri" onclick="novoTerraform()">+ Novo projeto</button>`,
-  python:`<button class="b pri" onclick="novoPython()">+ Novo projeto</button>`,
-  atividades:'', sistema:'',
-};
+/* botões do topo, por aba e sub-aba */
+function botoesTopo(aba){
+  const s = sub(aba), N = (t, js) => BT(t, js, {pri:1, icone:'novo'}), S = (t, js, i) => BT(t, js, {icone:i});
+  const tabela = {
+    inicio: () => N('Novo container', "irPara('docker');novoContainer()") + S('Novo pipeline', "irPara('jenkins');novoItemJenkins()", 'novo'),
+    docker: () => ({containers: N('Novo container', 'novoContainer()'), compose: N('Novo projeto Compose', 'novoCompose()'),
+      imagens: S('Baixar imagem', 'baixarImagem()', 'baixar') + N('Construir imagem', 'novaImagem()'),
+      armazenamento: S('Novo volume', 'novoVolume()', 'disco') + S('Nova rede', 'novaRede()', 'rede') + S('Limpar o que não está em uso', "if(confirm('Apagar containers parados, redes e imagens sem uso?')) acao('/api/docker',{acao:'limpar'},this,'Limpeza do Docker')", 'limpar')})[s],
+    jenkins: () => (s === 'credenciais' ? N('Nova credencial', 'credenciais()') : N('Novo item', 'novoItemJenkins()')) + S('Abrir o Jenkins', "abrirUrl('http://localhost:8080')", 'abrir'),
+    git: () => s === 'acesso' ? '' : S('Clonar do GitHub', 'clonarRepo()', 'baixar') + N('Novo repositório', 'novoRepo()'),
+    vscode: () => N('Abrir ~/projetos no VS Code', "abrir('vscode','~/projetos')"),
+    ansible: () => S('Comando rápido', 'adhoc()', 'terminal') + S('Coleções', 'colecoes()', 'imagem') + N('Novo playbook', 'novoPlaybook()'),
+    terraform: () => N('Novo projeto', 'novoTerraform()'),
+    python: () => N('Novo projeto', 'novoPython()'),
+  };
+  return (tabela[aba] ? tabela[aba]() : '') + (AJUDA[aba] ? `<button class="b leve" onclick="alternarAjuda()" title="Como usar esta página">${ico('ajuda')}Como usar</button>` : '');
+}
+function alternarAjuda(){
+  const k = 'ajuda-' + ABA; let aberta = false; try{ aberta = localStorage.getItem(k) === 'aberta'; }catch(e){}
+  try{ localStorage.setItem(k, aberta ? 'fechada' : 'aberta'); }catch(e){}
+  desenharAjuda();
+}
+function desenharAjuda(){
+  let aberta = false; try{ aberta = localStorage.getItem('ajuda-' + ABA) === 'aberta'; }catch(e){}
+  $('#ajuda').innerHTML = aberta && AJUDA[ABA] ? `<div class="ajuda"><ol>${AJUDA[ABA].map(x => '<li>' + esc(x) + '</li>').join('')}</ol></div>` : '';
+}
+function desenharSubAbas(){
+  const s = SUBABAS[ABA]; const c = DADOS.contagem?.[ABA] || {};
+  $('#sub-abas').innerHTML = s ? `<div class="abas">${s.map(([id, rot]) => `<button class="${sub(ABA) === id ? 'ativo' : ''}" onclick="irSub('${id}')">${esc(rot)}${c[id] !== undefined ? `<span class="cont">${c[id]}</span>` : ''}</button>`).join('')}</div>` : '';
+}
+function contar(aba, obj){ DADOS.contagem = DADOS.contagem || {}; const ant = JSON.stringify(DADOS.contagem[aba] || {}); DADOS.contagem[aba] = obj; if(ABA === aba && ant !== JSON.stringify(obj)) desenharSubAbas(); }
+function irSub(id){ SUB[ABA] = id; try{ localStorage.setItem('painel-sub', JSON.stringify(SUB)); }catch(e){} desenharSubAbas(); $('#acoes-topo').innerHTML = botoesTopo(ABA); $('#' + ABA).innerHTML = ''; carregar(true); }
 function irPara(aba){
-  ABA = aba;
+  ABA = aba; fecharMenu();
   document.querySelectorAll('#menu button').forEach(x => x.classList.toggle('ativo', x.dataset.aba === aba));
   document.querySelectorAll('main section').forEach(s => s.classList.toggle('ativo', s.id === aba));
-  $('#titulo').textContent = PAGINAS[aba][0]; $('#descricao').textContent = PAGINAS[aba][1]; $('#acoes-topo').innerHTML = BOTOES[aba];
-  let aberta = true; try{ aberta = localStorage.getItem('ajuda-' + aba) !== 'fechada'; }catch(e){}
-  $('#ajuda').innerHTML = AJUDA[aba] ? `<details class="ajuda" ${aberta ? 'open' : ''} ontoggle="try{localStorage.setItem('ajuda-${aba}', this.open ? 'aberta' : 'fechada')}catch(e){}"><summary>💡 Como usar esta aba</summary><ol>${AJUDA[aba].map(x => '<li>' + x + '</li>').join('')}</ol></details>` : '';
+  $('#titulo').textContent = PAGINAS[aba][0]; $('#descricao').textContent = PAGINAS[aba][1];
+  $('#acoes-topo').innerHTML = botoesTopo(aba); desenharAjuda(); desenharSubAbas();
   try{ localStorage.setItem('painel-aba', aba); }catch(e){}
   carregar(true);
 }
 document.querySelectorAll('#menu button').forEach(b => b.onclick = () => irPara(b.dataset.aba));
-function vazio(titulo, texto, botao){ return `<div class="vazio"><b>${titulo}</b>${texto}${botao ? `<div style="margin-top:12px">${botao}</div>` : ''}</div>`; }
+function vazio(titulo, texto, botoes){ return `<div class="vazio"><b>${esc(titulo)}</b>${esc(texto)}${botoes ? `<div class="chips">${botoes}</div>` : ''}</div>`; }
 function etq(c, t){ return `<span class="etq ${c}">${esc(t)}</span>`; }
+function st(c, t, anim){ return `<span class="st ${c}${anim ? ' anim' : ''}">${esc(t)}</span>`; }
+function tabela(cabecalho, linhas){ return `<table class="t"><thead><tr>${cabecalho.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${linhas.join('')}</tbody></table>`; }
 
-/* ================= INÍCIO ================= */
+/* ================= saúde (rodapé do menu) ================= */
+async function atualizarSaude(){
+  try{
+    const s = await get('/api/saude-lab');
+    const d = $('#sd-docker'), j = $('#sd-jenkins');
+    d.className = 'st ' + (s.docker === 'active' ? 'ok' : ''); $('#sd-docker-t').textContent = s.docker === 'active' ? 'ligado' : 'liga ao usar';
+    j.className = 'st ' + (s.jenkins_respondendo ? 'ok' : s.jenkins === 'active' ? 'aviso anim' : 'erro');
+    $('#sd-jenkins-t').textContent = s.jenkins_respondendo ? 'ligado' : s.jenkins === 'active' ? 'ligando' : 'desligado';
+    const uso = s.mem_total - s.mem_disponivel, pc = Math.round(uso * 100 / s.mem_total);
+    $('#sd-mem').textContent = `${mb(uso)} de ${mb(s.mem_total)}`;
+    $('#sd-mem-b').className = 'medidor' + (pc > 85 ? ' alto' : ''); $('#sd-mem-b i').style.width = pc + '%';
+    $('#n-atividades').textContent = s.tarefas_rodando ? s.tarefas_rodando + ' rodando' : '';
+  }catch(e){}
+}
+
+/* ================= VISÃO GERAL ================= */
 async function carregarInicio(){
   const r = await get('/api/resumo'); const s = r.sistema, usoMem = s.mem_total - s.mem_disponivel;
-  const k = (aba, rot, num, det) => `<div class="cartao" onclick="irPara('${aba}')"><div class="rot">${rot}</div><div class="num">${num}</div><div class="det">${det}</div></div>`;
+  const k = (aba, rot, num, det) => `<div class="clic" onclick="irPara('${aba}')"><div class="r">${rot}</div><div class="n">${num}</div><div class="d">${det}</div></div>`;
+  const el = $('#inicio');
+  if(!el.dataset.pronto){
+    el.innerHTML = `<div class="faixa" id="kpis"></div>
+      <div class="duas">
+        <div class="painel"><h3>Processador e memória</h3><div class="corpo-p"><div id="g-sis"></div><div class="legenda"><span><i style="background:${COR.cpu}"></i>Processador</span><span><i style="background:${COR.mem}"></i>Memória usada</span></div></div></div>
+        <div class="painel"><h3>Builds do Jenkins</h3><div class="corpo-p" id="g-builds"></div></div>
+        <div class="painel"><h3>Containers</h3><div class="corpo-p" id="g-cont"></div></div>
+        <div class="painel"><h3>Commits por dia (14 dias)</h3><div class="corpo-p" id="g-commits"></div></div>
+        <div class="painel"><h3>Atividade recente</h3><div class="corpo-p" id="atividade-inicio"></div></div>
+        <div class="painel"><h3>Ferramentas instaladas</h3><div class="corpo-p" id="ferramentas"><div class="sub">Conferindo versões…</div></div></div>
+      </div>`;
+    el.dataset.pronto = 1;
+  }
   $('#kpis').innerHTML =
-    k('docker', 'Docker', r.docker.ligado ? `${r.docker.rodando}/${r.docker.total}` : '—', r.docker.ligado ? `containers rodando · ${r.docker.imagens} imagens` : 'desligado (liga ao usar)') +
-    k('jenkins', 'Jenkins', r.jenkins.respondendo ? r.jenkins.jobs : '—', r.jenkins.respondendo ? `pipelines · ${r.jenkins.sucessos} ok · ${r.jenkins.falhas} falhando` : (r.jenkins.servico === 'active' ? 'ligando…' : 'desligado')) +
-    k('git', 'Git', r.git.repos, `repositórios · ${r.git.com_mudancas} com mudanças`) +
+    k('docker', 'Docker', r.docker.ligado ? `${r.docker.rodando} de ${r.docker.total}` : '—', r.docker.ligado ? `containers rodando, ${r.docker.imagens} imagens` : 'liga sozinho ao usar') +
+    k('jenkins', 'Jenkins', r.jenkins.respondendo ? r.jenkins.jobs : '—', r.jenkins.respondendo ? `itens: ${r.jenkins.sucessos} ok, ${r.jenkins.falhas} falhando` : (r.jenkins.servico === 'active' ? 'ligando…' : 'desligado')) +
+    k('git', 'Git', r.git.repos, `repositórios, ${r.git.com_mudancas} com mudanças`) +
     k('ansible', 'Ansible', r.ansible.playbooks, 'playbooks') +
-    k('terraform', 'Terraform', r.terraform.projetos, `projetos · ${r.terraform.recursos} recursos`) +
+    k('terraform', 'Terraform', r.terraform.projetos, `projetos, ${r.terraform.recursos} recursos`) +
     k('python', 'Python', r.python.projetos, 'projetos') +
-    k('sistema', 'Memória', mb(usoMem), `de ${mb(s.mem_total)} · disco ${s.disco_usado}/${s.disco_total} GB`);
-  graficoLinha($('#g-sis'), r.historico.t, [{v:r.historico.cpu, cor:'#2f9bd6'}, {v:r.historico.mem, cor:'#2fc4b2'}], [100, s.mem_total]);
+    k('sistema', 'Memória', mb(usoMem), `de ${mb(s.mem_total)}, disco ${s.disco_usado} de ${s.disco_total} GB`);
+  graficoLinha($('#g-sis'), r.historico.t, [{v:r.historico.cpu, cor:COR.cpu}, {v:r.historico.mem, cor:COR.mem}], [100, s.mem_total]);
   graficoBuilds($('#g-builds'), r.builds);
   const e = r.docker.estados || {};
-  graficoRosca($('#g-cont'), [{n:'rodando', v:e.running||0, cor:'#3ccf7a'}, {n:'parados', v:(e.exited||0)+(e.created||0), cor:'#8fa6b3'}, {n:'outros', v:(e.paused||0)+(e.restarting||0)+(e.dead||0), cor:'#f2b84b'}]);
-  graficoBarras($('#g-commits'), r.git.por_dia.map(d => ({r:d.dia.slice(8)+'/'+d.dia.slice(5,7), v:d.n})), '#a78bfa');
-  $('#atividade-inicio').innerHTML = listaAtividades(r.tarefas) || '<div class="sub">Nada ainda. O que você rodar pelo painel aparece aqui.</div>';
+  graficoRosca($('#g-cont'), [{n:'Rodando', v:e.running||0, cor:'#1e8f4e'}, {n:'Parados', v:(e.exited||0)+(e.created||0), cor:'#a3b0bd'}, {n:'Outros', v:(e.paused||0)+(e.restarting||0)+(e.dead||0), cor:'#a86d08'}]);
+  graficoBarras($('#g-commits'), r.git.por_dia.map(d => ({r:d.dia.slice(8)+'/'+d.dia.slice(5,7), v:d.n})), '#6d5bd0');
+  $('#atividade-inicio').innerHTML = listaAtividades(r.tarefas.slice(0, 8)) || '<div class="sub">Nada ainda. O que você rodar pelo painel aparece aqui.</div>';
   if(!DADOS.ferr) get('/api/ferramentas').then(f => { DADOS.ferr = f; desenharFerramentas(); }).catch(() => {}); else desenharFerramentas();
 }
 function desenharFerramentas(){
   if(!$('#ferramentas')) return;
-  $('#ferramentas').innerHTML = DADOS.ferr.ferramentas.map(f => `<div class="ferr"><span class="ponto ${f.ok?'ok':'erro'}"></span><div style="min-width:0"><b>${esc(f.nome)}</b><div class="sub mono" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(f.versao)}</div></div></div>`).join('');
+  $('#ferramentas').innerHTML = `<div class="lista-atv">${DADOS.ferr.ferramentas.map(f => `<div class="atv" style="cursor:default"><span class="st ${f.ok?'ok':'erro'}">${esc(f.nome)}</span><span class="tit sub mono" style="text-align:right">${esc(f.versao)}</span></div>`).join('')}</div>`;
 }
+const NOME_FERR = {docker:'Docker', jenkins:'Jenkins', git:'Git', ansible:'Ansible', terraform:'Terraform', python:'Python', vscode:'VS Code'};
 function listaAtividades(ts){
-  const cor = {docker:'azul', jenkins:'aviso', git:'neutro', ansible:'erro', terraform:'azul', python:'ok'};
   return (ts || []).map(t => `<div class="atv" onclick='abrirConsole(${A(t.id)},${A(t.titulo)})'>
-    ${t.fim ? `<span class="ponto ${t.codigo === 0 ? 'ok' : 'erro'}"></span>` : '<span class="girando"></span>'}
-    ${etq(cor[t.ferramenta]||'neutro', t.ferramenta)}<span class="tit">${esc(t.titulo)}</span><span class="sub">${t.fim ? dur(t.duracao) + ' · ' : ''}${quando(t.inicio)}</span></div>`).join('');
+    ${t.fim ? st(t.codigo === 0 ? 'ok' : 'erro', '') : st('aviso', '', 1)}
+    ${etq('', NOME_FERR[t.ferramenta] || t.ferramenta)}<span class="tit">${esc(t.titulo)}</span><span class="sub">${t.fim ? dur(t.duracao) + ', ' : ''}${quando(t.inicio)}</span></div>`).join('');
 }
+
+/* ================= busca nas tabelas ================= */
+DADOS.filtro = {};
+function busca(aba, dica){ return `<input type="search" placeholder="${esc(dica)}" value="${esc(DADOS.filtro[aba] || '')}" oninput="DADOS.filtro['${aba}']=this.value;aplicarFiltro()">`; }
+function aplicarFiltro(){
+  const q = (DADOS.filtro[ABA] || '').toLowerCase().trim();
+  document.querySelectorAll(`#${ABA} table.t tbody tr`).forEach(tr => { tr.style.display = !q || tr.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+}
+/* "Up 5 minutes" -> "Ligado há 5 min" */
+function tempoPt(s){
+  return String(s || '').replace(/About a minute/, '1 min').replace(/About an hour/, '1 h').replace(/Less than a second/, 'menos de 1 s')
+    .replace(/(\d+) seconds?/, '$1 s').replace(/(\d+) minutes?/, '$1 min').replace(/(\d+) hours?/, '$1 h').replace(/(\d+) days?/, '$1 dias')
+    .replace(/(\d+) weeks?/, '$1 semanas').replace(/(\d+) months?/, '$1 meses').replace(/(\d+) years?/, '$1 anos');
+}
+function statusPt(c){
+  const s = c.status || '';
+  let m = s.match(/^Exited \((\d+)\) (.*) ago/);
+  if(m) return m[1] === '0' ? `Parou há ${tempoPt(m[2])}: o programa principal terminou` : `Parou com erro (código ${m[1]}) há ${tempoPt(m[2])}: veja os logs`;
+  if(/^Up /.test(s)) return 'Ligado há ' + tempoPt(s.replace(/^Up /, '')).replace(/\(healthy\)/, '(saudável)').replace(/\(unhealthy\)/, '(com problema)').replace(/\(Paused\)/, '(pausado)');
+  if(s === 'Created') return 'Criado, ainda não iniciado';
+  return s;
+}
+const agoPt = s => /ago$/.test(s || '') ? 'há ' + tempoPt(s.replace(/ ago$/, '')) : s;
 
 /* ================= DOCKER ================= */
 const MODELOS_CONTAINER = [
@@ -421,32 +656,32 @@ const MODELOS_CONTAINER = [
   {nome:'PostgreSQL', desc:'Banco de dados, senha devops', valores:{imagem:'postgres:16-alpine', nome:'meu-postgres', portas:'5432:5432', memoria:'512m', env:'POSTGRES_PASSWORD=devops\nPOSTGRES_DB=aula', volumes:'postgres-dados:/var/lib/postgresql/data'}},
   {nome:'Redis', desc:'Cache em memória', valores:{imagem:'redis:alpine', nome:'meu-redis', portas:'6379:6379', memoria:'256m'}},
   {nome:'Ubuntu (para explorar)', desc:'Fica ligado; abra o terminal dele', valores:{imagem:'ubuntu:24.04', nome:'meu-ubuntu', memoria:'512m', comando:'sleep infinity'}},
-  {nome:'Hello World', desc:'Teste rápido do Docker', valores:{imagem:'hello-world', nome:'', memoria:''}},
+  {nome:'Hello World', desc:'Teste rápido: roda e termina', valores:{imagem:'hello-world', nome:'', memoria:''}},
   {nome:'Personalizado', desc:'Você escolhe tudo', valores:{imagem:'', nome:''}},
 ];
 function novoContainer(imagem){
   assistente('Novo container', MODELOS_CONTAINER, [
     {id:'imagem', rot:'Imagem', dica:'nginx:alpine'}, {id:'nome', rot:'Nome do container', dica:'meu-app'},
-    {id:'portas', rot:'Portas (PC:container)', dica:'8081:80'}, {id:'memoria', rot:'Limite de memória', tipo:'memoria'},
-    {id:'volumes', rot:'Volumes (nome:/caminho)', dica:'dados:/data'}, {id:'comando', rot:'Comando (opcional)', dica:'sleep infinity'},
-    {id:'cpus', rot:'Limite de CPU (opcional)', dica:'0.5 = meia CPU'}, {id:'rede', rot:'Rede (opcional)', dica:'minha-rede'},
+    {id:'portas', rot:'Portas (no PC:no container)', dica:'8081:80'}, {id:'memoria', rot:'Limite de memória', tipo:'memoria'},
+    {id:'comando', rot:'Comando (opcional)', dica:'sleep infinity', largo:1, ajuda:'Imagens de base como python, ubuntu e alpine param na hora sem um comando que continue rodando. Se ficar vazio, o painel usa sleep infinity para elas.'},
+    {id:'volumes', rot:'Volumes (nome:/caminho)', dica:'dados:/data'}, {id:'rede', rot:'Rede (opcional)', dica:'minha-rede'},
+    {id:'cpus', rot:'Limite de CPU (opcional)', dica:'0.5 = meia CPU'},
     {id:'env', rot:'Variáveis de ambiente (NOME=valor, uma por linha)', tipo:'area', alt:70}, {id:'reiniciar', rot:'Reiniciar sozinho se cair', tipo:'check'},
   ], async (v, m, b) => {
     try{
       b.innerHTML = '<span class="girando"></span> Criando… (baixa a imagem na primeira vez)';
       toast(await post('/api/docker', {acao:'run', ...v}, b)); fecharModal();
-      const p = (v.portas||'').split(':')[0]; if(p) toast('Pronto! Clique em "🌐 :' + p + '" no container para abrir.');
     }catch(e){ b.textContent = 'Criar e iniciar'; toast(e.message, true); }
   }, 'Criar e iniciar');
-  if(imagem){ document.querySelectorAll('.modelo')[MODELOS_CONTAINER.length-1].click(); $('#a-imagem').value = imagem; }
+  if(imagem){ document.querySelectorAll('#modal .modelo')[MODELOS_CONTAINER.length-1].click(); $('#a-imagem').value = imagem; }
 }
 function baixarImagem(){
-  abrirModal('Baixar imagem do Docker Hub', '', `<div class="modelos">${['nginx:alpine','python:3.12-slim','node:22-alpine','mysql:8.4','postgres:16-alpine','redis:alpine','ubuntu:24.04','alpine'].map(i => `<button class="modelo" onclick='$("#bx-img").value=${A(i)}'><b class="mono">${esc(i)}</b></button>`).join('')}</div>
-    <label class="campo" style="margin-top:12px">Imagem<input id="bx-img" value="nginx:alpine"></label>`,
-    [{txt:'⬇ Baixar', cls:'pri', fn: b => executar({ferramenta:'docker', acao:'pull', imagem:$('#bx-img').value}, b)}]);
+  abrirModal('Baixar imagem do Docker Hub', '', `<div class="grade-modelos">${['nginx:alpine','python:3.12-slim','node:22-alpine','mysql:8.4','postgres:16-alpine','redis:alpine','ubuntu:24.04','alpine'].map(i => `<button class="modelo" onclick='$("#bx-img").value=${A(i)}'><b class="mono">${esc(i)}</b></button>`).join('')}</div>
+    <label class="campo" style="margin-top:16px">Imagem<input id="bx-img" value="nginx:alpine"></label>`,
+    [{txt:ico('baixar') + 'Baixar', cls:'pri', fn: b => executar({ferramenta:'docker', acao:'pull', imagem:$('#bx-img').value}, b)}]);
 }
 const MODELOS_COMPOSE = [
-  {nome:'Site Nginx', desc:'1 serviço com limite de memória', valores:{nome:'site', memoria:'1g', conteudo:`services:\n  web:\n    image: nginx:alpine\n    container_name: site-web\n    ports:\n      - "8081:80"\n    mem_limit: 1g\n    restart: unless-stopped\n`}},
+  {nome:'Site Nginx', desc:'1 serviço com limite de memória', valores:{nome:'site', memoria:'512m', conteudo:`services:\n  web:\n    image: nginx:alpine\n    container_name: site-web\n    ports:\n      - "8081:80"\n    mem_limit: 512m\n    restart: unless-stopped\n`}},
   {nome:'Nginx + Redis', desc:'2 serviços na mesma rede', valores:{nome:'web-cache', memoria:'256m', conteudo:`services:\n  web:\n    image: nginx:alpine\n    ports:\n      - "8083:80"\n    depends_on:\n      - cache\n    mem_limit: 256m\n  cache:\n    image: redis:alpine\n    mem_limit: 256m\n`}},
   {nome:'WordPress + MySQL', desc:'Site completo na porta 8084', valores:{nome:'wordpress', memoria:'', conteudo:`services:\n  db:\n    image: mysql:8.4\n    environment:\n      MYSQL_ROOT_PASSWORD: devops\n      MYSQL_DATABASE: wordpress\n    volumes:\n      - db-dados:/var/lib/mysql\n    mem_limit: 1g\n  wordpress:\n    image: wordpress:latest\n    depends_on:\n      - db\n    ports:\n      - "8084:80"\n    environment:\n      WORDPRESS_DB_HOST: db\n      WORDPRESS_DB_USER: root\n      WORDPRESS_DB_PASSWORD: devops\n      WORDPRESS_DB_NAME: wordpress\n    mem_limit: 512m\nvolumes:\n  db-dados:\n`}},
   {nome:'Em branco', desc:'Escreva do zero', valores:{nome:'meu-compose', memoria:'', conteudo:`services:\n  app:\n    image: nginx:alpine\n`}},
@@ -464,7 +699,7 @@ function novoCompose(){
   });
 }
 function novaImagem(){
-  assistente('Nova imagem com Dockerfile', [
+  assistente('Construir imagem com Dockerfile', [
     {nome:'Site estático (Nginx)', desc:'Sua página dentro da imagem', valores:{nome:'minha-imagem', dockerfile:'FROM nginx:alpine\nCOPY index.html /usr/share/nginx/html/index.html\n', arquivo:'index.html', extra:'<h1>Minha primeira imagem Docker!</h1>\n'}},
     {nome:'App Python', desc:'Imagem que roda um script', valores:{nome:'meu-app-python', dockerfile:'FROM python:3.12-slim\nWORKDIR /app\nCOPY app.py .\nCMD ["python", "app.py"]\n', arquivo:'app.py', extra:'print("Ola de dentro do container!")\n'}},
   ], [{id:'nome', rot:'Nome (pasta e imagem)'}, {id:'arquivo', rot:'Arquivo do app'}, {id:'dockerfile', rot:'Dockerfile', tipo:'area', alt:140}, {id:'extra', rot:'Conteúdo do arquivo do app', tipo:'area', alt:90}],
@@ -473,72 +708,88 @@ function novaImagem(){
       const r = await post('/api/arquivo', {acao:'projeto', nome:v.nome, arquivos:{'Dockerfile': v.dockerfile, [v.arquivo]: v.extra}}, b); toast(r.msg);
       executar({ferramenta:'docker', acao:'build', pasta:r.pasta, tag:v.nome.toLowerCase()});
     }catch(e){ toast(e.message, true); }
-  }, 'Criar e construir a imagem');
+  }, 'Criar e construir');
 }
+const portasDe = p => { const s = new Set(); return [...(p||'').matchAll(/:(\d+)->/g)].map(m => m[1]).filter(x => !s.has(x) && s.add(x)); };
+const memTxt = c => { const m = (c.uso_memoria||'').split('/')[0].trim(); return (m || '—') + (c.limite_memoria ? ' de ' + mb(c.limite_memoria/1048576) : ''); };
 async function carregarDocker(){
   const d = await get('/api/docker'); const el = $('#docker');
-  if(!d.ligado){ el.innerHTML = `<div class="aviso-box">O Docker está desligado — ele liga sozinho no primeiro uso. <button class="b pri" onclick="acao('/api/docker',{acao:'ligar'},this)">Ligar agora</button></div>`; return; }
-  const portas = p => { const s = new Set(); return [...(p||'').matchAll(/:(\d+)->/g)].map(m => m[1]).filter(x => !s.has(x) && s.add(x)); };
-  const memTxt = c => { const m = (c.uso_memoria||'').split('/')[0].trim(); return (m || '—') + (c.limite_memoria ? ' de ' + mb(c.limite_memoria/1048576) : ''); };
-  const [arqs] = await Promise.all([get('/api/compose-arquivos')]);
-  const rodando = {}; d.projetos.forEach(p => (p.arquivos||'').split(',').forEach(a => { if(a) rodando[a] = p.status; }));
-  const composes = [...new Set([...arqs.arquivos, ...Object.keys(rodando)])];
-  el.innerHTML = `
-    <h2>Containers <span class="sub">${d.containers.filter(c => c.estado === 'running').length} rodando de ${d.containers.length}</span></h2>
-    ${d.containers.length ? `<div class="grade">${d.containers.map(c => `<div class="item">
-      <div class="cab"><b>${esc(c.nome)}</b>${c.estado === 'running' ? etq('ok','rodando') : c.estado === 'exited' ? etq('neutro','parado') : etq('aviso', c.estado)}${c.projeto ? etq('azul','compose: ' + c.projeto) : ''}</div>
-      <div class="sub mono">${esc(c.imagem)}</div><div class="sub">${esc(c.status)}</div>
-      ${c.estado === 'running' ? `<div class="sub">CPU ${esc(c.cpu || '—')} · memória ${memTxt(c)}</div>` : c.limite_memoria ? `<div class="sub">limite de memória ${mb(c.limite_memoria/1048576)}</div>` : ''}
-      <div class="linha">
-        ${c.estado === 'running' ? `<button class="b peq" onclick='dk("stop",${A(c.nome)},this)'>■ Parar</button><button class="b peq" onclick='dk("restart",${A(c.nome)},this)'>↻ Reiniciar</button><button class="b peq" onclick='dk("terminal",${A(c.nome)},this)'>&gt;_ Terminal</button><button class="b peq" onclick='dkExec(${A(c.nome)})'>Rodar comando</button>`
-          : `<button class="b peq pri" onclick='dk("start",${A(c.nome)},this)'>▶ Iniciar</button>`}
-        ${c.estado === 'running' ? portas(c.portas).map(p => `<button class="b peq" onclick="abrirUrl('http://localhost:${p}')">🌐 :${p}</button>`).join('') : ''}
-        <button class="b peq" onclick='acao("/api/docker",{acao:"logs",container:${A(c.nome)}},this,"Logs de "+${A(c.nome)})'>Logs</button>
-        <button class="b peq" onclick='acao("/api/docker",{acao:"inspecionar",container:${A(c.nome)}},this,"Detalhes de "+${A(c.nome)})'>Detalhes</button>
-        <button class="b peq perigo" onclick='if(confirm("Apagar o container "+${A(c.nome)}+"?")) dk("rm",${A(c.nome)},this)'>Apagar</button>
-      </div></div>`).join('')}</div>`
-      : vazio('Nenhum container ainda', 'Crie um com um modelo pronto: site, banco de dados, Python…', '<button class="b pri" onclick="novoContainer()">+ Novo container</button>')}
-    <h2>Projetos Docker Compose</h2>
-    ${composes.length ? `<div class="grade">${composes.map(a => `<div class="item">
-      <div class="cab"><b>${esc(base(pai(a)))}</b>${rodando[a] ? etq(rodando[a].includes('running') ? 'ok' : 'neutro', rodando[a]) : etq('neutro','parado')}</div>
-      <div class="sub mono">${esc(a)}</div>
-      <div class="linha"><button class="b peq pri" onclick='executar({ferramenta:"docker",acao:"compose_up",arquivo:${A(a)}},this)'>▶ Subir</button>
-        <button class="b peq" onclick='executar({ferramenta:"docker",acao:"compose_down",arquivo:${A(a)}},this)'>■ Derrubar</button>
-        <button class="b peq" onclick='editarCompose(${A(a)})'>✎ Editar</button>
-        <button class="b peq" onclick='executar({ferramenta:"docker",acao:"compose_logs",arquivo:${A(a)}},this)'>Logs</button>
-        <button class="b peq" onclick='abrir("vscode",${A(pai(a))})'>VS Code</button></div></div>`).join('')}</div>`
-      : vazio('Nenhum projeto Compose', 'Monte vários containers juntos com um docker-compose.yml.', '<button class="b pri" onclick="novoCompose()">+ Projeto Compose</button>')}
-    ${d.dockerfiles.length ? `<h2>Dockerfiles</h2><div class="grade">${d.dockerfiles.map(p => `<div class="item"><div class="cab"><b>${esc(base(p))}</b></div><div class="sub mono">${esc(p)}</div>
-      <div class="linha"><button class="b peq pri" onclick='executar({ferramenta:"docker",acao:"build",pasta:${A(p)}},this)'>🔨 Construir imagem</button><button class="b peq" onclick='editarArquivo(${A(p + "/Dockerfile")})'>✎ Dockerfile</button><button class="b peq" onclick='abrir("vscode",${A(p)})'>VS Code</button></div></div>`).join('')}</div>` : ''}
-    <h2>Imagens <span class="sub">${d.imagens.length}</span></h2>
-    ${d.imagens.length ? `<div class="cartao"><table><tr><th>Imagem</th><th>Tamanho</th><th>Criada</th><th></th></tr>${d.imagens.map(i => `<tr><td class="mono">${esc(i.nome)}</td><td>${esc(i.tamanho)}</td><td class="sub">${esc(i.criada)}</td>
-      <td style="text-align:right;white-space:nowrap"><button class="b peq" onclick='novoContainer(${A(i.nome)})'>▶ Criar container</button>
-      <button class="b peq perigo" onclick='if(confirm("Apagar a imagem "+${A(i.nome)}+"?")) acao("/api/docker",{acao:"rmi",imagem:${A(i.id)}},this)'>Apagar</button></td></tr>`).join('')}</table></div>`
-      : vazio('Nenhuma imagem baixada', '', '<button class="b" onclick="baixarImagem()">⬇ Baixar imagem</button>')}
-    <h2>Volumes <span class="sub">${d.volumes.length}</span> <button class="b peq" onclick="novoVolume()">+ Volume</button>
-      <button class="b peq" style="margin-left:auto" onclick="if(confirm('Apagar containers parados, redes e imagens sem uso?')) acao('/api/docker',{acao:'limpar'},this,'Limpeza do Docker')">🧹 Limpar o que não está em uso</button></h2>
-    ${d.volumes.length ? `<div class="chips">${d.volumes.map(v => `<span class="etq neutro mono" style="padding:5px 10px">${esc(v.nome.length > 30 ? v.nome.slice(0,12) + '…' : v.nome)} <a style="cursor:pointer;color:var(--erro);margin-left:6px" title="apagar" onclick='if(confirm("Apagar o volume "+${A(v.nome)}+"? Os dados dele serão perdidos.")) acao("/api/docker",{acao:"volume_rm",nome:${A(v.nome)}})'>✕</a></span>`).join('')}</div>` : '<div class="sub">Nenhum volume.</div>'}
-    <h2>Redes <span class="sub">${d.redes.filter(r => !r.padrao).length} criadas por você</span> <button class="b peq" onclick="novaRede()">+ Rede</button></h2>
-    <div class="chips">${d.redes.map(r => `<span class="etq ${r.padrao ? 'neutro' : 'azul'} mono" style="padding:5px 10px">${esc(r.nome)} <span class="sub">${esc(r.driver)}</span>${r.padrao ? '' : ` <a style="cursor:pointer;color:var(--erro);margin-left:6px" title="apagar" onclick='if(confirm("Apagar a rede "+${A(r.nome)}+"?")) acao("/api/docker",{acao:"rede_rm",nome:${A(r.nome)}})'>✕</a>`}</span>`).join('')}</div>`;
+  if(!d.ligado){ el.innerHTML = `<div class="faixa-aviso info">O Docker está desligado. Ele liga sozinho no primeiro uso.${BT('Ligar agora', "acao('/api/docker',{acao:'ligar'},this)", {pri:1, icone:'energia'})}</div>`; return; }
+  DADOS.docker = d;
+  const s = sub('docker');
+  let composes = [], rodando = {};
+  if(s === 'compose'){
+    const arqs = await get('/api/compose-arquivos');
+    d.projetos.forEach(p => (p.arquivos||'').split(',').forEach(a => { if(a) rodando[a] = p.status; }));
+    composes = [...new Set([...arqs.arquivos, ...Object.keys(rodando)])];
+  }
+  contar('docker', {containers:d.containers.length, compose: s === 'compose' ? composes.length : (DADOS.contagem?.docker?.compose ?? d.projetos.length),
+    imagens:d.imagens.length, armazenamento:d.volumes.length + d.redes.filter(r => !r.padrao).length});
+  $('#n-docker').textContent = d.containers.filter(c => c.estado === 'running').length || '';
+  el.innerHTML = {containers:htmlContainers, compose:htmlCompose, imagens:htmlImagens, armazenamento:htmlArmazenamento}[s](d, composes, rodando);
+  aplicarFiltro();
+}
+function htmlContainers(d){
+  if(!d.containers.length) return vazio('Nenhum container ainda', 'Crie um a partir de um modelo: site, banco de dados, Python…', BT('Novo container', 'novoContainer()', {pri:1, icone:'novo'}));
+  const rod = d.containers.filter(c => c.estado === 'running').length;
+  return `<div class="ferramentas">${busca('docker', 'Buscar container')}<span class="sub">${rod} rodando de ${d.containers.length}</span></div>` + tabela(['Nome', 'Estado', 'Imagem', 'Portas', 'Uso', ''], d.containers.map(c => {
+    const run = c.estado === 'running', n = J(c.nome);
+    const estado = run ? st('ok', 'Rodando') : c.estado === 'exited' ? st(/Exited \(0\)/.test(c.status) ? '' : 'erro', 'Parado') : c.estado === 'restarting' ? st('aviso', 'Reiniciando', 1) : c.estado === 'created' ? st('', 'Criado') : st('aviso', c.estado);
+    const portas = portasDe(c.portas);
+    return `<tr><td><div class="nome">${esc(c.nome)}</div><div class="sub">${esc(statusPt(c))}</div></td>
+      <td>${estado}${c.projeto ? '<div>' + etq('info', 'Compose: ' + c.projeto) + '</div>' : ''}</td>
+      <td class="mono">${esc(c.imagem)}</td>
+      <td>${run && portas.length ? portas.map(p => BT(':' + p, `abrirUrl("http://localhost:${p}")`, {icone:'abrir', titulo:'Abrir no navegador'})).join(' ') : '<span class="fraco">—</span>'}</td>
+      <td>${run ? `${esc(c.cpu || '—')} CPU<div class="sub">${memTxt(c)}</div>` : c.limite_memoria ? `<span class="sub">limite de ${mb(c.limite_memoria/1048576)}</span>` : '<span class="fraco">—</span>'}</td>
+      <td class="acoes">${run ? BT('Parar', `dk("stop",${n},this)`, {icone:'parar'}) + BT('Terminal', `dk("terminal",${n},this)`, {icone:'terminal', so_icone:1, titulo:'Abrir o terminal do container'})
+        : BT('Iniciar', `dk("start",${n},this)`, {icone:'play', pri:1})}${BT('Logs', `acao("/api/docker",{acao:"logs",container:${n}},this,"Logs de " + ${n})`, {icone:'logs', so_icone:1})}${M([
+        run && {t:'Reiniciar', i:'reiniciar', js:`dk("restart",${n},this)`}, run && {t:'Rodar um comando', i:'terminal', js:`dkExec(${n})`},
+        {t:'Detalhes (inspect)', i:'info', js:`acao("/api/docker",{acao:"inspecionar",container:${n}},this,"Detalhes de " + ${n})`}, '-',
+        {t:'Apagar container', i:'lixo', p:1, js:`if(confirm("Apagar o container " + ${n} + "?")) dk("rm",${n},this)`}])}</td></tr>`;
+  }));
+}
+const estadoCompose = t => { const m = (t || '').match(/(\w+)\((\d+)\)/g) || []; return m.map(x => { const [, e, n] = x.match(/(\w+)\((\d+)\)/); return e === 'running' ? st('ok', `Rodando (${n})`) : st('', `Parado (${n})`); }).join(' ') || st('', 'Parado'); };
+function htmlCompose(d, composes, rodando){
+  if(!composes.length) return vazio('Nenhum projeto Compose', 'Monte vários containers juntos com um docker-compose.yml.', BT('Novo projeto Compose', 'novoCompose()', {pri:1, icone:'novo'}));
+  return tabela(['Projeto', 'Estado', 'Arquivo', ''], composes.map(a => { const n = J(a); return `<tr><td class="nome">${esc(base(pai(a)))}</td><td>${rodando[a] ? estadoCompose(rodando[a]) : st('', 'Parado')}</td><td class="mono sub">${esc(curto(a))}</td>
+    <td class="acoes">${BT('Subir', `executar({ferramenta:"docker",acao:"compose_up",arquivo:${n}},this)`, {icone:'play', pri:1})}${BT('Derrubar', `executar({ferramenta:"docker",acao:"compose_down",arquivo:${n}},this)`, {icone:'parar'})}${M([
+      {t:'Editar docker-compose.yml', i:'editar', js:`editarCompose(${n})`}, {t:'Logs', i:'logs', js:`executar({ferramenta:"docker",acao:"compose_logs",arquivo:${n}},this)`},
+      {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${J(pai(a))})`}])}</td></tr>`; }));
+}
+function htmlImagens(d){
+  const imgs = d.imagens.length ? tabela(['Imagem', 'Tamanho', 'Criada', ''], d.imagens.map(i => `<tr><td class="mono">${esc(i.nome)}</td><td>${esc(i.tamanho)}</td><td class="sub">${esc(agoPt(i.criada))}</td>
+      <td class="acoes">${BT('Criar container', `novoContainer(${J(i.nome)})`, {icone:'play'})}${M([{t:'Apagar imagem', i:'lixo', p:1, js:`if(confirm("Apagar a imagem " + ${J(i.nome)} + "?")) acao("/api/docker",{acao:"rmi",imagem:${J(i.id)}},this)`}])}</td></tr>`))
+    : vazio('Nenhuma imagem baixada', 'Baixe uma imagem do Docker Hub ou construa a sua com um Dockerfile.', BT('Baixar imagem', 'baixarImagem()', {icone:'baixar'}));
+  const dfs = d.dockerfiles.length ? `<h2>Dockerfiles nos seus projetos</h2>` + tabela(['Pasta', ''], d.dockerfiles.map(p => `<tr><td><div class="nome">${esc(base(p))}</div><div class="sub mono">${esc(curto(p))}</div></td>
+      <td class="acoes">${BT('Construir imagem', `executar({ferramenta:"docker",acao:"build",pasta:${J(p)}},this)`, {icone:'imagem', pri:1})}${M([{t:'Editar Dockerfile', i:'editar', js:`editarArquivo(${J(p + '/Dockerfile')})`}, {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${J(p)})`}])}</td></tr>`)) : '';
+  return imgs + dfs;
+}
+function htmlArmazenamento(d){
+  const vols = d.volumes.length ? tabela(['Nome', 'Driver', ''], d.volumes.map(v => `<tr><td class="mono" title="${esc(v.nome)}">${esc(v.nome.length > 34 ? v.nome.slice(0, 14) + '…' + v.nome.slice(-8) : v.nome)}</td><td class="sub">${esc(v.driver)}</td>
+      <td class="acoes">${BT('Apagar', `if(confirm("Apagar o volume " + ${J(v.nome)} + "? Os dados dele serão perdidos.")) acao("/api/docker",{acao:"volume_rm",nome:${J(v.nome)}},this)`, {icone:'lixo', so_icone:1, perigo:1})}</td></tr>`))
+    : vazio('Nenhum volume', 'Volumes guardam dados mesmo quando o container é apagado.', BT('Novo volume', 'novoVolume()', {icone:'novo'}));
+  const redes = tabela(['Nome', 'Driver', ''], d.redes.map(r => `<tr><td class="mono">${esc(r.nome)}${r.padrao ? ' ' + etq('', 'padrão do Docker') : ''}</td><td class="sub">${esc(r.driver)}</td>
+      <td class="acoes">${r.padrao ? '' : BT('Apagar', `if(confirm("Apagar a rede " + ${J(r.nome)} + "?")) acao("/api/docker",{acao:"rede_rm",nome:${J(r.nome)}},this)`, {icone:'lixo', so_icone:1, perigo:1})}</td></tr>`));
+  return `<div class="duas"><div><h2>Volumes <span class="sub">${d.volumes.length}</span></h2>${vols}</div><div><h2>Redes <span class="sub">containers na mesma rede se acham pelo nome</span></h2>${redes}</div></div>`;
 }
 function dk(a, nome, btn){ acao('/api/docker', {acao:a, container:nome}, btn); }
 function dkExec(nome){
   abrirModal('Rodar comando no container', nome, `<div class="chips">${['ls -la','cat /etc/os-release','env','ps aux','df -h','nginx -v'].map(c => `<button class="b peq" onclick='$("#ex-cmd").value=${A(c)}'>${esc(c)}</button>`).join('')}</div>
-    <label class="campo" style="margin-top:12px">Comando<input id="ex-cmd" value="ls -la"></label><pre id="ex-saida" style="margin-top:12px;min-height:120px"></pre>`,
-    [{txt:'▶ Rodar', cls:'pri', fn: async b => { try{ $('#ex-saida').textContent = await post('/api/docker', {acao:'exec', container:nome, comando:$('#ex-cmd').value}, b); }catch(e){ $('#ex-saida').textContent = e.message; } }}]);
+    <label class="campo" style="margin-top:14px">Comando<input id="ex-cmd" value="ls -la"></label><pre id="ex-saida" class="saida" style="margin-top:14px;min-height:140px"></pre>`,
+    [{txt:ico('play') + 'Rodar', cls:'pri', fn: async b => { try{ $('#ex-saida').textContent = await post('/api/docker', {acao:'exec', container:nome, comando:$('#ex-cmd').value}, b); }catch(e){ $('#ex-saida').textContent = e.message; } }}]);
 }
 function novaRede(){
-  abrirModal('Nova rede Docker', 'containers na mesma rede se acham pelo nome', '<label class="campo">Nome<input id="rd-nome" value="minha-rede"></label><div class="sub" style="margin-top:8px">Depois, ao criar um container, informe esta rede no campo "Rede".</div>',
-    [{txt:'Criar', cls:'pri', fn: async b => { try{ toast(await post('/api/docker', {acao:'rede_criar', nome:$('#rd-nome').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}]);
+  abrirModal('Nova rede Docker', 'containers na mesma rede se acham pelo nome', '<label class="campo">Nome<input id="rd-nome" value="minha-rede"></label><p class="sub">Depois, ao criar um container, informe esta rede no campo Rede.</p>',
+    [{txt:'Criar rede', cls:'pri', fn: async b => { try{ toast(await post('/api/docker', {acao:'rede_criar', nome:$('#rd-nome').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}]);
 }
 function novoVolume(){
   abrirModal('Novo volume', 'guarda dados dos containers', '<label class="campo">Nome<input id="vol-nome" value="meus-dados"></label>',
-    [{txt:'Criar', cls:'pri', fn: async b => { try{ toast(await post('/api/docker', {acao:'volume_criar', nome:$('#vol-nome').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}]);
+    [{txt:'Criar volume', cls:'pri', fn: async b => { try{ toast(await post('/api/docker', {acao:'volume_criar', nome:$('#vol-nome').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}]);
 }
 async function editarCompose(arq){
   try{
     const txt = await post('/api/docker', {acao:'compose_ver', arquivo:arq});
-    modalEditor('Editar docker-compose.yml', arq, txt, [
+    modalEditor('Editar docker-compose.yml', curto(arq), txt, [
       {txt:'Salvar', fn: async b => { try{ toast(await post('/api/docker', {acao:'compose_salvar', arquivo:arq, conteudo:$('#m-edit').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }},
       {txt:'Salvar e subir', cls:'pri', fn: async b => { try{ toast(await post('/api/docker', {acao:'compose_salvar', arquivo:arq, conteudo:$('#m-edit').value}, b)); executar({ferramenta:'docker', acao:'compose_up', arquivo:arq}); }catch(e){ toast(e.message, true); } }}]);
   }catch(e){ toast(e.message, true); }
@@ -546,7 +797,7 @@ async function editarCompose(arq){
 async function editarArquivo(caminho){
   try{
     const txt = await post('/api/arquivo', {acao:'ler', caminho});
-    modalEditor('Editar ' + base(caminho), caminho, txt, [
+    modalEditor('Editar ' + base(caminho), curto(caminho), txt, [
       {txt:'Abrir no VS Code', fn: () => abrir('vscode', caminho)},
       {txt:'Salvar', cls:'pri', fn: async b => { try{ toast(await post('/api/arquivo', {acao:'salvar', caminho, conteudo:$('#m-edit').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}]);
   }catch(e){ toast(e.message, true); }
@@ -556,14 +807,14 @@ async function editarArquivo(caminho){
 const SCRIPTS = {
   ola:`pipeline {\n  agent any\n  stages {\n    stage('Ola') {\n      steps {\n        echo 'Ola do Jenkins!'\n      }\n    }\n    stage('Informacoes') {\n      steps {\n        sh 'date && hostname && whoami'\n      }\n    }\n  }\n}\n`,
   docker:`pipeline {\n  agent any\n  stages {\n    stage('Rodar container') {\n      steps {\n        sh 'docker run --rm --memory=1g --memory-swap=1g hello-world'\n      }\n    }\n    stage('Conferir limite') {\n      steps {\n        sh 'docker run --rm --memory=1g --memory-swap=1g alpine cat /sys/fs/cgroup/memory.max'\n      }\n    }\n  }\n}\n`,
-  compose:`pipeline {\n  agent any\n  stages {\n    stage('Subir com Compose') {\n      steps {\n        sh 'docker compose -f /opt/aula/docker-compose.yml up -d'\n      }\n    }\n    stage('Conferir') {\n      steps {\n        sh 'docker compose -f /opt/aula/docker-compose.yml ps'\n      }\n    }\n  }\n}\n`,
+  compose:`pipeline {\n  agent any\n  stages {\n    stage('Escrever o docker-compose.yml') {\n      steps {\n        writeFile file: 'docker-compose.yml', text: '''services:\n  web:\n    image: nginx:alpine\n    ports:\n      - "8087:80"\n    mem_limit: 256m\n'''\n      }\n    }\n    stage('Subir com Compose') {\n      steps {\n        sh 'docker compose -p site-jenkins up -d'\n      }\n    }\n    stage('Conferir') {\n      steps {\n        sh 'docker compose -p site-jenkins ps'\n        sh 'sleep 2 && curl -s http://localhost:8087 | grep -i nginx'\n      }\n    }\n  }\n}\n`,
   python:`pipeline {\n  agent { docker { image 'python:3.12-slim' } }\n  stages {\n    stage('Versao') {\n      steps { sh 'python --version' }\n    }\n    stage('Teste') {\n      steps { sh 'python -c "assert 1 + 1 == 2; print(123)"' }\n    }\n  }\n}\n`,
   parametros:`pipeline {\n  agent any\n  parameters {\n    string(name: 'NOME', defaultValue: 'turma', description: 'Quem cumprimentar')\n    choice(name: 'AMBIENTE', choices: ['dev', 'homologacao', 'producao'], description: 'Onde publicar')\n  }\n  stages {\n    stage('Ola') {\n      steps {\n        echo "Ola, \${params.NOME}! Publicando em \${params.AMBIENTE}."\n      }\n    }\n  }\n}\n`,
 };
 const TIPOS_JENKINS = [
   {nome:'Pipeline: Olá', desc:'O mais simples, 2 etapas', valores:{tipo:'pipeline', nome:'ola-jenkins', script:SCRIPTS.ola}},
   {nome:'Pipeline: Docker', desc:'Container com o limite de memória que você escolher', valores:{tipo:'pipeline', nome:'container-docker', memoria:'1g', script:SCRIPTS.docker}},
-  {nome:'Pipeline: Docker Compose', desc:'Sobe um docker-compose.yml', valores:{tipo:'pipeline', nome:'subir-compose', script:SCRIPTS.compose}},
+  {nome:'Pipeline: Docker Compose', desc:'Sobe um site com docker-compose (porta 8087)', valores:{tipo:'pipeline', nome:'subir-compose', script:SCRIPTS.compose}},
   {nome:'Pipeline: Testes Python', desc:'Roda dentro de um container', valores:{tipo:'pipeline', nome:'testes-python', script:SCRIPTS.python}},
   {nome:'Pipeline com parâmetros', desc:'Pergunta valores ao construir', valores:{tipo:'pipeline', nome:'com-parametros', script:SCRIPTS.parametros}},
   {nome:'Pipeline do Git', desc:'Usa o Jenkinsfile do repositório', valores:{tipo:'pipeline_scm', nome:'meu-repo', repo:'https://github.com/usuario/repositorio.git', branch:'main', jenkinsfile:'Jenkinsfile', cron_scm:'H/5 * * * *'}},
@@ -575,12 +826,12 @@ const TIPOS_JENKINS = [
 const temTipo = (...t) => m => t.includes(m.valores.tipo);
 async function novoItemJenkins(pasta){
   const [cr, jk] = await Promise.all([post('/api/jenkins', {acao:'credenciais'}).catch(() => ({credenciais:[]})), get('/api/jenkins').catch(() => ({jobs:[]}))]);
-  const creds = ['(nenhuma — repositório público)', ...cr.credenciais.map(c => c.id)];
-  const pastas = ['(raiz)', ...jk.jobs.filter(j => j.classe === 'Folder').map(j => j.nome)];
+  const creds = ['(nenhuma — repositório público)', ...(cr.credenciais || []).map(c => c.id)];
+  const pastas = ['(raiz)', ...(jk.jobs || []).filter(j => j.classe === 'Folder').map(j => j.nome)];
   assistente('Novo item no Jenkins', TIPOS_JENKINS, [
     {id:'nome', rot:'Nome (sem espaços)'},
     {id:'pasta', rot:'Criar dentro da pasta', tipo:'select', opcoes: () => pastas, padrao: pasta || '(raiz)'},
-    {id:'repo', rot:'URL do repositório Git', so: temTipo('pipeline_scm','multibranch','freestyle')},
+    {id:'repo', rot:'URL do repositório Git', largo:1, so: temTipo('pipeline_scm','multibranch','freestyle')},
     {id:'branch', rot:'Branch', so: temTipo('pipeline_scm','freestyle')},
     {id:'jenkinsfile', rot:'Caminho do Jenkinsfile', so: temTipo('pipeline_scm','multibranch')},
     {id:'credencial', rot:'Credencial (repositório privado)', tipo:'select', opcoes: () => creds, so: temTipo('pipeline_scm','multibranch','freestyle')},
@@ -589,7 +840,7 @@ async function novoItemJenkins(pasta){
     {id:'memoria', rot:'Limite de memória do container', tipo:'memoria', so: m => m.valores.memoria !== undefined, aoMudar: v => trocarMemoriaScript('a-script', v)},
     {id:'script', rot:'Script (Jenkinsfile)', tipo:'area', alt:230, so: temTipo('pipeline')},
     {id:'comandos', rot:'Comandos do terminal (um por linha)', tipo:'area', alt:130, so: temTipo('freestyle')},
-    {id:'descricao', rot:'Descrição (opcional)'},
+    {id:'descricao', rot:'Descrição (opcional)', largo:1},
     {id:'construir', rot:'Construir logo depois de criar', tipo:'check', padrao:true, so: temTipo('pipeline','pipeline_scm','freestyle')},
   ], async (v, m, b) => {
     const d = {acao:'criar', tipo:m.valores.tipo, job:v.nome, ...v};
@@ -604,69 +855,82 @@ async function novoItemJenkins(pasta){
   }, 'Criar');
 }
 function novoPipeline(){ novoItemJenkins(); }
+const urlJob = job => 'http://localhost:8080' + job.split('/').map(p => '/job/' + encodeURIComponent(p)).join('') + '/';
 function acompanharBuild(job){
-  abrirModal('Build: ' + job, 'acompanhando ao vivo', '<div id="b-etapas" class="etapas" style="margin-bottom:10px"></div><pre id="b-saida">Aguardando o Jenkins começar… (se o job tiver parâmetros, ele usa os valores padrão)</pre>',
-    [{txt:'■ Parar build', cls:'perigo', fn: b => post('/api/jenkins', {acao:'parar', job}, b).then(toast).catch(e => toast(e.message, true))},
-     {txt:'Abrir no Jenkins', fn: () => abrirUrl('http://localhost:8080' + job.split('/').map(p => '/job/' + encodeURIComponent(p)).join('') + '/')}]);
+  abrirModal('Build: ' + job, 'acompanhando ao vivo', '<div id="b-etapas" class="etapas" style="margin:0 0 10px"></div><pre id="b-saida" class="saida">Esperando o Jenkins começar… (jobs com parâmetros usam os valores padrão)</pre>',
+    [{txt:ico('parar') + 'Parar build', cls:'perigo', fn: b => post('/api/jenkins', {acao:'parar', job}, b).then(toast).catch(e => toast(e.message, true))},
+     {txt:ico('abrir') + 'Abrir no Jenkins', fn: () => abrirUrl(urlJob(job))}]);
   const passo = async () => {
     if(!$('#b-saida')) return;
     const [txt, et] = await Promise.all([post('/api/jenkins', {acao:'console', job}).catch(() => null), post('/api/jenkins', {acao:'etapas', job}).catch(() => null)]);
     if(!$('#b-saida')) return;
     if(txt){ const p = $('#b-saida'); p.textContent = txt; p.scrollTop = p.scrollHeight; }
     if(et && $('#b-etapas')) $('#b-etapas').innerHTML = (et.etapas||[]).map(s => `<span class="${esc(s.status)}">${esc(s.nome)}${s.duracao ? ' · ' + dur(s.duracao) : ''}</span>`).join('');
-    if(txt && /Finished: (SUCCESS|FAILURE|ABORTED|UNSTABLE)/.test(txt)){ const ok = txt.includes('Finished: SUCCESS'); toast(ok ? 'Build concluído com sucesso ✔' : 'O build não terminou com sucesso — veja a saída.', !ok); $('#m-sub').textContent = ok ? 'concluído com sucesso' : 'terminou com erro'; return; }
+    if(txt && /Finished: (SUCCESS|FAILURE|ABORTED|UNSTABLE)/.test(txt)){ const ok = txt.includes('Finished: SUCCESS'); toast(ok ? 'Build concluído com sucesso.' : 'O build terminou com erro. Veja a saída.', !ok); $('#m-sub').textContent = ok ? 'concluído com sucesso' : 'terminou com erro'; return; }
     consoleTimer = setTimeout(passo, 1500);
   };
   consoleTimer = setTimeout(passo, 1500);
 }
+const resultado = r => !r ? st('', 'Nunca rodou') : r === 'SUCCESS' ? st('ok', 'Sucesso') : r === 'FAILURE' ? st('erro', 'Falhou') : r === 'EM ANDAMENTO' ? st('info', 'Rodando', 1) : r === 'ABORTED' ? st('', 'Cancelado') : r === 'UNSTABLE' ? st('aviso', 'Instável') : st('aviso', r);
 async function carregarJenkins(){
   const j = await get('/api/jenkins'); const el = $('#jenkins');
   if(!j.respondendo){
-    el.innerHTML = j.servico === 'active' ? `<div class="aviso-box"><span class="girando"></span> O Jenkins está ligando (cerca de 1 minuto). Esta página atualiza sozinha.</div>`
-      : `<div class="aviso-box">O Jenkins está desligado. <button class="b pri" onclick="acao('/api/jenkins',{acao:'ligar'},this)">▶ Ligar o Jenkins</button></div>`;
+    el.innerHTML = j.servico === 'active' ? `<div class="faixa-aviso"><span class="girando"></span> O Jenkins está ligando (cerca de 1 minuto). Esta página atualiza sozinha.</div>`
+      : `<div class="faixa-aviso">O Jenkins está desligado.${BT('Ligar o Jenkins', "acao('/api/jenkins',{acao:'ligar'},this)", {pri:1, icone:'energia'})}</div>`;
     return;
   }
   DADOS.jenkins = j;
-  const res = r => !r ? etq('neutro','nunca rodou') : r === 'SUCCESS' ? etq('ok','sucesso') : r === 'FAILURE' ? etq('erro','falhou') : r === 'EM ANDAMENTO' ? '<span class="etq aviso">rodando…</span>' : r === 'ABORTED' ? etq('neutro','cancelado') : etq('aviso', r);
-  const idEt = n => 'et-' + n.replace(/[^a-z0-9]/gi, '_');
-  const B = (t, a, x, extra) => `<button class="b peq ${extra||''}" onclick='${a}'>${t}</button>`;
-  const cartao = x => {
-    const n = A(x.nome);
-    if(x.classe === 'Folder') return `<div class="item" style="border-left:4px solid var(--aviso)"><div class="cab"><b>📁 ${esc(x.nome)}</b>${etq('neutro', x.filhos + ' item(ns)')}</div>${x.descricao ? `<div class="sub">${esc(x.descricao)}</div>` : ''}
-      <div class="linha">${B('+ Item nesta pasta', `novoItemJenkins(${n})`, x, 'pri')}${B('Abrir', `abrirUrl(${A(x.url.replace(/^https?:\/\/[^/]+/, 'http://localhost:8080'))})`)}${B('Apagar', `if(confirm("Apagar a pasta "+${n}+" e tudo dentro dela?")) acao("/api/jenkins",{acao:"apagar",job:${n}},this)`, x, 'perigo')}</div></div>`;
-    if(x.classe === 'WorkflowMultiBranchProject') return `<div class="item" style="border-left:4px solid var(--acento2)"><div class="cab"><b>⑂ ${esc(x.nome)}</b>${etq('azul', 'Multibranch')}${etq('neutro', x.filhos + ' branch(es)')}</div><div class="sub">Cria um job para cada branch que tiver Jenkinsfile.</div>
-      <div class="linha">${B('↻ Procurar branches', `acao("/api/jenkins",{acao:"construir",job:${n}},this)`, x, 'pri')}${B('Log da busca', `abrirUrl(${A(x.url.replace(/^https?:\/\/[^/]+/, 'http://localhost:8080') + 'indexing/console')})`)}${B('Abrir', `abrirUrl(${A(x.url.replace(/^https?:\/\/[^/]+/, 'http://localhost:8080'))})`)}${B('Apagar', `if(confirm("Apagar "+${n}+"?")) acao("/api/jenkins",{acao:"apagar",job:${n}},this)`, x, 'perigo')}</div></div>`;
-    const rodando = x.resultado === 'EM ANDAMENTO';
-    return `<div class="item" ${x.desativado ? 'style="opacity:.6"' : ''}>
-      <div class="cab"><b>${esc(x.nome)}</b>${etq('azul', x.tipo)}${x.desativado ? etq('neutro','desativado') : res(x.resultado)}${x.na_fila ? etq('aviso','na fila') : ''}</div>
-      <div class="sub">${x.ultimo ? `último #${x.ultimo} ${quando(x.quando)} · ${dur(x.duracao)}` : 'ainda não rodou'}${x.descricao ? ' · ' + esc(x.descricao) : ''}</div>
-      ${x.historico.length ? `<div class="historico" title="últimos builds — clique para ver">${x.historico.slice().reverse().map(b => `<i style="background:${COR_BUILD(b.r)}" title="#${b.n} ${esc(b.r||'')} ${dur(b.d)}" onclick='acao("/api/jenkins",{acao:"console",job:${n},numero:${b.n}},null,${A(x.nome + " #" + b.n)})'></i>`).join('')}</div>` : ''}
-      <div class="etapas" id="${idEt(x.nome)}"></div>
-      <div class="linha">${rodando ? B('■ Parar', `acao("/api/jenkins",{acao:"parar",job:${n}},this)`, x, 'perigo') + B('Acompanhar', `acompanharBuild(${n})`) : (x.desativado ? '' : B('▶ Construir', `jkConstruir(${n},this)`, x, 'pri'))}
-        ${x.ultimo && !rodando ? B('Console', `acao("/api/jenkins",{acao:"console",job:${n}},this,"Console — "+${n})`) : ''}
-        ${B('✎ Editar', `jkEditar(${n},this)`)}${B('⏰ Gatilhos', `jkGatilhos(${n},this)`)}
-        ${B(x.desativado ? 'Ativar' : 'Desativar', `acao("/api/jenkins",{acao:"${x.desativado ? 'ativar' : 'desativar'}",job:${n}},this)`)}
-        ${B('Copiar', `jkCopiar(${n})`)}${B('Abrir', `abrirUrl(${A(x.url.replace(/^https?:\/\/[^/]+/, 'http://localhost:8080'))})`)}
-        ${B('Apagar', `if(confirm("Apagar "+${n}+"?")) acao("/api/jenkins",{acao:"apagar",job:${n}},this)`, x, 'perigo')}</div></div>`;
-  };
-  el.innerHTML = `<div class="grade kpi" style="margin-bottom:14px">
-      <div class="cartao" onclick="abrirUrl('http://localhost:8080')"><div class="rot">Itens</div><div class="num">${j.jobs.length}</div><div class="det">${j.jobs.filter(x => x.resultado === 'SUCCESS').length} ok · ${j.jobs.filter(x => x.resultado === 'FAILURE').length} falhando</div></div>
-      <div class="cartao" onclick="abrirUrl('http://localhost:8080/computer/')"><div class="rot">Executores</div><div class="num">${j.ocupados ?? '—'}/${j.executores ?? '—'}</div><div class="det">ocupados</div></div>
-      <div class="cartao"><div class="rot">Fila</div><div class="num">${(j.fila||[]).length}</div><div class="det">${(j.fila||[]).map(f => esc(f.job)).join(', ') || 'vazia'}</div></div>
-      <div class="cartao" onclick="credenciais()"><div class="rot">Credenciais</div><div class="num">🔑</div><div class="det">tokens e chaves para o GitHub</div></div>
-      <div class="cartao" onclick="if(confirm('Desligar o Jenkins? Libera uns 500 MB de memória.')) acao('/api/jenkins',{acao:'desligar'})"><div class="rot">Serviço</div><div class="num" style="font-size:18px;margin-top:10px"><span class="ponto ok"></span> ligado</div><div class="det">clique para desligar</div></div></div>
-    ${j.jobs.length ? `<div class="grade" style="grid-template-columns:repeat(auto-fill,minmax(360px,1fr))">${j.jobs.map(cartao).join('')}</div>`
-      : vazio('Nada no Jenkins ainda', 'Crie um Pipeline, Freestyle, Multibranch ou Pasta a partir de um modelo.', '<button class="b pri" onclick="novoItemJenkins()">+ Novo item</button>')}`;
-  j.jobs.filter(x => x.classe === 'WorkflowJob' && x.ultimo).forEach(async x => {
-    try{ const et = await post('/api/jenkins', {acao:'etapas', job:x.nome}); const alvo = document.getElementById(idEt(x.nome));
-      if(alvo) alvo.innerHTML = (et.etapas||[]).map(s => `<span class="${esc(s.status)}">${esc(s.nome)}</span>`).join(''); }catch(e){}
+  const s = sub('jenkins');
+  let creds = null;
+  if(s === 'credenciais') creds = (await post('/api/jenkins', {acao:'credenciais'}).catch(() => ({credenciais:[]}))).credenciais || [];
+  contar('jenkins', {itens: j.jobs.length, credenciais: creds ? creds.length : DADOS.contagem?.jenkins?.credenciais});
+  $('#n-jenkins').textContent = j.jobs.filter(x => x.resultado === 'EM ANDAMENTO').length ? j.jobs.filter(x => x.resultado === 'EM ANDAMENTO').length + ' rodando' : '';
+  const ok = j.jobs.filter(x => x.resultado === 'SUCCESS').length, falha = j.jobs.filter(x => x.resultado === 'FAILURE').length;
+  const faixa = `<div class="faixa">
+    <div><div class="r">Serviço</div><div class="n" style="font-size:16px;margin-top:6px">${st('ok', 'Ligado')}</div><div class="d"><a href="#" onclick="if(confirm('Desligar o Jenkins? Libera cerca de 500 MB de memória.')) acao('/api/jenkins',{acao:'desligar'});return false">Desligar para liberar memória</a></div></div>
+    <div><div class="r">Último resultado</div><div class="n">${ok} <span class="sub">ok</span> ${falha} <span class="sub">falhando</span></div><div class="d">entre ${j.jobs.filter(x => x.ultimo).length} itens que já rodaram</div></div>
+    <div><div class="r">Executores ocupados</div><div class="n">${j.ocupados ?? '—'} de ${j.executores ?? '—'}</div><div class="d">builds rodando ao mesmo tempo</div></div>
+    <div><div class="r">Fila</div><div class="n">${(j.fila||[]).length}</div><div class="d">${esc((j.fila||[]).map(f => f.job).join(', ') || 'vazia')}</div></div></div>`;
+  el.innerHTML = faixa + (s === 'credenciais' ? htmlCredenciais(creds) : htmlJobs(j));
+  aplicarFiltro();
+  if(s === 'itens') j.jobs.filter(x => x.classe === 'WorkflowJob' && x.ultimo).forEach(async x => {
+    try{ const et = await post('/api/jenkins', {acao:'etapas', job:x.nome}); const alvo = document.getElementById('et-' + x.nome.replace(/[^a-z0-9]/gi, '_'));
+      if(alvo) alvo.innerHTML = (et.etapas||[]).map(e => `<span class="${esc(e.status)}">${esc(e.nome)}</span>`).join(''); }catch(e){}
   });
+}
+function htmlJobs(j){
+  if(!j.jobs.length) return vazio('Nada no Jenkins ainda', 'Crie um Pipeline, Freestyle, Multibranch ou Pasta a partir de um modelo.', BT('Novo item', 'novoItemJenkins()', {pri:1, icone:'novo'}));
+  const ICONE = {Folder:'pasta', WorkflowMultiBranchProject:'branch', FreeStyleProject:'terminal'};
+  return `<div class="ferramentas">${busca('jenkins', 'Buscar item')}</div>` + tabela(['Nome', 'Tipo', 'Último build', 'Histórico', ''], j.jobs.map(x => {
+    const n = J(x.nome), pad = `padding-left:${(x.nivel || 0) * 22}px`, abrirJ = {t:'Abrir no Jenkins', i:'abrir', js:`abrirUrl(${J(urlJob(x.nome))})`};
+    const apagar = {t:'Apagar', i:'lixo', p:1, js:`if(confirm("Apagar " + ${n} + "${x.classe === 'Folder' ? ' e tudo dentro dela' : ''}?")) acao("/api/jenkins",{acao:"apagar",job:${n}},this)`};
+    const nome = `<div class="cel-nome" style="${pad}"><span class="fraco">${ico(ICONE[x.classe] || 'branch').replace('<svg', '<svg style="width:16px;height:16px;flex:none"')}</span><div><div class="nome">${esc(base(x.nome))}</div>${x.descricao && x.descricao !== 'Criado pelo Painel DevOps' ? `<div class="sub">${esc(x.descricao)}</div>` : ''}</div></div>`;
+    if(x.classe === 'Folder') return `<tr><td>${nome}</td><td>${etq('', 'Pasta')}</td><td class="sub">${x.filhos} item(ns)</td><td></td>
+      <td class="acoes">${BT('Novo item aqui', `novoItemJenkins(${n})`, {icone:'novo'})}${M([abrirJ, '-', apagar])}</td></tr>`;
+    if(x.classe === 'WorkflowMultiBranchProject') return `<tr><td>${nome}</td><td>${etq('info', 'Multibranch')}</td><td class="sub">${x.filhos} branch(es) com Jenkinsfile</td><td></td>
+      <td class="acoes">${BT('Procurar branches', `acao("/api/jenkins",{acao:"construir",job:${n}},this)`, {icone:'reiniciar'})}${M([{t:'Log da busca', i:'logs', js:`abrirUrl(${J(urlJob(x.nome) + 'indexing/console')})`}, abrirJ, '-', apagar])}</td></tr>`;
+    const rodando = x.resultado === 'EM ANDAMENTO';
+    const ult = x.ultimo ? `${x.desativado ? st('', 'Desativado') : resultado(x.resultado)}<div class="sub">#${x.ultimo} ${quando(x.quando)}${x.duracao ? ', ' + dur(x.duracao) : ''}</div><div class="etapas" id="et-${x.nome.replace(/[^a-z0-9]/gi, '_')}"></div>` : (x.desativado ? st('', 'Desativado') : st('', 'Nunca rodou'));
+    const hist = x.historico.length ? `<span class="historico" title="últimos builds">${x.historico.slice().reverse().map(b => `<i style="background:${COR_BUILD(b.r)}" title="#${b.n} ${esc(b.r||'')} ${dur(b.d)}" onclick='acao("/api/jenkins",{acao:"console",job:${A(x.nome)},numero:${b.n}},null,${A(x.nome + " #" + b.n)})'></i>`).join('')}</span>` : '<span class="fraco">—</span>';
+    const principal = rodando ? BT('Parar', `acao("/api/jenkins",{acao:"parar",job:${n}},this)`, {icone:'parar', perigo:1}) + BT('Acompanhar', `acompanharBuild(${n})`, {icone:'logs'})
+      : x.desativado ? BT('Ativar', `acao("/api/jenkins",{acao:"ativar",job:${n}},this)`, {icone:'energia'}) : BT('Construir', `jkConstruir(${n},this)`, {icone:'play', pri:1});
+    return `<tr class="${x.desativado ? 'desativado' : ''}"><td>${nome}</td><td>${etq(x.tipo === 'Pipeline' ? 'acento' : '', x.tipo)}${x.na_fila ? ' ' + etq('aviso', 'na fila') : ''}</td><td>${ult}</td><td>${hist}</td>
+      <td class="acoes">${principal}${x.ultimo && !rodando ? BT('Console', `acao("/api/jenkins",{acao:"console",job:${n}},this,"Console — " + ${n})`, {icone:'logs', so_icone:1, titulo:'Ver o console do último build'}) : ''}${M([
+        {t: x.tipo === 'Freestyle' ? 'Editar comandos' : 'Editar script', i:'editar', js:`jkEditar(${n},this)`}, {t:'Gatilhos (rodar sozinho)', i:'relogio', js:`jkGatilhos(${n},this)`},
+        {t:'Copiar', i:'copiar', js:`jkCopiar(${n})`}, {t: x.desativado ? 'Ativar' : 'Desativar', i:'energia', js:`acao("/api/jenkins",{acao:"${x.desativado ? 'ativar' : 'desativar'}",job:${n}},this)`},
+        abrirJ, '-', apagar])}</td></tr>`;
+  }));
+}
+function htmlCredenciais(creds){
+  if(!creds.length) return vazio('Nenhuma credencial ainda', 'Cadastre um token ou chave SSH para o Jenkins acessar repositórios privados do GitHub.', BT('Nova credencial', 'credenciais()', {pri:1, icone:'novo'}));
+  return tabela(['ID (use nos jobs)', 'Tipo', 'Descrição', ''], creds.map(c => `<tr><td class="mono nome">${esc(c.id)}</td><td>${esc(c.tipo)}</td><td class="sub">${esc(c.descricao || c.nome)}</td>
+    <td class="acoes">${BT('Apagar', `if(confirm("Apagar a credencial " + ${J(c.id)} + "?")) acao("/api/jenkins",{acao:"apagar_credencial",id:${J(c.id)}},this)`, {icone:'lixo', so_icone:1, perigo:1})}</td></tr>`));
 }
 async function jkConstruir(nome, btn){ try{ await post('/api/jenkins', {acao:'construir', job:nome}, btn); acompanharBuild(nome); }catch(e){ toast(e.message, true); } }
 async function jkEditar(nome, btn){
   try{
     const c = await post('/api/jenkins', {acao:'ver_config', job:nome}, btn);
-    if(!c.campo) return toast('Este item é configurado pelo repositório (Jenkinsfile) ou pelo Jenkins. Use "Abrir".', true);
+    if(!c.campo) return toast('Este item é configurado pelo repositório (Jenkinsfile) ou pelo próprio Jenkins. Use Abrir no Jenkins.', true);
     modalEditor(c.campo === 'script' ? 'Script do pipeline' : 'Comandos do Freestyle', nome, c.valor, [
       {txt:'Salvar', fn: async b => { try{ toast(await post('/api/jenkins', {acao:'salvar_config', job:nome, valor:$('#m-edit').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }},
       {txt:'Salvar e construir', cls:'pri', fn: async b => { try{ await post('/api/jenkins', {acao:'salvar_config', job:nome, valor:$('#m-edit').value}, b); await post('/api/jenkins', {acao:'construir', job:nome}, b); acompanharBuild(nome); }catch(e){ toast(e.message, true); } }}]);
@@ -677,10 +941,10 @@ async function jkGatilhos(nome, btn){
     const c = await post('/api/jenkins', {acao:'ver_config', job:nome}, btn);
     if(!c.gatilhos_ok) return toast('Este tipo de item não tem gatilhos aqui.', true);
     const ex = [['A cada 5 minutos','H/5 * * * *'],['De hora em hora','H * * * *'],['Todo dia às 8h','H 8 * * *'],['Dias úteis às 18h','H 18 * * 1-5']];
-    abrirModal('Quando rodar sozinho', nome, `<div class="sub">O Jenkins usa o formato <b>cron</b>: minuto hora dia mês dia-da-semana. "H" espalha o horário para não rodar tudo junto. Deixe vazio para desligar.</div>
+    abrirModal('Quando rodar sozinho', nome, `<p class="sub" style="margin-top:0">Formato cron: minuto, hora, dia, mês e dia da semana. "H" espalha o horário para os jobs não rodarem todos juntos. Deixe vazio para desligar.</p>
       <div class="campos"><label class="campo">Verificar o Git e rodar se tiver mudança${c.repo ? '' : ' (o job precisa usar Git)'}<input id="g-scm" value="${esc(c.cron_scm)}" placeholder="H/5 * * * *"></label>
       <label class="campo">Rodar em horários fixos<input id="g-cron" value="${esc(c.cron)}" placeholder="H 8 * * 1-5"></label></div>
-      <div class="sub" style="margin:12px 0 6px">Clique para usar um exemplo:</div><div class="chips">${ex.map(([t, v]) => `<button class="b peq" onclick='$("#g-cron").value=${A(v)}'>${t}</button><button class="b peq" title="verificar Git" onclick='$("#g-scm").value=${A(v)}'>Git: ${t.toLowerCase()}</button>`).join('')}</div>`,
+      <p class="sub" style="margin:16px 0 6px">Exemplos (clique para usar):</p><div class="chips">${ex.map(([t, v]) => `<button class="b peq" onclick='$("#g-cron").value=${A(v)}'>${t}</button>`).join('')}</div>`,
       [{txt:'Desligar gatilhos', fn: async b => { try{ toast(await post('/api/jenkins', {acao:'salvar_config', job:nome, cron:'', cron_scm:''}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }},
        {txt:'Salvar', cls:'pri', fn: async b => { try{ toast(await post('/api/jenkins', {acao:'salvar_config', job:nome, cron:$('#g-cron').value, cron_scm:$('#g-scm').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}]);
   }catch(e){ toast(e.message, true); }
@@ -689,25 +953,22 @@ function jkCopiar(nome){
   abrirModal('Copiar job', nome, `<label class="campo">Nome da cópia<input id="cp-nome" value="${esc(nome.split('/').pop())}-copia"></label>`,
     [{txt:'Copiar', cls:'pri', fn: async b => { try{ toast(await post('/api/jenkins', {acao:'copiar', job:nome, novo:$('#cp-nome').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}]);
 }
-async function credenciais(){
-  let lista = [];
-  try{ lista = (await post('/api/jenkins', {acao:'credenciais'})).credenciais; }catch(e){ return toast(e.message, true); }
+function credenciais(){
   const tipos = [
     {nome:'Token do GitHub', desc:'Usuário + token (repositório privado por HTTPS)', valores:{tipo:'usuario', id:'github', usuario:'', descricao:'GitHub (token)'}},
     {nome:'Minha chave SSH', desc:'A chave gerada na aba Git (git@github.com)', valores:{tipo:'ssh_minha', id:'github-ssh', descricao:'GitHub (chave SSH do aluno)'}},
     {nome:'Outra chave SSH', desc:'Colar uma chave privada', valores:{tipo:'ssh', id:'minha-chave', usuario:'git', descricao:'Chave SSH'}},
     {nome:'Texto secreto', desc:'Senha, token de API, etc.', valores:{tipo:'segredo', id:'meu-segredo', descricao:'Texto secreto'}},
   ];
-  assistente('Credenciais do Jenkins', tipos, [
-    {id:'id', rot:'ID (é o nome que você usa nos jobs)'}, {id:'descricao', rot:'Descrição'},
+  assistente('Nova credencial do Jenkins', tipos, [
+    {id:'id', rot:'ID (o nome que você usa nos jobs)'}, {id:'descricao', rot:'Descrição'},
     {id:'usuario', rot:'Usuário do GitHub', so: temTipo('usuario','ssh')}, {id:'senha', rot:'Token (ghp_… ou github_pat_…)', so: temTipo('usuario')},
     {id:'chave', rot:'Chave privada', tipo:'area', alt:140, so: temTipo('ssh')}, {id:'segredo', rot:'Segredo', so: temTipo('segredo')},
   ], async (v, m, b) => {
     const t = m.valores.tipo;
-    try{ toast(await post('/api/jenkins', {acao:'criar_credencial', ...v, tipo: t === 'ssh_minha' ? 'ssh' : t, usar_minha_chave: t === 'ssh_minha'}, b)); credenciais(); }
+    try{ toast(await post('/api/jenkins', {acao:'criar_credencial', ...v, tipo: t === 'ssh_minha' ? 'ssh' : t, usar_minha_chave: t === 'ssh_minha'}, b)); fecharModal(); }
     catch(e){ toast(e.message, true); }
   }, 'Salvar credencial');
-  $('#m-corpo').insertAdjacentHTML('afterbegin', `<div class="sub" style="margin-bottom:6px">Já cadastradas:</div><div class="chips" style="margin-bottom:16px">${lista.map(c => `<span class="etq neutro" style="padding:5px 10px">🔑 <b class="mono">${esc(c.id)}</b> <span class="sub">${esc(c.tipo)}</span> <a style="cursor:pointer;color:var(--erro);margin-left:6px" title="apagar" onclick='if(confirm("Apagar a credencial "+${A(c.id)}+"?")) post("/api/jenkins",{acao:"apagar_credencial",id:${A(c.id)}}).then(m=>{toast(m);credenciais()}).catch(e=>toast(e.message,true))'>✕</a></span>`).join('') || '<span class="sub">nenhuma ainda</span>'}</div><div class="sub" style="margin-bottom:8px">Adicionar nova:</div>`);
 }
 
 /* ================= GIT ================= */
@@ -719,7 +980,7 @@ function novoRepo(){
     {nome:'Projeto Node', desc:'Ignora node_modules', valores:{nome:'meu-app', tipo:'Node'}},
     {nome:'Simples', desc:'Só um README', valores:{nome:'meu-repo', tipo:'Nenhum'}},
   ], [{id:'nome', rot:'Nome (pasta em ~/projetos)'}, {id:'tipo', rot:'.gitignore', tipo:'select', opcoes: () => Object.keys(GITIGNORE)},
-      {id:'remoto', rot:'Repositório no GitHub (opcional)', dica:'https://github.com/usuario/repo.git'}, {id:'vscode', rot:'Abrir no VS Code depois', tipo:'check', padrao:true}],
+      {id:'remoto', rot:'Repositório no GitHub (opcional)', dica:'https://github.com/usuario/repo.git', largo:1}, {id:'vscode', rot:'Abrir no VS Code depois', tipo:'check', padrao:true}],
   async (v, m, b) => {
     try{
       const arqs = {'README.md': `# ${v.nome}\n\nProjeto criado no DevOps-Lab.\n`}; if(GITIGNORE[v.tipo]) arqs['.gitignore'] = GITIGNORE[v.tipo];
@@ -730,70 +991,83 @@ function novoRepo(){
   });
 }
 function clonarRepo(){
-  abrirModal('Clonar do GitHub', 'baixa para ~/projetos', '<label class="campo">URL do repositório<input id="cl-url" placeholder="https://github.com/usuario/repositorio.git  ou  git@github.com:usuario/repositorio.git"></label><div class="sub" style="margin-top:8px">Repositório privado? Configure antes o <b>Token do GitHub</b> ou a <b>Chave SSH</b> (no topo da aba Git).</div>',
-    [{txt:'⬇ Clonar', cls:'pri', fn: b => executar({ferramenta:'git', acao:'clonar', url:$('#cl-url').value}, b)}]);
+  abrirModal('Clonar do GitHub', 'baixa para ~/projetos', '<label class="campo">Endereço do repositório<input id="cl-url" placeholder="https://github.com/usuario/repositorio.git  ou  git@github.com:usuario/repositorio.git"></label><p class="sub">Repositório privado? Antes, configure a chave SSH ou o token em Git, Acesso ao GitHub.</p>',
+    [{txt:ico('baixar') + 'Clonar', cls:'pri', fn: b => executar({ferramenta:'git', acao:'clonar', url:$('#cl-url').value}, b)}]);
   setTimeout(() => $('#cl-url').focus(), 50);
 }
 async function copiar(texto){
-  try{ await navigator.clipboard.writeText(texto); toast('Copiado! Agora é só colar (Ctrl+V).'); }
-  catch(e){ const t = document.createElement('textarea'); t.value = texto; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); toast('Copiado!'); }
+  try{ await navigator.clipboard.writeText(texto); toast('Copiado. Agora é só colar (Ctrl+V).'); }
+  catch(e){ const t = document.createElement('textarea'); t.value = texto; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); toast('Copiado.'); }
 }
 async function carregarGit(){
-  const g = await get('/api/git'); DADOS.git = g; const k = g.chave;
-  const topo = `<div class="grade" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr));margin-bottom:6px">
-    <div class="cartao"><h3>👤 Identidade</h3>${g.usuario && g.email ? `<div>${esc(g.usuario)}</div><div class="sub">${esc(g.email)}</div>` : '<div class="sub">Ainda não configurada — o Git precisa disso para fazer commits.</div>'}
-      <div class="chips" style="margin-top:10px"><button class="b peq ${g.usuario ? '' : 'pri'}" onclick="gitIdent()">${g.usuario ? 'Trocar' : 'Configurar agora'}</button></div></div>
-    <div class="cartao"><h3>🔐 Chave SSH ${k.existe ? etq('ok','criada') : etq('neutro','não criada')}</h3>
-      ${k.existe ? `<div class="sub mono" style="word-break:break-all;max-height:54px;overflow:hidden">${esc(k.publica)}</div>
-        <div class="chips" style="margin-top:10px"><button class="b peq pri" onclick='copiar(${A(k.publica)})'>📋 Copiar chave pública</button><button class="b peq" onclick="abrirUrl('https://github.com/settings/ssh/new')">Colar no GitHub ↗</button>
-        <button class="b peq" onclick="acao('/api/git',{acao:'testar_github'},this)">Testar conexão</button><button class="b peq" onclick="chaveNoJenkins(this)">Usar no Jenkins</button><button class="b peq" onclick="gerarChave(true)">Gerar outra</button></div>`
-      : `<div class="sub">Com uma chave SSH você faz push/pull sem digitar senha (endereços git@github.com).</div><div class="chips" style="margin-top:10px"><button class="b peq pri" onclick="gerarChave(false)">+ Gerar chave SSH</button></div>`}</div>
-    <div class="cartao"><h3>🎟️ Token do GitHub (HTTPS) ${g.token_guardado ? etq('ok','guardado') : etq('neutro','não guardado')}</h3>
-      <div class="sub">Para push/pull em endereços https://github.com. Fica só na memória por algumas horas (não é salvo em arquivo).</div>
-      <div class="chips" style="margin-top:10px"><button class="b peq ${g.token_guardado ? '' : 'pri'}" onclick="gitToken()">${g.token_guardado ? 'Trocar token' : 'Guardar token'}</button><button class="b peq" onclick="abrirUrl('https://github.com/settings/personal-access-tokens/new')">Criar token no GitHub ↗</button>
-      ${g.token_guardado ? `<button class="b peq perigo" onclick="acao('/api/git',{acao:'esquecer_token'},this)">Esquecer token</button>` : ''}</div></div></div>`;
-  const repos = g.repos.length ? `<h2>Repositórios <span class="sub">${g.repos.length}</span></h2><div class="grade" style="grid-template-columns:repeat(auto-fill,minmax(400px,1fr))">${g.repos.map((r, i) => `<div class="item">
-    <div class="cab"><b>${esc(r.nome)}</b>${etq('azul', '⎇ ' + r.branch)}${r.mudancas.length ? etq('aviso', r.mudancas.length + ' mudança(s)') : etq('ok','tudo salvo')}${r.sincronia ? etq('neutro', r.sincronia) : ''}</div>
-    <div class="sub mono">${esc(r.caminho)}</div>
-    <div class="sub">${r.remoto ? '🌐 ' + esc(r.remoto) : '⚠ sem repositório no GitHub — configure em "Mais…"'}</div>
-    <ul class="lista">${r.log.slice(0,4).map(c => `<li><span class="mono" style="color:var(--acento)">${esc(c.hash)}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.msg)}</span><span class="sub">${esc(c.data)}</span></li>`).join('') || '<li class="sub">nenhum commit ainda</li>'}</ul>
-    <div class="linha">
-      ${r.mudancas.length ? `<button class="b peq pri" onclick="gitCommit(${i})">✔ Commit…</button>` : ''}
-      ${r.remoto ? `<button class="b peq" onclick='executar({ferramenta:"git",acao:"push",repo:${A(r.caminho)}},this)'>⬆ Push</button><button class="b peq" onclick='executar({ferramenta:"git",acao:"pull",repo:${A(r.caminho)}},this)'>⬇ Pull</button><button class="b peq" onclick='executar({ferramenta:"git",acao:"fetch",repo:${A(r.caminho)}},this)'>Fetch</button>` : ''}
-      <button class="b peq" onclick="gitBranch(${i})">⎇ Branches e merge</button><button class="b peq" onclick="gitMais(${i})">Mais…</button>
-      <button class="b peq" onclick='abrir("vscode",${A(r.caminho)})'>VS Code</button><button class="b peq" onclick='abrir("terminal",${A(r.caminho)})'>Terminal</button>
-    </div></div>`).join('')}</div>`
-    : vazio('Nenhum repositório ainda', 'Crie um novo ou clone um do GitHub.', '<button class="b pri" onclick="novoRepo()">+ Novo repositório</button> <button class="b" onclick="clonarRepo()">⬇ Clonar do GitHub</button>');
-  $('#git').innerHTML = topo + repos;
+  const g = await get('/api/git'); DADOS.git = g;
+  contar('git', {repos: g.repos.length});
+  const s = sub('git');
+  $('#git').innerHTML = s === 'acesso' ? htmlAcessoGit(g) : htmlRepos(g);
+  aplicarFiltro();
+}
+function htmlRepos(g){
+  const ident = g.usuario && g.email ? '' : `<div class="faixa-aviso">O Git ainda não sabe seu nome e e-mail, e precisa deles para fazer commits.${BT('Configurar agora', 'gitIdent()', {pri:1})}</div>`;
+  if(!g.repos.length) return ident + vazio('Nenhum repositório ainda', 'Crie um novo ou clone um do GitHub.', BT('Novo repositório', 'novoRepo()', {pri:1, icone:'novo'}) + BT('Clonar do GitHub', 'clonarRepo()', {icone:'baixar'}));
+  return ident + `<div class="ferramentas">${busca('git', 'Buscar repositório')}</div>` + tabela(['Repositório', 'Branch', 'Situação', 'Último commit', ''], g.repos.map((r, i) => {
+    const c = J(r.caminho), ult = r.log[0];
+    const situacao = (r.mudancas.length ? st('aviso', r.mudancas.length + (r.mudancas.length > 1 ? ' arquivos alterados' : ' arquivo alterado')) : st('ok', 'Tudo salvo'))
+      + (r.sincronia ? `<div class="sub">${esc(r.sincronia.replace(/ahead (\d+)/, '$1 commit(s) para enviar').replace(/behind (\d+)/, '$1 commit(s) para baixar'))}</div>` : '')
+      + (r.remoto ? '' : '<div class="sub">sem repositório no GitHub</div>');
+    return `<tr><td><div class="nome">${esc(r.nome)}</div><div class="sub mono">${esc(curto(r.caminho))}</div></td>
+      <td>${etq('info', r.branch)}</td><td>${situacao}</td>
+      <td>${ult ? `<div style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ult.msg)}</div><div class="sub"><span class="mono">${esc(ult.hash)}</span> ${esc(ult.data)}</div>` : '<span class="sub">nenhum commit ainda</span>'}</td>
+      <td class="acoes">${r.mudancas.length ? BT('Commit', `gitCommit(${i})`, {pri:1, icone:'ok'}) : ''}${r.remoto ? BT('Push', `executar({ferramenta:"git",acao:"push",repo:${c}},this)`, {icone:'subir', titulo:'Enviar seus commits para o GitHub'}) + BT('Pull', `executar({ferramenta:"git",acao:"pull",repo:${c}},this)`, {icone:'descer', so_icone:1, titulo:'Pull: baixar as novidades do GitHub'}) : ''}${M([
+        {t:'Branches e merge', i:'branch', js:`gitBranch(${i})`}, r.remoto && {t:'Fetch (ver novidades sem aplicar)', i:'descer', js:`executar({ferramenta:"git",acao:"fetch",repo:${c}},this)`},
+        {t:'Histórico (gráfico)', i:'logs', js:`acao("/api/git",{acao:"grafico",repo:${c}},this,"Histórico — " + ${J(r.nome)})`},
+        {t:'Remoto, tags, stash e desfazer…', i:'mais', js:`gitMais(${i})`}, '-',
+        {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${c})`}, {t:'Abrir terminal aqui', i:'terminal', js:`abrir("terminal",${c})`}])}</td></tr>`;
+  }));
+}
+function htmlAcessoGit(g){
+  const k = g.chave;
+  return `<div class="config">
+    <div class="item-c"><div><b>Nome e e-mail ${g.usuario && g.email ? etq('ok', 'configurado') : etq('aviso', 'falta configurar')}</b>
+      <p>Aparecem em cada commit. Use o mesmo e-mail da sua conta do GitHub.</p>${g.usuario ? `<div class="valor">${esc(g.usuario)} &lt;${esc(g.email)}&gt;</div>` : ''}</div>
+      <div class="chips">${BT(g.usuario ? 'Alterar' : 'Configurar', 'gitIdent()', {pri: !g.usuario})}</div></div>
+    <div class="item-c"><div><b>Chave SSH ${k.existe ? etq('ok', 'criada') : etq('', 'não criada')}</b>
+      <p>Para push e pull sem digitar senha em endereços git@github.com. Depois de gerar: copie a chave, cole em GitHub, Settings, SSH keys, e clique em Testar conexão.</p>${k.existe ? `<div class="valor">${esc(k.publica)}</div>` : ''}</div>
+      <div class="chips">${k.existe ? BT('Copiar chave pública', `copiar(${J(k.publica)})`, {pri:1, icone:'copiar'}) + BT('Colar no GitHub', "abrirUrl('https://github.com/settings/ssh/new')", {icone:'abrir'})
+        + BT('Testar conexão', "acao('/api/git',{acao:'testar_github'},this)", {icone:'ok'}) + M([{t:'Usar esta chave no Jenkins', i:'chave', js:'chaveNoJenkins(this)'}, '-', {t:'Gerar outra chave', i:'reiniciar', p:1, js:'gerarChave(true)'}])
+        : BT('Gerar chave SSH', 'gerarChave(false)', {pri:1, icone:'chave'})}</div></div>
+    <div class="item-c"><div><b>Token do GitHub ${g.token_guardado ? etq('ok', 'guardado') : etq('', 'não guardado')}</b>
+      <p>Para push e pull em endereços https://github.com. Fica só na memória por algumas horas; não é salvo em arquivo.</p></div>
+      <div class="chips">${BT(g.token_guardado ? 'Trocar token' : 'Guardar token', 'gitToken()', {pri: !g.token_guardado})}${BT('Criar token no GitHub', "abrirUrl('https://github.com/settings/personal-access-tokens/new')", {icone:'abrir'})}
+        ${g.token_guardado ? BT('Esquecer', "acao('/api/git',{acao:'esquecer_token'},this)", {perigo:1}) : ''}</div></div></div>`;
 }
 function gerarChave(substituir){
   abrirModal(substituir ? 'Gerar outra chave SSH' : 'Gerar chave SSH', 'tipo ed25519', `<label class="campo">E-mail (só identifica a chave)<input id="ch-email" value="${esc(DADOS.git?.email || '')}"></label>
-    ${substituir ? '<div class="aviso-box" style="margin-top:12px">A chave atual será apagada: onde ela estiver cadastrada (GitHub, Jenkins) vai parar de funcionar.</div>' : ''}
-    <div class="sub" style="margin-top:12px">Depois: 1) copie a chave pública, 2) cole em GitHub → Settings → SSH keys, 3) clique em Testar conexão.</div>`,
-    [{txt:'Gerar', cls:'pri', fn: async b => { try{ toast(await post('/api/git', {acao:'gerar_chave', email:$('#ch-email').value, substituir}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}]);
+    ${substituir ? '<div class="faixa-aviso" style="margin-top:14px">A chave atual será apagada. Onde ela estiver cadastrada (GitHub, Jenkins) vai parar de funcionar.</div>' : ''}
+    <p class="sub">Depois: copie a chave pública, cole em GitHub, Settings, SSH keys, e clique em Testar conexão.</p>`,
+    [{txt:'Gerar chave', cls:'pri', fn: async b => { try{ toast(await post('/api/git', {acao:'gerar_chave', email:$('#ch-email').value, substituir}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}]);
 }
 async function chaveNoJenkins(btn){
-  try{ toast(await post('/api/jenkins', {acao:'criar_credencial', tipo:'ssh', id:'github-ssh', usuario:'git', descricao:'GitHub (chave SSH do aluno)', usar_minha_chave:true}, btn) + ' Nos jobs, use URL git@github.com:usuario/repo.git com a credencial github-ssh.'); }
-  catch(e){ toast(e.message.includes('already') || e.message.includes('exist') ? 'O Jenkins já tem a credencial github-ssh.' : e.message, true); }
+  try{ toast(await post('/api/jenkins', {acao:'criar_credencial', tipo:'ssh', id:'github-ssh', usuario:'git', descricao:'GitHub (chave SSH do aluno)', usar_minha_chave:true}, btn) + ' Nos jobs, use o endereço git@github.com:usuario/repo.git com a credencial github-ssh.'); }
+  catch(e){ toast(/already|exist|Já existe/.test(e.message) ? 'O Jenkins já tem a credencial github-ssh.' : e.message, true); }
 }
 function gitToken(){
-  abrirModal('Guardar token do GitHub', 'usado em push/pull por HTTPS', `<div class="campos"><label class="campo">Usuário do GitHub<input id="tk-u"></label><label class="campo">Token<input id="tk-t" type="password" placeholder="ghp_… ou github_pat_…"></label>
+  abrirModal('Guardar token do GitHub', 'usado em push e pull por HTTPS', `<div class="campos"><label class="campo">Usuário do GitHub<input id="tk-u"></label><label class="campo">Token<input id="tk-t" type="password" placeholder="ghp_… ou github_pat_…"></label>
     <label class="campo">Guardar por<select id="tk-h"><option value="2">2 horas</option><option value="8" selected>8 horas</option><option value="24">24 horas</option></select></label></div>
-    <div class="sub" style="margin-top:12px">Crie o token em GitHub → Settings → Developer settings → Personal access tokens, com permissão <b>Contents: Read and write</b> só no repositório da aula.</div>`,
-    [{txt:'Criar token no GitHub ↗', fn: () => abrirUrl('https://github.com/settings/personal-access-tokens/new')},
-     {txt:'Guardar', cls:'pri', fn: async b => { try{ toast(await post('/api/git', {acao:'salvar_token', usuario:$('#tk-u').value, token:$('#tk-t').value, horas:$('#tk-h').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}]);
+    <p class="sub">Crie o token em GitHub, Settings, Developer settings, Personal access tokens, com a permissão Contents: Read and write só no repositório da aula.</p>`,
+    [{txt:ico('abrir') + 'Criar token no GitHub', fn: () => abrirUrl('https://github.com/settings/personal-access-tokens/new')},
+     {txt:'Guardar token', cls:'pri', fn: async b => { try{ toast(await post('/api/git', {acao:'salvar_token', usuario:$('#tk-u').value, token:$('#tk-t').value, horas:$('#tk-h').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}]);
 }
 function gitCommit(i){
   const r = DADOS.git.repos[i];
   const tipo = c => c.includes('?') ? ['ok','novo'] : c.includes('D') ? ['erro','apagado'] : ['aviso','alterado'];
   const arq = m => m.arquivo.replace(/^"|"$/g,'').split(' -> ').pop();
-  abrirModal('Commit em ' + r.nome, 'branch ' + r.branch, `<div class="sub" style="margin-bottom:6px">Marque os arquivos que entram no commit:</div>
-    <div style="max-height:280px;overflow:auto;background:#0a131a;border-radius:8px;padding:8px 12px">${r.mudancas.map(m => { const [c, t] = tipo(m.codigo);
-      return `<div style="display:flex;gap:8px;align-items:center;padding:4px 0" class="mono"><input type="checkbox" checked data-arq="${esc(arq(m))}" style="width:auto">${etq(c, t)} <span style="flex:1">${esc(m.arquivo)}</span>
-        <button class="b peq perigo" title="desfazer as mudanças deste arquivo" onclick='if(confirm("Descartar as mudanças em "+${A(arq(m))}+"? Não dá para desfazer.")) post("/api/git",{acao:"descartar",repo:${A(r.caminho)},arquivo:${A(arq(m))},novo:${m.codigo.includes('?')}}).then(t=>{toast(t);this.parentElement.remove()}).catch(e=>toast(e.message,true))'>Descartar</button></div>`; }).join('')}</div>
-    <label class="campo" style="margin-top:12px">Mensagem do commit (o que você fez)<input id="c-msg" placeholder="ex.: adiciona página inicial"></label>`,
+  abrirModal('Commit em ' + r.nome, 'branch ' + r.branch, `<p class="sub" style="margin-top:0">Marque os arquivos que entram no commit:</p>
+    <table class="t">${r.mudancas.map(m => { const [c, t] = tipo(m.codigo);
+      return `<tr><td style="width:1%"><input type="checkbox" checked data-arq="${esc(arq(m))}" style="width:auto"></td><td style="width:1%">${etq(c, t)}</td><td class="mono">${esc(m.arquivo)}</td>
+        <td class="acoes"><button class="b peq perigo" title="desfazer as mudanças deste arquivo" onclick='if(confirm("Descartar as mudanças em "+${A(arq(m))}+"? Não dá para desfazer.")) post("/api/git",{acao:"descartar",repo:${A(r.caminho)},arquivo:${A(arq(m))},novo:${m.codigo.includes('?')}}).then(t=>{toast(t);this.closest("tr").remove()}).catch(e=>toast(e.message,true))'>Descartar</button></td></tr>`; }).join('')}</table>
+    <label class="campo" style="margin-top:16px">Mensagem do commit (o que você fez)<input id="c-msg" placeholder="ex.: adiciona página inicial"></label>`,
     [{txt:'Ver mudanças', fn: b => acao('/api/git', {acao:'diff', repo:r.caminho}, b, 'Mudanças — ' + r.nome)},
-     {txt:'✔ Fazer commit', cls:'pri', fn: async b => {
+     {txt:ico('ok') + 'Fazer commit', cls:'pri', fn: async b => {
       const arquivos = [...document.querySelectorAll('[data-arq]')].filter(x => x.checked).map(x => x.dataset.arq);
       if(!arquivos.length) return toast('Marque pelo menos um arquivo.', true);
       try{ toast(await post('/api/git', {acao:'commit', repo:r.caminho, mensagem:$('#c-msg').value, arquivos}, b)); fecharModal(); }catch(e){ toast(e.message, true); }
@@ -802,30 +1076,29 @@ function gitCommit(i){
 }
 function gitBranch(i){
   const r = DADOS.git.repos[i], outras = r.branches.filter(b => b !== r.branch);
-  abrirModal('Branches de ' + r.nome, 'você está em: ' + r.branch, `<div class="sub" style="margin-bottom:8px">Clique numa branch para trocar:</div>
-    <div class="chips">${r.branches.map(b => `<span style="display:inline-flex;gap:2px"><button class="b ${b === r.branch ? 'pri' : ''}" onclick='trocarBranch(${A(r.caminho)},${A(b)},this)'>⎇ ${esc(b)}</button>${b !== r.branch ? `<button class="b peq perigo" title="apagar branch" onclick='if(confirm("Apagar a branch "+${A(b)}+"?")) post("/api/git",{acao:"apagar_branch",repo:${A(r.caminho)},branch:${A(b)}}).then(t=>{toast(t);fecharModal()}).catch(e=>toast(e.message,true))'>✕</button>` : ''}</span>`).join('') || '<span class="sub">faça o primeiro commit para criar a branch</span>'}</div>
-    <div class="campos"><label class="campo">Criar nova branch (ex.: feature/login)<input id="nova-branch" placeholder="feature/minha-tarefa"></label>
-    ${outras.length ? `<label class="campo">Trazer mudanças de outra branch para "${esc(r.branch)}" (merge)<select id="merge-de">${outras.map(b => `<option>${esc(b)}</option>`).join('')}</select></label>` : ''}</div>`,
-    [...(outras.length ? [{txt:'⤵ Fazer merge', fn: async b => { try{ toast(await post('/api/git', {acao:'merge', repo:r.caminho, branch:$('#merge-de').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}] : []),
-     {txt:'+ Criar e trocar', cls:'pri', fn: b => trocarBranch(r.caminho, $('#nova-branch').value, b)}]);
+  abrirModal('Branches de ' + r.nome, 'você está em: ' + r.branch, `<p class="sub" style="margin-top:0">Clique numa branch para trocar:</p>
+    <div class="chips">${r.branches.map(b => `<span style="display:inline-flex;gap:2px"><button class="b ${b === r.branch ? 'pri' : ''}" onclick='trocarBranch(${A(r.caminho)},${A(b)},this)'>${esc(b)}</button>${b !== r.branch ? `<button class="b icone perigo" title="Apagar a branch" onclick='if(confirm("Apagar a branch "+${A(b)}+"?")) post("/api/git",{acao:"apagar_branch",repo:${A(r.caminho)},branch:${A(b)}}).then(t=>{toast(t);fecharModal()}).catch(e=>toast(e.message,true))'>${ico('lixo')}</button>` : ''}</span>`).join('') || '<span class="sub">Faça o primeiro commit para criar a branch.</span>'}</div>
+    <div class="campos" style="margin-top:18px"><label class="campo">Criar nova branch<input id="nova-branch" placeholder="feature/minha-tarefa"></label>
+    ${outras.length ? `<label class="campo">Trazer as mudanças de outra branch para "${esc(r.branch)}" (merge)<select id="merge-de">${outras.map(b => `<option>${esc(b)}</option>`).join('')}</select></label>` : ''}</div>`,
+    [...(outras.length ? [{txt:'Fazer merge', fn: async b => { try{ toast(await post('/api/git', {acao:'merge', repo:r.caminho, branch:$('#merge-de').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}] : []),
+     {txt:ico('novo') + 'Criar e trocar', cls:'pri', fn: b => trocarBranch(r.caminho, $('#nova-branch').value, b)}]);
 }
 async function trocarBranch(repo, branch, b){ try{ toast(await post('/api/git', {acao:'checkout', repo, branch}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }
 async function gitMais(i){
   const r = DADOS.git.repos[i]; let info;
   try{ info = await post('/api/git', {acao:'info_repo', repo:r.caminho}); }catch(e){ return toast(e.message, true); }
   const P = (a, extra) => JSON.stringify({acao:a, repo:r.caminho, ...(extra||{})});
-  abrirModal('Mais opções — ' + r.nome, r.caminho, `<div class="grade" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
-    <div class="cartao"><h3>🌐 Repositório remoto</h3><div class="sub mono">${esc(r.remoto || 'nenhum')}</div><input id="mx-url" style="margin-top:8px" placeholder="https://github.com/usuario/repo.git" value="${esc(r.remoto)}">
-      <div class="chips" style="margin-top:8px"><button class="b peq pri" onclick='post("/api/git",{acao:"remoto",repo:${A(r.caminho)},url:$("#mx-url").value}).then(toast).catch(e=>toast(e.message,true))'>Salvar remoto</button></div></div>
-    <div class="cartao"><h3>🏷️ Tags (versões)</h3><div class="chips">${info.tags.map(t => etq('azul', t)).join('') || '<span class="sub">nenhuma</span>'}</div>
-      <div style="display:flex;gap:6px;margin-top:8px"><input id="mx-tag" placeholder="v1.0.0"><button class="b peq pri" onclick='post("/api/git",{acao:"tag",repo:${A(r.caminho)},tag:$("#mx-tag").value}).then(t=>{toast(t);fecharModal()}).catch(e=>toast(e.message,true))'>Criar</button></div></div>
-    <div class="cartao"><h3>📦 Guardar mudanças (stash)</h3><div class="sub">Guarda o que não foi commitado para trocar de branch, e devolve depois.</div><div class="sub mono">${info.stashes.map(esc).join('<br>') || 'nada guardado'}</div>
-      <div class="chips" style="margin-top:8px"><button class="b peq" onclick='acao("/api/git",${esc(P('stash'))},this)'>Guardar</button><button class="b peq" onclick='acao("/api/git",${esc(P('stash_pop'))},this)'>Devolver</button></div></div>
-    <div class="cartao"><h3>↶ Desfazer</h3><div class="sub">Desfaz o último commit, mas mantém as mudanças nos arquivos.</div>
-      <div class="chips" style="margin-top:8px"><button class="b peq perigo" onclick='if(confirm("Desfazer o último commit?")) acao("/api/git",${esc(P('desfazer_commit'))},this)'>Desfazer último commit</button></div></div>
-    <div class="cartao"><h3>🌳 Histórico</h3><div class="sub">Veja todas as branches e commits em forma de árvore.</div>
-      <div class="chips" style="margin-top:8px"><button class="b peq pri" onclick='acao("/api/git",${esc(P('grafico'))},this,"Histórico — ${esc(r.nome)}")'>Ver gráfico</button><button class="b peq" onclick='editarArquivo(${A(r.caminho + "/.gitignore")})'>Editar .gitignore</button></div></div>
-  </div>`);
+  abrirModal('Mais opções — ' + r.nome, curto(r.caminho), `<div class="config">
+    <div class="item-c"><div><b>Repositório remoto (GitHub)</b><p>Para onde o Push envia e de onde o Pull baixa.</p><input id="mx-url" style="margin-top:8px" placeholder="https://github.com/usuario/repo.git" value="${esc(r.remoto)}"></div>
+      <div class="chips"><button class="b pri" onclick='post("/api/git",{acao:"remoto",repo:${A(r.caminho)},url:$("#mx-url").value}).then(toast).catch(e=>toast(e.message,true))'>Salvar</button></div></div>
+    <div class="item-c"><div><b>Tags (versões)</b><p>${info.tags.map(t => etq('info', t)).join(' ') || 'Nenhuma ainda.'}</p><input id="mx-tag" style="margin-top:8px" placeholder="v1.0.0"></div>
+      <div class="chips"><button class="b" onclick='post("/api/git",{acao:"tag",repo:${A(r.caminho)},tag:$("#mx-tag").value}).then(t=>{toast(t);fecharModal()}).catch(e=>toast(e.message,true))'>Criar tag</button></div></div>
+    <div class="item-c"><div><b>Guardar mudanças (stash)</b><p>Guarda o que não foi commitado para trocar de branch e devolve depois.</p><div class="valor">${info.stashes.map(esc).join('<br>') || 'nada guardado'}</div></div>
+      <div class="chips"><button class="b" onclick='acao("/api/git",${esc(P('stash'))},this)'>Guardar</button><button class="b" onclick='acao("/api/git",${esc(P('stash_pop'))},this)'>Devolver</button></div></div>
+    <div class="item-c"><div><b>Desfazer o último commit</b><p>As mudanças continuam nos arquivos; só o commit é desfeito.</p></div>
+      <div class="chips"><button class="b perigo" onclick='if(confirm("Desfazer o último commit?")) acao("/api/git",${esc(P('desfazer_commit'))},this)'>Desfazer</button></div></div>
+    <div class="item-c"><div><b>.gitignore</b><p>Arquivos que o Git deve ignorar (senhas, pastas geradas…).</p></div>
+      <div class="chips"><button class="b" onclick='editarArquivo(${A(r.caminho + "/.gitignore")})'>Editar</button></div></div></div>`);
 }
 function gitIdent(){
   abrirModal('Seu nome e e-mail no Git', 'aparecem em cada commit', `<div class="campos"><label class="campo">Nome<input id="g-nome" value="${esc(DADOS.git?.usuario||'')}"></label><label class="campo">E-mail (o mesmo do GitHub)<input id="g-email" value="${esc(DADOS.git?.email||'')}"></label></div>`,
@@ -839,18 +1112,24 @@ const SUGESTOES_EXT = [['eamodio.gitlens','GitLens','Quem mudou cada linha (Git)
   ['ritwickdey.LiveServer','Live Server','Ver HTML ao vivo'],['christian-kohler.path-intellisense','Path Intellisense','Completa caminhos'],['usernamehw.errorlens','Error Lens','Erros na própria linha']];
 async function carregarVscode(){
   const v = await get('/api/vscode');
-  $('#vscode').innerHTML = `<h2>Seus projetos (~/projetos)</h2>
-    ${v.pastas.length ? `<div class="grade">${v.pastas.map(p => `<div class="item"><div class="cab"><b>📁 ${esc(base(p))}</b></div><div class="sub mono">${esc(p)}</div>
-      <div class="linha"><button class="b peq pri" onclick='abrir("vscode",${A(p)})'>Abrir no VS Code</button><button class="b peq" onclick='novoArquivo(${A(p)})'>+ Arquivo</button><button class="b peq" onclick='abrir("terminal",${A(p)})'>Terminal</button><button class="b peq" onclick='abrir("pasta",${A(p)})'>Pasta</button></div></div>`).join('')}</div>`
-      : vazio('Nenhum projeto ainda', 'Crie um pelas abas Git, Python, Terraform, Ansible ou Docker.', '')}
-    <h2>Abertos recentemente</h2>
-    ${v.recentes.length ? `<div class="cartao"><ul class="lista" style="max-height:none">${v.recentes.map(r => `<li><span>${r.tipo === 'pasta' ? '📁' : '📄'}</span><span class="mono" style="flex:1">${esc(r.caminho)}</span>${r.existe ? `<button class="b peq" onclick='abrir("vscode",${A(r.caminho)})'>Abrir</button>` : etq('erro','não existe mais')}</li>`).join('')}</ul></div>` : '<div class="sub">Nada aberto ainda.</div>'}
-    <h2>Extensões instaladas <span class="sub">${v.extensoes.length}</span></h2><div class="chips">${v.extensoes.map(e => `<span class="etq neutro mono" style="padding:5px 10px">${esc(e)} <a style="cursor:pointer;color:var(--erro);margin-left:6px" title="remover" onclick='if(confirm("Remover a extensão "+${A(e)}+"?")) executar({ferramenta:"vscode",acao:"remover",extensao:${A(e)}})'>✕</a></span>`).join('')}</div>
-    <h2>Instalar extensões</h2><div class="modelos">${SUGESTOES_EXT.filter(x => !v.extensoes.map(e => e.toLowerCase()).includes(x[0].toLowerCase())).map(([id, n, dsc]) => `<button class="modelo" onclick='executar({ferramenta:"vscode",acao:"instalar",extensao:${A(id)}},this)'><b>＋ ${esc(n)}</b><span>${esc(dsc)}</span></button>`).join('')}
-      <button class="modelo" onclick="const e=prompt('ID da extensão (ex.: ms-python.python):');if(e)executar({ferramenta:'vscode',acao:'instalar',extensao:e})"><b>＋ Outra…</b><span>Pelo ID do Marketplace</span></button></div>`;
+  contar('vscode', {projetos: v.pastas.length, extensoes: v.extensoes.length});
+  if(sub('vscode') === 'extensoes'){
+    const inst = v.extensoes.map(e => e.toLowerCase());
+    $('#vscode').innerHTML = `<div class="duas"><div><h2>Instaladas <span class="sub">${v.extensoes.length}</span></h2>${v.extensoes.length ? tabela(['Extensão', ''], v.extensoes.map(e => `<tr><td class="mono">${esc(e)}</td>
+        <td class="acoes">${BT('Remover', `if(confirm("Remover a extensão " + ${J(e)} + "?")) executar({ferramenta:"vscode",acao:"remover",extensao:${J(e)}})`, {icone:'lixo', so_icone:1, perigo:1})}</td></tr>`)) : vazio('Nenhuma extensão', '', '')}</div>
+      <div><h2>Sugestões para DevOps</h2>${tabela(['Extensão', 'Para quê', ''], SUGESTOES_EXT.filter(x => !inst.includes(x[0].toLowerCase())).map(([id, n, d]) => `<tr><td><div class="nome">${esc(n)}</div><div class="sub mono">${esc(id)}</div></td><td class="sub">${esc(d)}</td>
+        <td class="acoes">${BT('Instalar', `executar({ferramenta:"vscode",acao:"instalar",extensao:${J(id)}},this)`, {icone:'baixar'})}</td></tr>`))}
+        <div style="margin-top:10px">${BT('Instalar outra pelo ID', "const e=prompt('ID da extensão (ex.: ms-python.python):');if(e)executar({ferramenta:'vscode',acao:'instalar',extensao:e})", {icone:'novo'})}</div></div></div>`;
+    return;
+  }
+  $('#vscode').innerHTML = (v.pastas.length ? tabela(['Projeto em ~/projetos', ''], v.pastas.map(p => `<tr><td><div class="nome">${esc(base(p))}</div><div class="sub mono">${esc(curto(p))}</div></td>
+      <td class="acoes">${BT('Abrir no VS Code', `abrir("vscode",${J(p)})`, {icone:'codigo', pri:1})}${BT('Novo arquivo', `novoArquivo(${J(p)})`, {icone:'novo'})}${M([{t:'Abrir terminal aqui', i:'terminal', js:`abrir("terminal",${J(p)})`}, {t:'Abrir a pasta', i:'pasta', js:`abrir("pasta",${J(p)})`}])}</td></tr>`))
+    : vazio('Nenhum projeto ainda', 'Crie um pelas abas Git, Python, Terraform, Ansible ou Docker.', ''))
+    + `<h2>Abertos recentemente</h2>` + (v.recentes.length ? tabela(['Caminho', ''], v.recentes.map(r => `<tr><td><span class="fraco">${ico(r.tipo === 'pasta' ? 'pasta' : 'logs').replace('<svg', '<svg style="width:15px;height:15px;vertical-align:-2px;margin-right:8px"')}</span><span class="mono">${esc(curto(r.caminho))}</span></td>
+      <td class="acoes">${r.existe ? BT('Abrir', `abrir("vscode",${J(r.caminho)})`, {icone:'codigo'}) : etq('erro', 'não existe mais')}</td></tr>`)) : '<p class="sub">Nada aberto ainda.</p>');
 }
 function novoArquivo(pasta){
-  abrirModal('Novo arquivo', pasta, `<div class="modelos">${['app.py','index.html','main.tf','playbook.yml','Dockerfile','README.md'].map(n => `<button class="modelo" onclick='$("#na-nome").value=${A(n)}'><b class="mono">${esc(n)}</b></button>`).join('')}</div><label class="campo" style="margin-top:12px">Nome do arquivo<input id="na-nome" value="app.py"></label>`,
+  abrirModal('Novo arquivo', curto(pasta), `<div class="grade-modelos">${['app.py','index.html','main.tf','playbook.yml','Dockerfile','README.md'].map(n => `<button class="modelo" onclick='$("#na-nome").value=${A(n)}'><b class="mono">${esc(n)}</b></button>`).join('')}</div><label class="campo" style="margin-top:16px">Nome do arquivo<input id="na-nome" value="app.py"></label>`,
     [{txt:'Criar e abrir no VS Code', cls:'pri', fn: b => { acao('/api/abrir', {acao:'novo_arquivo', caminho:pasta, nome:$('#na-nome').value}, b); fecharModal(); }}]);
 }
 
@@ -870,37 +1149,36 @@ function novoPlaybook(){
 }
 function editarInventario(pasta){
   post('/api/arquivo', {acao:'ler', caminho:pasta + '/inventario.ini'}).then(txt => {
-    modalEditor('Inventário do Ansible', pasta + '/inventario.ini', txt || '[local]\nlocalhost ansible_connection=local\n\n# Outras máquinas (exemplo):\n# [web]\n# 192.168.0.10 ansible_user=aluno\n', [
+    modalEditor('Inventário do Ansible', curto(pasta) + '/inventario.ini', txt || '[local]\nlocalhost ansible_connection=local\n\n# Outras máquinas (exemplo):\n# [web]\n# 192.168.0.10 ansible_user=aluno\n', [
       {txt:'Salvar', cls:'pri', fn: async b => { try{ toast(await post('/api/arquivo', {acao:'salvar', caminho:pasta + '/inventario.ini', conteudo:$('#m-edit').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}]);
   }).catch(e => toast(e.message, true));
 }
 function colecoes(){
-  abrirModal('Coleções do Ansible', 'pacotes de módulos extras', `<div class="sub" style="margin-bottom:8px">Já vêm instaladas: community.general, community.docker e ansible.posix. Instalar outra:</div>
-    <div class="modelos">${[['community.mysql','Bancos MySQL'],['community.postgresql','Bancos PostgreSQL'],['community.crypto','Certificados e chaves'],['kubernetes.core','Kubernetes'],['amazon.aws','Amazon AWS'],['azure.azcollection','Microsoft Azure']].map(([c, d]) => `<button class="modelo" onclick='$("#col").value=${A(c)}'><b class="mono">${esc(c)}</b><span>${esc(d)}</span></button>`).join('')}</div>
-    <label class="campo" style="margin-top:12px">Coleção<input id="col" value="community.mysql"></label>`,
-    [{txt:'Ver instaladas', fn: b => executar({ferramenta:'ansible', acao:'colecoes'}, b)}, {txt:'Instalar', cls:'pri', fn: b => executar({ferramenta:'ansible', acao:'colecao', colecao:$('#col').value}, b)}]);
+  abrirModal('Coleções do Ansible', 'pacotes de módulos extras', `<p class="sub" style="margin-top:0">Já vêm instaladas: community.general, community.docker e ansible.posix. Para instalar outra:</p>
+    <div class="grade-modelos">${[['community.mysql','Bancos MySQL'],['community.postgresql','Bancos PostgreSQL'],['community.crypto','Certificados e chaves'],['kubernetes.core','Kubernetes'],['amazon.aws','Amazon AWS'],['azure.azcollection','Microsoft Azure']].map(([c, d]) => `<button class="modelo" onclick='$("#col").value=${A(c)}'><b class="mono">${esc(c)}</b><span>${esc(d)}</span></button>`).join('')}</div>
+    <label class="campo" style="margin-top:16px">Coleção<input id="col" value="community.mysql"></label>`,
+    [{txt:'Ver instaladas', fn: b => executar({ferramenta:'ansible', acao:'colecoes'}, b)}, {txt:ico('baixar') + 'Instalar', cls:'pri', fn: b => executar({ferramenta:'ansible', acao:'colecao', colecao:$('#col').value}, b)}]);
 }
 function adhoc(){
-  abrirModal('Comando rápido do Ansible', 'roda nesta máquina (localhost)', `<div class="modelos">${[['ping','','Testar conexão'],['setup','filter=ansible_memtotal_mb','Ver memória'],['command','uptime','Tempo ligada'],['command','df -h /','Espaço em disco'],['shell','docker ps','Containers rodando']].map(x => `<button class="modelo" onclick='$("#ah-m").value=${A(x[0])};$("#ah-a").value=${A(x[1])}'><b>${esc(x[2])}</b><span class="mono">-m ${esc(x[0])} ${esc(x[1])}</span></button>`).join('')}</div>
-    <div class="campos"><label class="campo">Módulo<input id="ah-m" value="ping"></label><label class="campo">Argumentos<input id="ah-a" value=""></label></div>`,
-    [{txt:'▶ Rodar', cls:'pri', fn: b => executar({ferramenta:'ansible', acao:'adhoc', modulo:$('#ah-m').value, args:$('#ah-a').value}, b)}]);
+  abrirModal('Comando rápido do Ansible', 'roda nesta máquina (localhost)', `<div class="grade-modelos">${[['ping','','Testar conexão'],['setup','filter=ansible_memtotal_mb','Ver memória'],['command','uptime','Tempo ligada'],['command','df -h /','Espaço em disco'],['shell','docker ps','Containers rodando']].map(x => `<button class="modelo" onclick='$("#ah-m").value=${A(x[0])};$("#ah-a").value=${A(x[1])}'><b>${esc(x[2])}</b><span class="mono">-m ${esc(x[0])} ${esc(x[1])}</span></button>`).join('')}</div>
+    <div class="campos" style="margin-top:16px"><label class="campo">Módulo<input id="ah-m" value="ping"></label><label class="campo">Argumentos<input id="ah-a" value=""></label></div>`,
+    [{txt:ico('play') + 'Rodar', cls:'pri', fn: b => executar({ferramenta:'ansible', acao:'adhoc', modulo:$('#ah-m').value, args:$('#ah-a').value}, b)}]);
 }
 async function carregarAnsible(){
   const a = await get('/api/ansible');
-  const pb = (p, ac, rot, cls) => `<button class="b peq ${cls||''}" onclick='executar({ferramenta:"ansible",acao:"${ac}",playbook:${A(p.arquivo)}},this)'>${rot}</button>`;
-  $('#ansible').innerHTML = a.playbooks.length ? `<div class="grade" style="grid-template-columns:repeat(auto-fill,minmax(340px,1fr))">${a.playbooks.map(p => `<div class="item">
-    <div class="cab"><b>${esc(p.nome)}</b>${etq('neutro', 'hosts: ' + p.hosts)}${etq('azul', p.tarefas + ' tarefa(s)')}</div><div class="sub mono">${esc(p.arquivo)}</div>
-    <div class="sub">${p.inventario ? '📋 com inventário próprio' : '📋 inventário: só esta máquina (localhost)'}</div>
-    <div class="linha">${pb(p,'rodar','▶ Rodar','pri')}${pb(p,'simular','Simular (--check)')}${pb(p,'checar','Checar sintaxe')}
-      <button class="b peq" onclick='editarArquivo(${A(p.arquivo)})'>✎ Editar</button><button class="b peq" onclick='editarInventario(${A(pai(p.arquivo))})'>📋 Inventário</button><button class="b peq" onclick='abrir("vscode",${A(pai(p.arquivo))})'>VS Code</button></div></div>`).join('')}</div>`
-    : vazio('Nenhum playbook ainda', 'Crie um a partir de um modelo e rode com um clique.', '<button class="b pri" onclick="novoPlaybook()">+ Novo playbook</button> <button class="b" onclick="adhoc()">⚡ Comando rápido</button>');
+  $('#ansible').innerHTML = a.playbooks.length ? tabela(['Playbook', 'Máquinas (hosts)', 'Tarefas', 'Inventário', ''], a.playbooks.map(p => { const f = J(p.arquivo); return `<tr>
+    <td><div class="nome">${esc(p.nome)}</div><div class="sub mono">${esc(curto(p.arquivo))}</div></td><td>${etq('', p.hosts)}</td><td>${p.tarefas}</td><td class="sub">${p.inventario ? 'próprio (inventario.ini)' : 'só esta máquina'}</td>
+    <td class="acoes">${BT('Rodar', `executar({ferramenta:"ansible",acao:"rodar",playbook:${f}},this)`, {icone:'play', pri:1})}${BT('Simular', `executar({ferramenta:"ansible",acao:"simular",playbook:${f}},this)`, {titulo:'Mostra o que mudaria, sem mudar nada (--check)'})}${M([
+      {t:'Checar sintaxe', i:'ok', js:`executar({ferramenta:"ansible",acao:"checar",playbook:${f}},this)`}, {t:'Editar playbook', i:'editar', js:`editarArquivo(${f})`},
+      {t:'Editar inventário', i:'logs', js:`editarInventario(${J(pai(p.arquivo))})`}, {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${J(pai(p.arquivo))})`}])}</td></tr>`; }))
+    : vazio('Nenhum playbook ainda', 'Crie um a partir de um modelo e rode com um clique.', BT('Novo playbook', 'novoPlaybook()', {pri:1, icone:'novo'}) + BT('Comando rápido', 'adhoc()', {icone:'terminal'}));
 }
 
 /* ================= TERRAFORM ================= */
 const MODELOS_TF = [
   {nome:'Variáveis e saídas', desc:'Não baixa nada (funciona offline)', valores:{nome:'tf-basico', conteudo:`variable "turma" {\n  default = "DevOps"\n}\n\nlocals {\n  mensagem = "Ola, turma de \${var.turma}!"\n}\n\nresource "terraform_data" "exemplo" {\n  input = local.mensagem\n}\n\noutput "mensagem" {\n  value = terraform_data.exemplo.output\n}\n`}},
   {nome:'Arquivo local', desc:'Cria um arquivo (provider local)', valores:{nome:'tf-arquivo', conteudo:`terraform {\n  required_providers {\n    local = {\n      source = "hashicorp/local"\n    }\n  }\n}\n\nresource "local_file" "ola" {\n  filename = "\${path.module}/ola.txt"\n  content  = "Criado pelo Terraform!"\n}\n\noutput "arquivo" {\n  value = local_file.ola.filename\n}\n`}},
-  {nome:'Container Docker', desc:'Nginx na porta 8085', valores:{nome:'tf-docker', conteudo:`terraform {\n  required_providers {\n    docker = {\n      source = "kreuzwerker/docker"\n    }\n  }\n}\n\nprovider "docker" {}\n\nresource "docker_image" "nginx" {\n  name = "nginx:alpine"\n}\n\nresource "docker_container" "web" {\n  name   = "nginx-terraform"\n  image  = docker_image.nginx.image_id\n  memory = 256\n  ports {\n    internal = 80\n    external = 8085\n  }\n}\n`}},
+  {nome:'Container Docker', desc:'Nginx na porta 8085', valores:{nome:'tf-docker', conteudo:`terraform {\n  required_providers {\n    docker = {\n      source = "kreuzwerker/docker"\n    }\n  }\n}\n\nprovider "docker" {}\n\n# keep_locally: o destroy apaga o container, mas mantém a imagem\n# (ela pode estar sendo usada por outros containers)\nresource "docker_image" "nginx" {\n  name         = "nginx:alpine"\n  keep_locally = true\n}\n\nresource "docker_container" "web" {\n  name   = "nginx-terraform"\n  image  = docker_image.nginx.image_id\n  memory = 256\n  ports {\n    internal = 80\n    external = 8085\n  }\n}\n`}},
 ];
 function novoTerraform(){
   assistente('Novo projeto Terraform', MODELOS_TF, [{id:'nome', rot:'Nome da pasta (em ~/projetos)'}, {id:'conteudo', rot:'main.tf', tipo:'area', alt:300}, {id:'init', rot:'Rodar terraform init depois de criar', tipo:'check', padrao:true}],
@@ -911,21 +1189,22 @@ function novoTerraform(){
 }
 function novoArquivoTf(pasta){
   const mod = {'variables.tf':'variable "nome" {\n  description = "Nome do recurso"\n  type        = string\n  default     = "devops"\n}\n', 'outputs.tf':'output "exemplo" {\n  value = "valor de saida"\n}\n', 'terraform.tfvars':'nome = "minha-turma"\n'};
-  abrirModal('Novo arquivo do Terraform', pasta, `<div class="modelos">${Object.keys(mod).map(n => `<button class="modelo" onclick='$("#tf-n").value=${A(n)};$("#tf-c").value=${A(mod[n])}'><b class="mono">${esc(n)}</b></button>`).join('')}</div>
-    <label class="campo" style="margin-top:12px">Nome<input id="tf-n" value="variables.tf"></label><label class="campo" style="margin-top:8px">Conteúdo<textarea id="tf-c" style="min-height:180px">${esc(mod['variables.tf'])}</textarea></label>`,
-    [{txt:'Criar', cls:'pri', fn: async b => { try{ toast(await post('/api/arquivo', {acao:'salvar', caminho:pasta + '/' + $('#tf-n').value, conteudo:$('#tf-c').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}]);
+  abrirModal('Novo arquivo do Terraform', curto(pasta), `<div class="grade-modelos">${Object.keys(mod).map(n => `<button class="modelo" onclick='$("#tf-n").value=${A(n)};$("#tf-c").value=${A(mod[n])}'><b class="mono">${esc(n)}</b></button>`).join('')}</div>
+    <label class="campo" style="margin-top:16px">Nome<input id="tf-n" value="variables.tf"></label><label class="campo" style="margin-top:10px">Conteúdo<textarea id="tf-c" style="min-height:180px">${esc(mod['variables.tf'])}</textarea></label>`,
+    [{txt:'Criar arquivo', cls:'pri', fn: async b => { try{ toast(await post('/api/arquivo', {acao:'salvar', caminho:pasta + '/' + $('#tf-n').value, conteudo:$('#tf-c').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}]);
 }
 async function carregarTerraform(){
   const t = await get('/api/terraform');
-  const tf = (p, a, rot, cls) => `<button class="b peq ${cls||''}" onclick='${a === 'destroy' ? 'if(confirm("Destruir tudo o que este projeto criou?")) ' : ''}executar({ferramenta:"terraform",acao:"${a}",pasta:${A(p.pasta)}},this)'>${rot}</button>`;
-  $('#terraform').innerHTML = t.projetos.length ? `<div class="grade" style="grid-template-columns:repeat(auto-fill,minmax(380px,1fr))">${t.projetos.map(p => `<div class="item">
-    <div class="cab"><b>${esc(p.nome)}</b>${p.iniciado ? etq('ok','iniciado') : etq('aviso','precisa de init')}${etq('azul', p.recursos.length + ' recurso(s)')}</div>
-    <div class="sub mono">${esc(p.pasta)}</div>
-    <div class="chips">${p.arquivos.map(a => `<button class="b peq" onclick='editarArquivo(${A(p.pasta + "/" + a)})'>✎ ${esc(a)}</button>`).join('')}</div>
-    ${p.recursos.length ? `<div class="sub">Criados: <span class="mono">${p.recursos.map(esc).join(', ')}</span></div>` : ''}
-    <div class="linha">${tf(p,'init','1 Init')}${tf(p,'validate','2 Validate')}${tf(p,'plan','3 Plan')}${tf(p,'apply','4 ▶ Apply','pri')}${tf(p,'output','Output')}${tf(p,'show','Ver estado')}${tf(p,'fmt','Formatar')}${tf(p,'destroy','Destroy','perigo')}
-      <button class="b peq" onclick='novoArquivoTf(${A(p.pasta)})'>+ Arquivo .tf</button><button class="b peq" onclick='abrir("vscode",${A(p.pasta)})'>VS Code</button></div></div>`).join('')}</div>`
-    : vazio('Nenhum projeto Terraform ainda', 'O modelo "Variáveis e saídas" funciona até sem internet.', '<button class="b pri" onclick="novoTerraform()">+ Novo projeto</button>');
+  const tf = (p, a) => `executar({ferramenta:"terraform",acao:"${a}",pasta:${J(p.pasta)}},this)`;
+  $('#terraform').innerHTML = t.projetos.length ? tabela(['Projeto', 'Situação', 'Recursos criados', 'Passos', ''], t.projetos.map(p => `<tr>
+    <td><div class="nome">${esc(p.nome)}</div><div class="sub mono">${esc(curto(p.pasta))}</div></td>
+    <td>${p.iniciado ? st('ok', 'Iniciado') : st('aviso', 'Precisa de init')}</td>
+    <td>${p.recursos.length ? `<span class="mono sub">${p.recursos.map(esc).join(', ')}</span>` : '<span class="fraco">nenhum</span>'}</td>
+    <td><span class="grupo-b"><button class="b peq" onclick="${esc(tf(p, 'init'))}">1. Init</button><button class="b peq" onclick="${esc(tf(p, 'validate'))}">2. Validate</button><button class="b peq" onclick="${esc(tf(p, 'plan'))}">3. Plan</button><button class="b peq pri" onclick="${esc(tf(p, 'apply'))}">4. Apply</button></span></td>
+    <td class="acoes">${M([{t:'Ver saídas (output)', i:'logs', js:tf(p, 'output')}, {t:'Ver estado (show)', i:'info', js:tf(p, 'show')}, {t:'Formatar arquivos (fmt)', i:'editar', js:tf(p, 'fmt')}, '-',
+      ...p.arquivos.map(a => ({t:'Editar ' + a, i:'editar', js:`editarArquivo(${J(p.pasta + '/' + a)})`})), {t:'Novo arquivo .tf', i:'novo', js:`novoArquivoTf(${J(p.pasta)})`}, {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${J(p.pasta)})`}, '-',
+      {t:'Destroy (apagar o que foi criado)', i:'lixo', p:1, js:'if(confirm("Destruir tudo o que este projeto criou?")) ' + tf(p, 'destroy')}])}</td></tr>`))
+    : vazio('Nenhum projeto Terraform ainda', 'O modelo Variáveis e saídas funciona até sem internet.', BT('Novo projeto', 'novoTerraform()', {pri:1, icone:'novo'}));
 }
 
 /* ================= PYTHON ================= */
@@ -935,7 +1214,7 @@ const MODELOS_PY = [
   {nome:'Testes com pytest', desc:'Função + teste', valores:{nome:'testes-python', arquivo:'test_calc.py', conteudo:`def somar(a, b):\n    return a + b\n\n\ndef test_somar():\n    assert somar(2, 3) == 5\n\n\nif __name__ == "__main__":\n    import pytest\n    raise SystemExit(pytest.main(["-v", __file__]))\n`, req:'pytest\n'}},
 ];
 function novoPython(){
-  assistente('Novo projeto Python', MODELOS_PY, [{id:'nome', rot:'Nome da pasta (em ~/projetos)'}, {id:'arquivo', rot:'Arquivo principal'}, {id:'req', rot:'requirements.txt (pacotes, um por linha)', tipo:'area', alt:60}, {id:'conteudo', rot:'Código', tipo:'area', alt:230}, {id:'venv', rot:'Criar ambiente .venv e instalar os pacotes', tipo:'check', padrao:true}],
+  assistente('Novo projeto Python', MODELOS_PY, [{id:'nome', rot:'Nome da pasta (em ~/projetos)'}, {id:'arquivo', rot:'Arquivo principal'}, {id:'req', rot:'requirements.txt (pacotes, um por linha)', tipo:'area', alt:60}, {id:'conteudo', rot:'Código', tipo:'area', alt:230}, {id:'venv', rot:'Criar o ambiente .venv e instalar os pacotes', tipo:'check', padrao:true}],
   async (v, m, b) => {
     try{
       const arqs = {[v.arquivo]: v.conteudo, '.gitignore': GITIGNORE.Python}; if(v.req.trim()) arqs['requirements.txt'] = v.req;
@@ -950,55 +1229,60 @@ async function prepararPython(pasta, comPacotes){
 }
 async function carregarPython(){
   const p = await get('/api/python');
-  $('#python').innerHTML = `<div class="sub" style="margin-bottom:12px">${esc(p.versao)}</div>` + (p.projetos.length ? `<div class="grade" style="grid-template-columns:repeat(auto-fill,minmax(360px,1fr))">${p.projetos.map(x => `<div class="item">
-    <div class="cab"><b>${esc(x.nome)}</b>${x.venv ? etq('ok','.venv pronto') : etq('aviso','sem .venv')}${x.requirements ? etq('azul','requirements.txt') : ''}</div>
-    <div class="sub mono">${esc(x.pasta)}</div>
-    <div class="chips">${x.scripts.map(s => `<span style="display:inline-flex;gap:2px"><button class="b peq pri" onclick='executar({ferramenta:"python",acao:"rodar",pasta:${A(x.pasta)},script:${A(x.pasta + "/" + s)}},this)'>▶ ${esc(s)}</button><button class="b peq" title="editar" onclick='editarArquivo(${A(x.pasta + "/" + s)})'>✎</button></span>`).join('')}</div>
-    <div class="linha">${x.venv ? `<button class="b peq" onclick='pipInstalar(${A(x.pasta)},${x.requirements})'>📦 Instalar pacote</button><button class="b peq" onclick='executar({ferramenta:"python",acao:"piplist",pasta:${A(x.pasta)}},this)'>Pacotes instalados</button><button class="b peq" onclick='executar({ferramenta:"python",acao:"freeze",pasta:${A(x.pasta)}},this)'>Salvar requirements</button>` : ''}
-        ${x.scripts.some(s => s.startsWith('test_') || s.endsWith('_test.py')) ? `<button class="b peq" onclick='executar({ferramenta:"python",acao:"pytest",pasta:${A(x.pasta)}},this)'>🧪 Rodar testes</button>` : ''}
-        ${x.venv ? '' : `<button class="b peq" onclick='executar({ferramenta:"python",acao:"venv",pasta:${A(x.pasta)}},this)'>Criar .venv</button>`}
-        <button class="b peq" onclick='novoArquivoPy(${A(x.pasta)})'>+ Arquivo</button>
-      <button class="b peq" onclick='abrir("vscode",${A(x.pasta)})'>VS Code</button><button class="b peq" onclick='abrir("terminal",${A(x.pasta)})'>Terminal</button></div></div>`).join('')}</div>`
-    : vazio('Nenhum projeto Python ainda', 'Crie um com ambiente virtual e pacotes já instalados.', '<button class="b pri" onclick="novoPython()">+ Novo projeto</button>'));
+  $('#python').innerHTML = `<p class="sub" style="margin:0 0 12px">${esc(p.versao)}</p>` + (p.projetos.length ? tabela(['Projeto', 'Ambiente', 'Scripts (clique para rodar)', ''], p.projetos.map(x => { const pa = J(x.pasta); return `<tr>
+    <td><div class="nome">${esc(x.nome)}</div><div class="sub mono">${esc(curto(x.pasta))}</div></td>
+    <td>${x.venv ? st('ok', '.venv pronto') : st('aviso', 'Sem .venv')}${x.requirements ? '<div class="sub">requirements.txt</div>' : ''}</td>
+    <td><div class="chips">${x.scripts.map(s => BT(s, `executar({ferramenta:"python",acao:"rodar",pasta:${pa},script:${J(x.pasta + '/' + s)}},this)`, {icone:'play', titulo:'Rodar ' + s})).join('') || '<span class="fraco">nenhum .py</span>'}</div></td>
+    <td class="acoes">${x.venv ? BT('Instalar pacote', `pipInstalar(${pa},${x.requirements})`, {icone:'baixar'}) : BT('Criar .venv', `executar({ferramenta:"python",acao:"venv",pasta:${pa}},this)`, {pri:1})}${M([
+      x.scripts.some(s => s.startsWith('test_') || s.endsWith('_test.py')) && {t:'Rodar os testes (pytest)', i:'ok', js:`executar({ferramenta:"python",acao:"pytest",pasta:${pa}},this)`},
+      x.venv && {t:'Pacotes instalados', i:'logs', js:`executar({ferramenta:"python",acao:"piplist",pasta:${pa}},this)`},
+      x.venv && {t:'Salvar requirements.txt', i:'ok', js:`executar({ferramenta:"python",acao:"freeze",pasta:${pa}},this)`}, '-',
+      ...x.scripts.map(s => ({t:'Editar ' + s, i:'editar', js:`editarArquivo(${J(x.pasta + '/' + s)})`})), {t:'Novo arquivo .py', i:'novo', js:`novoArquivoPy(${pa})`},
+      {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${pa})`}, {t:'Abrir terminal aqui', i:'terminal', js:`abrir("terminal",${pa})`}])}</td></tr>`; }))
+    : vazio('Nenhum projeto Python ainda', 'Crie um com o ambiente virtual e os pacotes já instalados.', BT('Novo projeto', 'novoPython()', {pri:1, icone:'novo'})));
 }
 function novoArquivoPy(pasta){
   const n = prompt('Nome do novo arquivo .py:', 'novo.py'); if(!n) return;
   post('/api/arquivo', {acao:'salvar', caminho:pasta + '/' + n, conteudo:'print("Ola!")\n'}).then(t => { toast(t); editarArquivo(pasta + '/' + n); }).catch(e => toast(e.message, true));
 }
 function pipInstalar(pasta, temReq){
-  abrirModal('Instalar pacote Python', pasta, `<div class="modelos">${['requests','flask','pytest','pandas','fastapi uvicorn'].map(n => `<button class="modelo" onclick='$("#pip-p").value=${A(n)}'><b class="mono">${esc(n)}</b></button>`).join('')}</div>
-    <label class="campo" style="margin-top:12px">Pacotes (separados por espaço)${temReq ? ' — vazio instala o requirements.txt' : ''}<input id="pip-p" value="${temReq ? '' : 'requests'}"></label>`,
-    [{txt:'📦 Instalar', cls:'pri', fn: b => executar({ferramenta:'python', acao:'pip', pasta, pacotes:$('#pip-p').value}, b)}]);
+  abrirModal('Instalar pacote Python', curto(pasta), `<div class="grade-modelos">${['requests','flask','pytest','pandas','fastapi uvicorn'].map(n => `<button class="modelo" onclick='$("#pip-p").value=${A(n)}'><b class="mono">${esc(n)}</b></button>`).join('')}</div>
+    <label class="campo" style="margin-top:16px">Pacotes (separados por espaço)${temReq ? '. Vazio instala o requirements.txt' : ''}<input id="pip-p" value="${temReq ? '' : 'requests'}"></label>`,
+    [{txt:ico('baixar') + 'Instalar', cls:'pri', fn: b => executar({ferramenta:'python', acao:'pip', pasta, pacotes:$('#pip-p').value}, b)}]);
 }
 
 /* ================= ATIVIDADES ================= */
 async function carregarAtividades(){
   const t = await get('/api/tarefas');
-  $('#atividades').innerHTML = t.tarefas.length ? `<div class="cartao">${listaAtividades(t.tarefas)}</div>` : vazio('Nenhuma atividade ainda', 'Tudo o que você rodar pelo painel (compose, terraform, ansible, pip, git…) aparece aqui com a saída completa.', '');
+  $('#atividades').innerHTML = t.tarefas.length ? tabela(['Situação', 'Ferramenta', 'O que rodou', 'Duração', 'Quando'], t.tarefas.map(x => `<tr class="clic" onclick='abrirConsole(${A(x.id)},${A(x.titulo)})'>
+      <td>${x.fim ? (x.codigo === 0 ? st('ok', 'Concluído') : st('erro', 'Erro')) : st('aviso', 'Rodando', 1)}</td><td>${etq('', NOME_FERR[x.ferramenta] || x.ferramenta)}</td>
+      <td>${esc(x.titulo)}</td><td class="sub">${x.fim ? dur(x.duracao) : '—'}</td><td class="sub">${quando(x.inicio)}</td></tr>`))
+    : vazio('Nenhuma atividade ainda', 'Tudo o que você rodar pelo painel (Compose, Terraform, Ansible, pip, Git…) aparece aqui com a saída completa.', '');
 }
 
 /* ================= SISTEMA ================= */
 async function carregarSistema(){
   const [s, h] = await Promise.all([get('/api/sistema'), get('/api/historico')]); const usoMem = s.mem_total - s.mem_disponivel;
   const pm = Math.round(usoMem*100/s.mem_total), pd = Math.round(s.disco_usado*100/s.disco_total);
-  const serv = {docker:['Docker','liga sozinho quando usado','/api/docker'], jenkins:['Jenkins','usa ~500 MB de memória ligado','/api/jenkins']};
-  $('#sistema').innerHTML = `<div class="grade kpi">
-      <div class="cartao"><div class="rot">Memória</div><div class="num">${mb(usoMem)}</div><div class="det">de ${mb(s.mem_total)}</div><div class="barra ${pm > 85 ? 'alto' : ''}"><i style="width:${pm}%"></i></div></div>
-      <div class="cartao"><div class="rot">Disco</div><div class="num">${s.disco_usado} GB</div><div class="det">de ${s.disco_total} GB</div><div class="barra ${pd > 85 ? 'alto' : ''}"><i style="width:${pd}%"></i></div></div>
-      <div class="cartao"><div class="rot">Processador</div><div class="num">${h.cpu.length ? h.cpu[h.cpu.length-1] + '%' : '—'}</div><div class="det">${s.cpus} CPUs · carga ${s.carga[0]}</div></div>
-      <div class="cartao"><div class="rot">Swap</div><div class="num">${mb(s.swap_total - s.swap_livre)}</div><div class="det">de ${mb(s.swap_total)}</div></div></div>
-    <div class="grade dois" style="margin-top:14px">
-      <div class="cartao"><h3>Processador e memória (ao vivo)</h3><div id="g-sis2"></div><div class="legenda"><span><i style="background:var(--acento2)"></i>CPU %</span><span><i style="background:var(--acento)"></i>Memória</span></div></div>
-      <div class="cartao"><h3>Serviços</h3>${Object.entries(serv).map(([k, [n, d, api]]) => `<div class="chave"><div><span class="ponto ${s.servicos[k] === 'active' ? 'ok' : 'erro'}"></span> <b>${n}</b> <span class="sub">${s.servicos[k] === 'active' ? 'ligado' : 'desligado'} · ${d}</span></div>
-        ${s.servicos[k] === 'active' ? `<button class="b peq" onclick="acao('${api}',{acao:'desligar'},this)">■ Desligar</button>` : `<button class="b peq pri" onclick="acao('${api}',{acao:'ligar'},this)">▶ Ligar</button>`}</div>`).join('')}
-        ${[['NetworkManager','Rede'],['lightdm','Interface gráfica']].map(([k, n]) => `<div class="chave"><div><span class="ponto ${s.servicos[k] === 'active' ? 'ok' : 'erro'}"></span> <b>${n}</b> <span class="sub">${s.servicos[k] === 'active' ? 'ligado' : esc(s.servicos[k])}</span></div></div>`).join('')}</div></div>
+  const serv = {docker:['Docker','liga sozinho quando usado','/api/docker'], jenkins:['Jenkins','usa cerca de 500 MB de memória ligado','/api/jenkins']};
+  $('#sistema').innerHTML = `<div class="faixa">
+      <div><div class="r">Memória</div><div class="n">${mb(usoMem)}</div><div class="d">de ${mb(s.mem_total)}</div><div class="medidor ${pm > 85 ? 'alto' : ''}"><i style="width:${pm}%"></i></div></div>
+      <div><div class="r">Disco</div><div class="n">${s.disco_usado} GB</div><div class="d">de ${s.disco_total} GB</div><div class="medidor ${pd > 85 ? 'alto' : ''}"><i style="width:${pd}%"></i></div></div>
+      <div><div class="r">Processador</div><div class="n">${h.cpu.length ? h.cpu[h.cpu.length-1] + '%' : '—'}</div><div class="d">${s.cpus} CPUs, carga ${s.carga[0]}</div></div>
+      <div><div class="r">Memória comprimida e swap</div><div class="n">${mb(s.swap_total - s.swap_livre)}</div><div class="d">de ${mb(s.swap_total)}</div></div></div>
+    <div class="duas">
+      <div class="painel"><h3>Processador e memória</h3><div class="corpo-p"><div id="g-sis2"></div><div class="legenda"><span><i style="background:${COR.cpu}"></i>Processador</span><span><i style="background:${COR.mem}"></i>Memória</span></div></div></div>
+      <div class="painel"><h3>Serviços</h3>${tabela(['Serviço', 'Situação', ''], [...Object.entries(serv).map(([k, [n, d, api]]) => `<tr><td style="width:55%"><div class="nome">${n}</div><div class="sub">${d}</div></td>
+          <td>${s.servicos[k] === 'active' ? st('ok', 'Ligado') : st('', 'Desligado')}</td>
+          <td class="acoes">${s.servicos[k] === 'active' ? BT('Desligar', `acao(${J(api)},{acao:"desligar"},this)`, {icone:'parar'}) : BT('Ligar', `acao(${J(api)},{acao:"ligar"},this)`, {icone:'play', pri:1})}</td></tr>`),
+        ...[['NetworkManager','Rede'],['lightdm','Interface gráfica']].map(([k, n]) => `<tr><td class="nome">${n}</td><td>${s.servicos[k] === 'active' ? st('ok', 'Ligado') : st('erro', ({inactive:'Desligado', failed:'Com falha', activating:'Ligando'})[s.servicos[k]] || 'Indisponível')}</td><td></td></tr>`)]).replace('class="t"', 'class="t" style="border:0;border-radius:0"')}</div></div>
     <h2>Portas abertas <span class="sub">IP da VM: ${esc((s.ip||[]).join(', ') || '—')}</span></h2>
-    <div class="chips">${(s.portas||[]).map(p => `<span class="etq ${p.nome ? 'azul' : 'neutro'}" style="padding:6px 10px">:${p.porta} ${p.nome ? '· ' + esc(p.nome) : ''} ${[22,53,631].includes(p.porta) ? '' : `<a style="cursor:pointer;margin-left:4px" title="abrir no navegador" onclick="abrirUrl('http://localhost:${p.porta}')">🌐</a>`}</span>`).join('') || '<span class="sub">nenhuma</span>'}</div>
+    <div class="chips">${(s.portas||[]).map(p => [22,53,631].includes(p.porta) ? etq('', ':' + p.porta + (p.nome ? ' ' + p.nome : '')) : BT(':' + p.porta + (p.nome ? '  ' + p.nome : ''), `abrirUrl("http://localhost:${p.porta}")`, {icone:'abrir', titulo:'Abrir no navegador'})).join('') || '<span class="sub">nenhuma</span>'}</div>
     <h2>Programas que mais usam memória</h2>
-    <div class="cartao"><table><tr><th>Programa</th><th>Usuário</th><th>Memória</th><th>CPU</th><th>Tempo</th><th></th></tr>
-      ${s.processos.map(p => `<tr><td><b>${esc(p.nome)}</b> <span class="sub mono">${p.pid}</span></td><td>${esc(p.usuario)}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="barra" style="width:90px;margin:0"><i style="width:${Math.min(100, p.mem_mb*400/s.mem_total)}%"></i></div>${mb(p.mem_mb)}</div></td><td>${esc(p.cpu)}%</td><td class="mono">${esc(p.tempo)}</td>
-        <td style="text-align:right">${p.seu ? `<button class="b peq perigo" onclick='if(confirm("Encerrar "+${A(p.nome)}+"?")) acao("/api/sistema",{acao:"encerrar",pid:${p.pid}},this)'>Encerrar</button>` : ''}</td></tr>`).join('')}</table></div>`;
-  graficoLinha($('#g-sis2'), h.t, [{v:h.cpu, cor:'#2f9bd6'}, {v:h.mem, cor:'#2fc4b2'}], [100, s.mem_total]);
+    ${tabela(['Programa', 'Usuário', 'Memória', 'CPU', 'Tempo ligado', ''], s.processos.map(p => `<tr><td><span class="nome">${esc(p.nome)}</span> <span class="sub mono">${p.pid}</span></td><td>${esc(p.usuario)}</td>
+      <td><div style="display:flex;align-items:center;gap:10px"><div class="medidor" style="width:90px;margin:0"><i style="width:${Math.min(100, p.mem_mb*400/s.mem_total)}%"></i></div>${mb(p.mem_mb)}</div></td><td>${esc(p.cpu)}%</td><td class="mono sub">${esc(p.tempo)}</td>
+      <td class="acoes">${p.seu ? BT('Encerrar', `if(confirm("Encerrar " + ${J(p.nome)} + "?")) acao("/api/sistema",{acao:"encerrar",pid:${p.pid}},this)`, {perigo:1}) : ''}</td></tr>`))}`;
+  graficoLinha($('#g-sis2'), h.t, [{v:h.cpu, cor:COR.cpu}, {v:h.mem, cor:COR.mem}], [100, s.mem_total]);
 }
 
 /* ================= ciclo ================= */
@@ -1006,7 +1290,7 @@ const CARREGAR = {inicio:carregarInicio, docker:carregarDocker, jenkins:carregar
   ansible:carregarAnsible, terraform:carregarTerraform, python:carregarPython, atividades:carregarAtividades, sistema:carregarSistema};
 async function carregar(forcar){
   if(ocupado) return;
-  if(!forcar && ($('#modal').classList.contains('aberto') || ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))) return;
+  if(!forcar && ($('#modal').classList.contains('aberto') || $('#menu-pop') || ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))) return;
   ocupado = true;
   try{ await CARREGAR[ABA](); $('#atualizado').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR'); }
   catch(e){ $('#atualizado').textContent = 'Erro: ' + e.message; }
@@ -1014,7 +1298,9 @@ async function carregar(forcar){
 }
 let inicial = 'inicio'; try{ const a = localStorage.getItem('painel-aba'); if(a && CARREGAR[a]) inicial = a; }catch(e){}
 irPara(inicial);
+atualizarSaude();
 setInterval(() => carregar(), 5000);
+setInterval(atualizarSaude, 8000);
 </script>
 </body>
 </html>

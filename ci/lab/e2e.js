@@ -71,9 +71,9 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
   async function esperarConsole(timeout = 600000) {
     try {
       await page.waitForSelector('#c-estado', { timeout: 30000 });
-      await page.waitForFunction(() => /concluído|terminou com erro/.test(document.getElementById('c-estado')?.textContent || ''), null, { timeout });
+      await page.waitForFunction(() => /conclu[íi]do|terminou com erro/i.test(document.getElementById('c-estado')?.textContent || ''), null, { timeout });
       const estado = await page.textContent('#c-estado'); const saida = await page.textContent('#c-saida');
-      return { ok: estado.includes('concluído'), estado, saida };
+      return { ok: /conclu[íi]do/i.test(estado), estado, saida };
     } catch (e) { return { ok: false, estado: 'não terminou: ' + e.message, saida: (await page.textContent('#c-saida').catch(() => '')) || '' }; }
   }
   async function esperarBuild(timeout = 300000) {
@@ -161,7 +161,7 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
     await fechar();
     await usarModelo(() => novoItemJenkins(), 0, { nome: 'ola-jenkins', construir: false });
     const b = await esperarAviso(60000);
-    reg('Jenkins', 'criar de novo com o mesmo nome dá mensagem clara (não "500")', b.erro && !/respondeu 500|Ops!/.test(b.texto), b.texto);
+    reg('Jenkins', 'criar de novo com o mesmo nome dá mensagem clara', b.erro && /Já existe um item/.test(b.texto), b.texto);
     await fechar();
   });
   const modelosJk = await page.evaluate(() => TIPOS_JENKINS.map(m => ({ nome: m.nome, tipo: m.valores.tipo })));

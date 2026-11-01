@@ -17,6 +17,9 @@ gtk-update-icon-cache -f -q /usr/share/icons/hicolor || true
 python3 -m py_compile /usr/local/lib/devops-lab/painel/painel.py
 rm -rf /usr/local/lib/devops-lab/painel/__pycache__
 
+# O painel lê o log do Jenkins para explicar erros internos (grupo systemd-journal: só leitura de logs)
+usermod -aG systemd-journal "${LAB_USER}"
+
 # Ligar/desligar Jenkins e Docker pelo painel sem pedir senha (só esses dois serviços)
 install -D -m 0644 "$P/polkit-devops-lab.rules" /etc/polkit-1/rules.d/50-devops-lab.rules
 sed -i "s/subject.user == \"aluno\"/subject.user == \"${LAB_USER}\"/" /etc/polkit-1/rules.d/50-devops-lab.rules
