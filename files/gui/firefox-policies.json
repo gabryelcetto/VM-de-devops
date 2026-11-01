@@ -91,6 +91,46 @@
       "trailhead.firstrun.didSeeAboutWelcome": {
         "Value": true,
         "Status": "locked"
+      },
+      "dom.ipc.processCount": {
+        "Value": 4,
+        "Status": "default"
+      },
+      "browser.tabs.unloadOnLowMemory": {
+        "Value": true,
+        "Status": "default"
+      },
+      "browser.sessionstore.interval": {
+        "Value": 60000,
+        "Status": "default"
+      },
+      "browser.newtabpage.activity-stream.feeds.topsites": {
+        "Value": false,
+        "Status": "default"
+      },
+      "browser.newtabpage.activity-stream.feeds.section.topstories": {
+        "Value": false,
+        "Status": "default"
+      },
+      "browser.newtabpage.activity-stream.showSponsored": {
+        "Value": false,
+        "Status": "default"
+      },
+      "browser.newtabpage.activity-stream.showSponsoredTopSites": {
+        "Value": false,
+        "Status": "default"
+      },
+      "browser.ml.enable": {
+        "Value": false,
+        "Status": "default"
+      },
+      "browser.ml.chat.enabled": {
+        "Value": false,
+        "Status": "default"
+      },
+      "extensions.pocket.enabled": {
+        "Value": false,
+        "Status": "default"
       }
     }
   }

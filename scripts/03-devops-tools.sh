@@ -77,6 +77,13 @@ systemctl enable --now docker containerd
 systemctl restart docker
 usermod -aG docker "${LAB_USER}"
 
+# Imagens mais usadas na aula e nos modelos do Painel já vêm baixadas:
+# o primeiro "docker run" funciona na hora, mesmo com a internet da faculdade lenta
+for img in nginx:alpine python:3.12-slim alpine:latest hello-world:latest; do
+  for t in 1 2 3; do docker pull -q "$img" && break; echo "falhou baixar $img (tentativa $t)"; sleep 10; done
+done
+docker image ls
+
 # Atalho "docker-compose" (sintaxe antiga) -> "docker compose"
 cat > /usr/local/bin/docker-compose <<'EOF'
 #!/bin/sh

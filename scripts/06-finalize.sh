@@ -66,22 +66,57 @@ if [ ! -f /swap.img ]; then
   grep -q '^/swap.img' /etc/fstab || echo '/swap.img none swap sw 0 0' >> /etc/fstab
 fi
 
-# zram: swap comprimida na RAM (bem mais rápida que o arquivo de swap no disco).
-# Com VS Code + Docker + Jenkins + Firefox abertos em 4 GB, evita travadas por disco.
-# O /swap.img continua como reserva (prioridade menor).
-if modinfo zram >/dev/null 2>&1; then
-  apt-get -y -o DPkg::Lock::Timeout=900 -o APT::Install-Recommends=false install systemd-zram-generator
-  cat > /etc/systemd/zram-generator.conf <<'EOF'
-[zram0]
-zram-size = min(ram / 2, 2048)
-compression-algorithm = zstd
-swap-priority = 100
-EOF
-  # Com zram, trocar páginas pouco usadas para a RAM comprimida é barato
-  printf 'vm.swappiness = 100\nvm.page-cluster = 0\n' > /etc/sysctl.d/60-devops-lab-zram.conf
-else
-  echo "AVISO: módulo zram não existe neste kernel; mantendo só o /swap.img"
-fi
+# ---------------------------------------------------------------- memória comprimida (zswap)
+# O zram não existe neste kernel enxuto (o módulo fica no linux-modules-extra, removido).
+# O zswap já vem dentro do kernel: comprime na RAM as páginas que iriam para o /swap.img,
+# então VS Code + Firefox + Jenkins + containers cabem em 4 GB sem a VM travar no disco.
+cat > /usr/local/sbin/devops-lab-zswap <<'ZSWAP'
+#!/bin/sh
+# Liga o zswap com o melhor compressor disponível (lz4 > zstd > lzo)
+Z=/sys/module/zswap/parameters
+[ -d "$Z" ] || { echo "zswap não existe neste kernel"; exit 0; }
+for c in lz4 zstd lzo; do
+  modprobe -q "$c" 2>/dev/null || true
+  if echo "$c" > "$Z/compressor" 2>/dev/null; then break; fi
+done
+echo zsmalloc > "$Z/zpool" 2>/dev/null || true
+echo 25 > "$Z/max_pool_percent" 2>/dev/null || true
+echo Y > "$Z/shrinker_enabled" 2>/dev/null || true
+echo Y > "$Z/enabled"
+echo "zswap: enabled=$(cat $Z/enabled) compressor=$(cat $Z/compressor) zpool=$(cat $Z/zpool 2>/dev/null)"
+ZSWAP
+chmod 755 /usr/local/sbin/devops-lab-zswap
+cat > /etc/systemd/system/devops-lab-zswap.service <<'UNIT'
+[Unit]
+Description=Memória comprimida (zswap) para a VM não travar com pouca RAM
+DefaultDependencies=no
+Before=swap.target
+After=systemd-modules-load.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/devops-lab-zswap
+RemainAfterExit=yes
+
+[Install]
+WantedBy=swap.target
+UNIT
+systemctl enable devops-lab-zswap.service
+/usr/local/sbin/devops-lab-zswap || true
+printf 'vm.swappiness = 100\nvm.page-cluster = 0\n' > /etc/sysctl.d/60-devops-lab-memoria.conf
+
+# ---------------------------------------------------------------- earlyoom
+# Se a memória acabar de vez, fecha só o processo mais pesado (de preferência uma aba do
+# Firefox ou o VS Code, que reabrem) em vez de congelar a VM inteira por minutos.
+apt-get -y -o DPkg::Lock::Timeout=900 -o APT::Install-Recommends=false install earlyoom
+# (sem aspas e sem espaços nos padrões: o systemd separa os argumentos por espaço)
+cat > /etc/default/earlyoom <<'OOM'
+EARLYOOM_ARGS="-m 4 -s 10 -r 0 --prefer (^|/)(Isolated.Web.Co|Web.Content|WebExtensions|firefox|code)$ --avoid (^|/)(Xorg|xfwm4|xfce4-session|xfce4-panel|xfdesktop|lightdm|systemd|sshd|dockerd|containerd)$"
+OOM
+systemctl enable earlyoom.service
+# Jenkins fica no fim da fila para ser fechado
+install -d /etc/systemd/system/jenkins.service.d
+printf '[Service]\nOOMScoreAdjust=-300\n' > /etc/systemd/system/jenkins.service.d/50-oom.conf
 
 # cloud-init não é necessário depois da instalação (acelera o boot)
 touch /etc/cloud/cloud-init.disabled

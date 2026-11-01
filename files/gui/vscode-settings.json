@@ -16,5 +16,34 @@
   "files.autoSave": "afterDelay",
   "git.openRepositoryInParentFolders": "always",
   "git.confirmSync": false,
-  "window.titleBarStyle": "custom"
+  "window.titleBarStyle": "custom",
+  "chat.disableAIFeatures": true,
+  "workbench.enableExperiments": false,
+  "workbench.settings.enableNaturalLanguageSearch": false,
+  "extensions.autoCheckUpdates": false,
+  "npm.fetchOnlinePackageInfo": false,
+  "git.autofetch": false,
+  "python.analysis.indexing": false,
+  "ansible.validation.lint.enabled": false,
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/.venv/**": true,
+    "**/venv/**": true,
+    "**/__pycache__/**": true,
+    "**/.terraform/**": true,
+    "**/.pytest_cache/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.venv": true,
+    "**/venv": true,
+    "**/.terraform": true,
+    "**/__pycache__": true
+  },
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.pytest_cache": true
+  }
 }

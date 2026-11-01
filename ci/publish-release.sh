@@ -16,12 +16,73 @@ if [ -s compat/DevOps-Lab.ova ]; then
   (cd compat && sha256sum DevOps-Lab-compat-vbox6.ova > DevOps-Lab-compat-vbox6.ova.sha256)
   FILES+=(compat/DevOps-Lab-compat-vbox6.ova compat/DevOps-Lab-compat-vbox6.ova.sha256)
 fi
-NOTES="VM Ubuntu 24.04 + XFCE com VS Code, Docker, Docker Compose, Git, Ansible, Terraform, Python e Jenkins. Testada automaticamente no VirtualBox 7.2.
+# ---------------------------------------------------------------- notas automáticas
+# O que mudou (commits desde a última Release), resultado do teste e versões das ferramentas
+PREV="$(gh api "repos/$REPO/releases/latest" --jq .tag_name 2>/dev/null || true)"
+MUDOU=""
+if [ -n "$PREV" ]; then
+  MUDOU="$(gh api "repos/$REPO/compare/$PREV...$SHA" --jq '.commits[].commit.message | split("\n")[0]' 2>/dev/null \
+    | grep -vE '^(Merge |Resultados do teste)' | sed 's/^/- /' | tail -n 30 || true)"
+fi
+[ -n "$MUDOU" ] || MUDOU="- Atualização de rotina (pacotes e ferramentas na versão mais nova)"
 
-- DevOps-Lab.ova: use este (VirtualBox 7.x).
-- DevOps-Lab-compat-vbox6.ova: só se o VirtualBox for antigo (6.1) e o arquivo principal não importar.
+TESTE=""; VERSOES=""
+if git fetch -q --depth 1 origin test-results 2>/dev/null; then
+  RES="$(git show FETCH_HEAD:RESUMO.txt 2>/dev/null || true)"
+  VL="$(git show FETCH_HEAD:verificar-lab.txt 2>/dev/null | sed 's/\x1b\[[0-9;]*m//g' || true)"
+  if [ -n "$RES" ]; then
+    OKS="$(grep -c '^\[OK\]' <<<"$RES" || true)"
+    BOOT="$(grep -oE '= [0-9.]+s' <<<"$(grep '^Boot:' <<<"$RES")" | head -n1 | tr -d '= ' || true)"
+    MEM="$(awk '/^Memória:/ {print $4; exit}' <<<"$RES")"
+    MEMT="$(awk '/^Memória:/ {print $3; exit}' <<<"$RES")"
+    TESTE="- $OKS checagens automáticas no VirtualBox: $(grep '^RESULTADO' <<<"$RES" | sed 's/^RESULTADO: //' | tr 'A-Z' 'a-z')
+- Linux pronto em ${BOOT:-?} após ligar
+- Memória em uso com o Jenkins ligado: ${MEM:-?} MB de ${MEMT:-?} MB"
+  fi
+  if [ -n "$VL" ]; then
+    VERSOES="$(python3 - "$VL" <<'PY'
+import re, sys
+quero = ["Ubuntu", "VS Code", "Docker", "Docker Compose", "Git", "Ansible", "Terraform", "Python", "Jenkins", "Firefox"]
+achou = {}
+for linha in sys.argv[1].splitlines():
+    m = re.match(r"\[OK\]\s+(.{16})(.*)", linha)
+    if not m:
+        continue
+    nome, valor = m.group(1).strip(), m.group(2)
+    v = re.findall(r"\d+(?:\.\d+)+", valor)
+    if nome in quero and v:
+        achou[nome] = v[-1] if nome == "Jenkins" else v[0]
+print("\n".join(f"- {n}: {achou[n]}" for n in quero if n in achou))
+PY
+)"
+  fi
+fi
 
-Importar em: VirtualBox > Arquivo > Importar Appliance. Usuario: aluno / Senha: devops"
+NOTES="VM Ubuntu 24.04 + XFCE com VS Code, Docker, Docker Compose, Git, Ansible, Terraform, Python, Jenkins e Painel DevOps. Testada automaticamente no VirtualBox 7.2.
+
+## Como instalar
+1. Baixe **DevOps-Lab.ova** (abaixo).
+2. VirtualBox > Arquivo > Importar Appliance.
+3. Usuário: **aluno** / Senha: **devops**
+
+Se já tem uma versão anterior, remova a antiga antes (botão direito > Remover > Excluir todos os arquivos).
+Só use **DevOps-Lab-compat-vbox6.ova** se o seu VirtualBox for o antigo 6.1 e o arquivo principal não importar.
+
+## O que mudou
+$MUDOU"
+[ -n "$TESTE" ] && NOTES="$NOTES
+
+## Resultado do teste
+$TESTE"
+[ -n "$VERSOES" ] && NOTES="$NOTES
+
+## Versões das ferramentas
+$VERSOES"
+NOTES="$NOTES
+
+## Conferir o download (opcional)
+O arquivo .sha256 traz a soma de verificação. No Windows (PowerShell): \`Get-FileHash DevOps-Lab.ova\`"
+echo "$NOTES"
 
 # Reaproveita uma Release vazia (de tentativa anterior) ou cria uma nova
 TAG="$(gh release list -R "$REPO" --limit 20 --json tagName,isDraft --jq '.[].tagName' | head -n 1)"
@@ -43,11 +104,14 @@ done
 
 gh release edit "$TAG" -R "$REPO" --latest --notes "$NOTES" || true
 
-# Remove Releases antigas com o nome anterior do arquivo (sem "DevOps-Lab.ova"),
-# só depois que a nova já está publicada
-for t in $(gh release list -R "$REPO" --limit 50 --json tagName --jq '.[].tagName'); do
+# Mantém só as 3 Releases mais novas (a atual + 2 anteriores), só depois que a nova já está publicada
+MANTER=3
+n=0
+for t in $(gh api "repos/$REPO/releases?per_page=100" --jq 'sort_by(.created_at) | reverse | .[].tag_name'); do
+  n=$((n + 1))
   [ "$t" = "$TAG" ] && continue
-  if ! gh release view "$t" -R "$REPO" --json assets --jq '.assets[].name' | grep -qx 'DevOps-Lab.ova'; then
+  if [ "$n" -gt "$MANTER" ]; then
+    echo "Removendo Release antiga $t"
     gh release delete "$t" -R "$REPO" --cleanup-tag -y || true
   fi
 done

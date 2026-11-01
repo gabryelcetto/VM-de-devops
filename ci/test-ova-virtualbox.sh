@@ -119,6 +119,8 @@ chk  "Compositor leve ligado (janelas não deixam rastro ao arrastar)" "$XENV ec
 chk  "Atalhos confiáveis na Área de Trabalho" "D=\$(xdg-user-dir DESKTOP); ls \"\$D\"; n=0; for f in \"\$D\"/*.desktop; do $XENV gio info -a metadata::xfce-exe-checksum \"\$f\" | grep -q checksum && n=\$((n+1)); done; echo confiaveis=\$n" "confiaveis=5"
 chk  "Teclado ABNT2 na interface" "$XENV setxkbmap -query" "layout: +br"
 chk  "Integração com o VirtualBox (VBoxClient)" "pgrep -a VBoxClient" "VBoxClient"
+# (antes de qualquer teste baixar imagens: confere que vieram dentro do .ova)
+chk  "Imagens Docker já baixadas (nginx, python, alpine, hello-world)" "docker image inspect nginx:alpine python:3.12-slim alpine:latest hello-world:latest --format '{{.Id}}' | wc -l" "^4$"
 chk  "Firefox com página inicial e favoritos do Lab" "python3 -m json.tool /etc/firefox/policies/policies.json | grep -E 'inicio.html|localhost:8080'" "inicio.html"
 chk  "VS Code em português, sem chaveiro e sem aceleração de GPU" "cat ~/.vscode/argv.json" "pt-br"
 
@@ -165,6 +167,11 @@ chk "Identidade única (machine-id gerado)" "cat /etc/machine-id" "^[0-9a-f]{32}
 chk "Idioma pt-BR, teclado ABNT2, fuso de São Paulo" "echo LANG=\$LANG; cat /etc/default/keyboard; timedatectl show -p Timezone" "Sao_Paulo"
 chk "Sudo funciona com a senha devops" "echo devops | sudo -S -k -p '' whoami" "^root$"
 log "Swap: $(gsh "swapon --show=NAME,TYPE,SIZE,PRIO --noheadings" | tr '\n' ' ')"
+chk "Memória comprimida (zswap) ligada" "echo \$(cat /sys/module/zswap/parameters/enabled) \$(cat /sys/module/zswap/parameters/compressor) \$(cat /sys/module/zswap/parameters/zpool)" "^Y "
+log "zswap: $(gsh "echo \$(cat /sys/module/zswap/parameters/compressor) \$(cat /sys/module/zswap/parameters/zpool) max=\$(cat /sys/module/zswap/parameters/max_pool_percent)%")"
+chk "earlyoom protege contra travamento por falta de memória" "systemctl is-active earlyoom; ps -o args= -C earlyoom" "prefer"
+chk "Jenkins é o último a ser fechado se faltar memória" "cat /proc/\$(systemctl show -p MainPID --value jenkins)/oom_score_adj" "^-300$"
+chk "VS Code e Firefox com ajustes de desempenho" "echo vscode=\$(grep -c watcherExclude ~/.config/Code/User/settings.json) firefox=\$(grep -c processCount /etc/firefox/policies/policies.json)" "vscode=1 firefox=1"
 chk "Rede virtio (mais leve com Hyper-V)" "ls /sys/class/net/*/device/driver -l 2>/dev/null | grep -o 'virtio_net' | head -n 1" "virtio_net"
 nchk "Sem serviços desnecessários (rsyslog, sysstat, áudio, protetor de tela)" "systemctl is-active rsyslog sysstat 2>/dev/null | grep -x active; pgrep -l -u aluno -x 'pulseaudio|xscreensaver|light-locker'" "active|pulseaudio|xscreensaver|light-locker"
 chk "Boot silencioso (quiet)" "cat /proc/cmdline" "quiet"
