@@ -1,0 +1,12 @@
+// Jenkinsfile usado pelo laboratório de testes do Painel (Pipeline do Git, Multibranch)
+pipeline {
+  agent any
+  stages {
+    stage('Laboratorio') {
+      steps {
+        echo 'Jenkinsfile lido do repositorio'
+        sh 'git log -1 --oneline && ls ci/lab'
+      }
+    }
+  }
+}

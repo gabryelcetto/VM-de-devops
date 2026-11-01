@@ -1,0 +1,74 @@
+name: Laboratório do Painel (testes de ponta a ponta)
+
+# Monta uma cópia "sem tela" da VM num runner (Jenkins pelo mesmo script da VM, Docker,
+# Ansible, Terraform, Python e o Painel DevOps) e usa o Painel num navegador como o aluno,
+# clicando em todos os modelos e botões. Não gera .ova e não publica nada.
+# Resultados (relatório, prints e logs) ficam na branch lab-results.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [lab-painel]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: laboratorio-painel
+  cancel-in-progress: true
+
+jobs:
+  lab:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Montar a cópia da VM (Jenkins, Docker, Painel)
+        run: sudo bash ci/lab/preparar.sh
+
+      - name: Instalar o navegador de teste (Playwright)
+        working-directory: ci/lab
+        run: |
+          npm install --no-audit --no-fund playwright
+          npx playwright install --with-deps chromium
+          ssh-keygen -q -t ed25519 -N '' -C lab -f /tmp/lab-chave
+
+      - name: Usar o Painel como o aluno
+        working-directory: ci/lab
+        timeout-minutes: 70
+        env:
+          LAB_REPO: https://github.com/${{ github.repository }}.git
+          LAB_BRANCH: ${{ github.ref_name }}
+        run: node e2e.js "$GITHUB_WORKSPACE/resultado"
+
+      - name: Juntar logs
+        if: always()
+        run: |
+          mkdir -p resultado
+          sudo journalctl -u jenkins --no-pager | tail -n 3000 > resultado/jenkins.log || true
+          sudo cp /tmp/painel.log resultado/painel.log 2>/dev/null || true
+          docker ps -a > resultado/docker-ps.txt 2>&1 || true
+          free -m > resultado/memoria.txt; df -h / >> resultado/memoria.txt
+          sudo chown -R "$USER" resultado
+
+      - name: Guardar na branch lab-results
+        if: always()
+        run: |
+          cp -r resultado /tmp/resultado
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git checkout --orphan lab-results-tmp
+          git rm -rfq . || true
+          rm -rf ./*
+          cp -r /tmp/resultado/. .
+          git add -A
+          git commit -qm "Laboratório do Painel (run ${{ github.run_id }}, ${{ github.sha }})"
+          git push -f origin HEAD:lab-results
+
+      - name: Resumo
+        if: always()
+        run: |
+          head -n 3 /tmp/resultado/RELATORIO.txt || true
+          msg=$(grep -E '^\[FALHA\]' /tmp/resultado/RELATORIO.txt | head -n 80 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+          [ -n "$msg" ] && echo "::warning title=falhas no laboratório::${msg}" || echo "Nenhuma falha."
