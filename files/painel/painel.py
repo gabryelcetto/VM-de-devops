@@ -1010,7 +1010,12 @@ def acao_git(d):
         b = d.get("branch", "").strip()
         if not BRANCH_OK.match(b):
             raise Erro("Branch inválida.")
-        return ok_ou_erro(rodar(g + ["branch", "-D" if d.get("forcar") else "-d", b]))
+        cod, txt = rodar(g + ["branch", "-D" if d.get("forcar") else "-d", b])
+        if cod != 0 and "not fully merged" in txt:
+            raise Erro(f"NAO_JUNTADA: A branch {b} tem commits que não foram juntados (merge) em outra branch. "
+                       "Se apagar, esses commits se perdem.")
+        ok_ou_erro((cod, txt))
+        return f"Branch {b} apagada."
     if acao == "tag":
         t, msg = d.get("tag", "").strip(), d.get("mensagem", "").strip() or "versão"
         if not re.fullmatch(r"[\w.\-]{1,60}", t):

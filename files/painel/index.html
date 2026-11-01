@@ -900,7 +900,7 @@ async function carregarJenkins(){
 }
 function htmlJobs(j){
   if(!j.jobs.length) return vazio('Nada no Jenkins ainda', 'Crie um Pipeline, Freestyle, Multibranch ou Pasta a partir de um modelo.', BT('Novo item', 'novoItemJenkins()', {pri:1, icone:'novo'}));
-  const ICONE = {Folder:'pasta', WorkflowMultiBranchProject:'branch', FreeStyleProject:'terminal'};
+  const ICONE = {Folder:'pasta', WorkflowMultiBranchProject:'branch', FreeStyleProject:'terminal', WorkflowJob:'codigo'};
   return `<div class="ferramentas">${busca('jenkins', 'Buscar item')}</div>` + tabela(['Nome', 'Tipo', 'Último build', 'Histórico', ''], j.jobs.map(x => {
     const n = J(x.nome), pad = `padding-left:${(x.nivel || 0) * 22}px`, abrirJ = {t:'Abrir no Jenkins', i:'abrir', js:`abrirUrl(${J(urlJob(x.nome))})`};
     const apagar = {t:'Apagar', i:'lixo', p:1, js:`if(confirm("Apagar " + ${n} + "${x.classe === 'Folder' ? ' e tudo dentro dela' : ''}?")) acao("/api/jenkins",{acao:"apagar",job:${n}},this)`};
@@ -1077,11 +1077,20 @@ function gitCommit(i){
 function gitBranch(i){
   const r = DADOS.git.repos[i], outras = r.branches.filter(b => b !== r.branch);
   abrirModal('Branches de ' + r.nome, 'você está em: ' + r.branch, `<p class="sub" style="margin-top:0">Clique numa branch para trocar:</p>
-    <div class="chips">${r.branches.map(b => `<span style="display:inline-flex;gap:2px"><button class="b ${b === r.branch ? 'pri' : ''}" onclick='trocarBranch(${A(r.caminho)},${A(b)},this)'>${esc(b)}</button>${b !== r.branch ? `<button class="b icone perigo" title="Apagar a branch" onclick='if(confirm("Apagar a branch "+${A(b)}+"?")) post("/api/git",{acao:"apagar_branch",repo:${A(r.caminho)},branch:${A(b)}}).then(t=>{toast(t);fecharModal()}).catch(e=>toast(e.message,true))'>${ico('lixo')}</button>` : ''}</span>`).join('') || '<span class="sub">Faça o primeiro commit para criar a branch.</span>'}</div>
+    <div class="chips">${r.branches.map(b => `<span style="display:inline-flex;gap:2px"><button class="b ${b === r.branch ? 'pri' : ''}" onclick='trocarBranch(${A(r.caminho)},${A(b)},this)'>${esc(b)}</button>${b !== r.branch ? `<button class="b icone perigo" title="Apagar a branch" onclick='if(confirm("Apagar a branch "+${A(b)}+"?")) apagarBranch(${A(r.caminho)},${A(b)})'>${ico('lixo')}</button>` : ''}</span>`).join('') || '<span class="sub">Faça o primeiro commit para criar a branch.</span>'}</div>
     <div class="campos" style="margin-top:18px"><label class="campo">Criar nova branch<input id="nova-branch" placeholder="feature/minha-tarefa"></label>
     ${outras.length ? `<label class="campo">Trazer as mudanças de outra branch para "${esc(r.branch)}" (merge)<select id="merge-de">${outras.map(b => `<option>${esc(b)}</option>`).join('')}</select></label>` : ''}</div>`,
     [...(outras.length ? [{txt:'Fazer merge', fn: async b => { try{ toast(await post('/api/git', {acao:'merge', repo:r.caminho, branch:$('#merge-de').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}] : []),
      {txt:ico('novo') + 'Criar e trocar', cls:'pri', fn: b => trocarBranch(r.caminho, $('#nova-branch').value, b)}]);
+}
+async function apagarBranch(repo, branch){
+  try{ toast(await post('/api/git', {acao:'apagar_branch', repo, branch})); fecharModal(); }
+  catch(e){
+    if(!e.message.startsWith('NAO_JUNTADA: ')) return toast(e.message, true);
+    if(confirm(e.message.slice(13) + '\n\nApagar mesmo assim?')){
+      try{ toast(await post('/api/git', {acao:'apagar_branch', repo, branch, forcar:true})); fecharModal(); }catch(x){ toast(x.message, true); }
+    }
+  }
 }
 async function trocarBranch(repo, branch, b){ try{ toast(await post('/api/git', {acao:'checkout', repo, branch}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }
 async function gitMais(i){

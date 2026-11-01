@@ -139,7 +139,8 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
     ['desfazer último commit', { acao: 'desfazer_commit', repo: R }, true],
     ['stash', { acao: 'stash', repo: R }, true],
     ['stash pop', { acao: 'stash_pop', repo: R }, true],
-    ['apagar branch', { acao: 'apagar_branch', repo: R, branch: 'feature/teste' }, true],
+    ['apagar branch não juntada: avisa antes', { acao: 'apagar_branch', repo: R, branch: 'feature/teste' }, false],
+    ['apagar branch (forçado, depois do aviso)', { acao: 'apagar_branch', repo: R, branch: 'feature/teste', forcar: true }, true],
   ]) {
     await passo('Git', nome, async () => {
       if (!d) {
