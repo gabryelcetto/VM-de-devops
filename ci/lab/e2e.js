@@ -151,6 +151,13 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
       const r = await api('/api/git', d); reg('Git', nome, r.ok === ok, typeof r.r === 'string' ? r.r : JSON.stringify(r.r));
     });
   }
+  await passo('QA', 'push sem commit', async () => {
+    await usarModelo(() => novoRepo(), 3, { nome: 'qa-vazio', vscode: false, remoto: 'https://github.com/gabryelcetto/nao-existe-qa.git' });
+    await esperarAviso(20000); await fechar();
+    await page.evaluate(() => executar({ ferramenta: 'git', acao: 'push', repo: '/home/aluno/projetos/qa-vazio' }));
+    const c = await esperarConsole(120000);
+    reg('QA', 'Push sem nenhum commit explica o que fazer', !c.ok && /Dica: Ainda não existe nenhum commit/.test(c.saida), fim(c.saida)); await fechar();
+  });
   await aba('git'); await print('git-depois');
 
   // ------------------------------------------------------------------ 3. Jenkins
@@ -172,7 +179,7 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
     await passo('Jenkins', m.nome, async () => {
       const nome = 'lab-' + i;
       const campos = { nome };
-      if (['pipeline_scm', 'freestyle', 'multibranch'].includes(m.tipo) && /Git|Multibranch/.test(m.nome)) Object.assign(campos, { repo: REPO, branch: BRANCH, jenkinsfile: 'ci/lab/Jenkinsfile' });
+      if (['pipeline_scm', 'freestyle', 'multibranch'].includes(m.tipo) && /Git|Multibranch/.test(m.nome)) Object.assign(campos, { repo: REPO, branch: BRANCH, jenkinsfile: 'exemplos/Jenkinsfile' });
       await usarModelo(() => novoItemJenkins(), i, campos);
       const a = await esperarAviso(90000);
       reg('Jenkins', `criar "${m.nome}"`, !a.erro, a.texto);
@@ -194,6 +201,49 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
     const c = (d.containers || []).find(x => x.nome === 'site-jenkins');
     reg('Jenkins', 'container criado pelo "Pipeline: Docker" continua ligado e aparece no Docker', c && c.estado === 'running' && c.origem === 'jenkins', c ? `${c.estado} origem=${c.origem} limite=${c.limite_memoria}` : 'não apareceu');
     reg('Jenkins', 'limite de 1 GB aplicado ao container do pipeline', c && c.limite_memoria === 1073741824, c ? String(c.limite_memoria) : '');
+  });
+  await passo('QA', 'endereço de exemplo falso', async () => {
+    await usarModelo(() => novoItemJenkins(), 5, { nome: 'qa-falso', repo: 'https://github.com/usuario/repositorio.git', construir: false });
+    const a = await esperarAviso(30000); reg('QA', 'Jenkins recusa o endereço de exemplo usuario/repositorio com explicação', a.erro && /Troque o endereço/.test(a.texto), a.texto); await fechar();
+  });
+  await passo('QA', 'modelos do Git vêm com exemplo real', async () => {
+    const r = await page.evaluate(() => TIPOS_JENKINS.filter(m => m.valores.repo).map(m => m.valores.repo));
+    reg('QA', 'nenhum modelo do Jenkins vem com repositório falso', r.length > 0 && r.every(u => !/usuario\/repositorio/.test(u)), r.join(' '));
+  });
+  await passo('QA', 'cópia constrói', async () => {
+    await api('/api/jenkins', { acao: 'copiar', job: 'lab-0', novo: 'lab-0-qa-copia' });
+    const c = await api('/api/jenkins', { acao: 'construir', job: 'lab-0-qa-copia' });
+    let ok = false, txt = '';
+    for (let i = 0; i < 40 && !ok; i++) { await dormir(3000); const k = await api('/api/jenkins', { acao: 'console', job: 'lab-0-qa-copia' }); txt = k.r || ''; ok = /Finished: SUCCESS/.test(txt); }
+    reg('QA', 'job copiado constrói de verdade (não fica preso esperando salvar)', ok, (c.r || '') + ' ' + fim(txt));
+    await api('/api/jenkins', { acao: 'apagar', job: 'lab-0-qa-copia' });
+  });
+  await passo('QA', 'parâmetros', async () => {
+    const p = await api('/api/jenkins', { acao: 'parametros', job: 'lab-4' });
+    reg('QA', 'Painel lê os parâmetros do job', p.ok && (p.r.parametros || []).length === 2, JSON.stringify(p.r).slice(0, 200));
+    await api('/api/jenkins', { acao: 'construir', job: 'lab-4', parametros: { NOME: 'qa', AMBIENTE: 'producao' } });
+    let txt = '';
+    for (let i = 0; i < 40; i++) { await dormir(3000); const k = await api('/api/jenkins', { acao: 'console', job: 'lab-4' }); txt = k.r || ''; if (/Ola, qa! Publicando em producao/.test(txt) && /Finished/.test(txt)) break; }
+    reg('QA', 'build com os valores escolhidos (NOME=qa, AMBIENTE=producao)', /Ola, qa! Publicando em producao/.test(txt), fim(txt));
+  });
+  await passo('QA', 'tela de parâmetros', async () => {
+    await aba('jenkins'); await limparAvisos();
+    await page.evaluate(() => jkConstruir('lab-4'));
+    await page.waitForSelector('#modal [data-p="AMBIENTE"]', { timeout: 20000 });
+    reg('QA', 'Construir num job com parâmetros abre a tela para escolher os valores', true, '');
+    await print('qa-parametros'); await fechar();
+  });
+  await passo('QA', 'compose do Jenkins na aba Compose', async () => {
+    const d = await apiGet('/api/docker');
+    const p = (d.projetos || []).find(x => x.nome === 'site-jenkins');
+    reg('QA', 'projeto Compose criado pelo Jenkins aparece', !!p, JSON.stringify(p || {}));
+    await page.evaluate(() => { SUB.docker = 'compose'; }); await aba('docker'); await page.waitForTimeout(1500); await print('qa-compose-jenkins');
+    const temEtq = await page.evaluate(() => document.querySelector('#docker')?.textContent.includes('Criado pelo Jenkins'));
+    reg('QA', 'aba Compose marca o projeto como "Criado pelo Jenkins"', temEtq, '');
+    const r = await api('/api/executar', { ferramenta: 'docker', acao: 'compose_down_projeto', projeto: 'site-jenkins' });
+    const t = r.ok ? await page.evaluate(id => new Promise(res => { const v = async () => { const x = await get('/api/tarefa?id=' + id); if (x.fim) return res(x); setTimeout(v, 800); }; v(); }), r.r.tarefa) : null;
+    reg('QA', 'Derrubar o projeto do Jenkins pelo Painel funciona', t && t.codigo === 0, t ? t.linhas.join(' ').slice(-300) : r.r);
+    await page.evaluate(() => { SUB.docker = 'containers'; });
   });
   // credenciais (4 modelos)
   const chaveOutra = fs.existsSync('/tmp/lab-chave') ? fs.readFileSync('/tmp/lab-chave', 'utf8') : '';
@@ -273,6 +323,32 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
       const c = await esperarConsole(600000); reg('Docker', `construir imagem (modelo ${i})`, c.ok, c.estado + ' ' + fim(c.saida)); await fechar();
     });
   }
+  await passo('QA', 'container de imagem própria', async () => {
+    const sug = await api('/api/docker', { acao: 'sugestao', imagem: 'lab-imagem-0' });
+    reg('QA', 'criar container de uma imagem com site já sugere porta e nome', sug.ok && /^81\d\d:80$/.test(sug.r.portas || ''), JSON.stringify(sug.r));
+    await limparAvisos(); await page.evaluate(() => novoContainer('lab-imagem-0')); await page.waitForTimeout(1500);
+    const portas = await page.inputValue('#a-portas'); await page.click('#m-rod button.pri');
+    const a = await esperarAviso(120000); reg('QA', 'container da imagem própria sobe', !a.erro, a.texto); await fechar(); await dormir(2000);
+    const ok = await page.evaluate(async p => { try { await fetch('http://localhost:' + p, { mode: 'no-cors' }); return 'ok'; } catch (e) { return e.message; } }, portas.split(':')[0]);
+    reg('QA', 'site da imagem própria abre na porta sugerida (' + portas + ')', ok === 'ok', ok);
+  });
+  await passo('QA', 'script de uma vez só', async () => {
+    await limparAvisos(); await page.evaluate(() => novoContainer('lab-imagem-1')); await page.waitForTimeout(1500); await page.click('#m-rod button.pri');
+    const a = await esperarAviso(120000);
+    reg('QA', 'imagem de script que termina com sucesso não aparece como erro', !a.erro && /terminou com sucesso/.test(a.texto), a.texto);
+    await fechar();
+  });
+  await passo('QA', 'nome repetido no Docker', async () => {
+    await api('/api/docker', { acao: 'run', imagem: 'nginx:alpine', nome: 'qa-dup', memoria: '128m' });
+    const r = await api('/api/docker', { acao: 'run', imagem: 'nginx:alpine', nome: 'qa-dup', memoria: '128m' });
+    reg('QA', 'container com nome repetido dá mensagem clara', !r.ok && /Já existe um container chamado qa-dup/.test(r.r), r.r);
+    await api('/api/docker', { acao: 'rm', container: 'qa-dup' });
+  });
+  await passo('QA', 'portas dos modelos', async () => {
+    const usadas = await page.evaluate(() => [...MODELOS_CONTAINER.map(m => (m.valores.portas || '').split(':')[0]), ...MODELOS_COMPOSE.flatMap(m => [...m.valores.conteudo.matchAll(/"(\d+):\d+"/g)].map(x => x[1])), '8080', '8087', '8088', '8090'].filter(Boolean));
+    const rep = usadas.filter((p, i) => usadas.indexOf(p) !== i);
+    reg('QA', 'modelos de container/Compose/Jenkins não usam a mesma porta', !rep.length, 'repetidas: ' + rep.join(','));
+  });
   await passo('Docker', 'baixar imagem', async () => {
     await limparAvisos(); await page.evaluate(() => baixarImagem()); await page.fill('#bx-img', 'alpine:latest'); await page.click('#m-rod button.pri');
     const c = await esperarConsole(300000); reg('Docker', 'baixar imagem', c.ok, c.estado); await fechar();
@@ -343,6 +419,18 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
 
   // ------------------------------------------------------------------ 8. abas de novo, com tudo criado
   for (const a of ['inicio', 'vscode', 'atividades', 'sistema']) { await aba(a); await page.waitForTimeout(1500); const at = await page.textContent('#atualizado'); reg('Abas', `"${a}" com tudo criado`, !at.startsWith('Erro'), at); await print('final-' + a); }
+
+  await passo('QA', 'desligar e ligar o Docker', async () => {
+    const off = await api('/api/docker', { acao: 'desligar' });
+    await dormir(3000); const s1 = await apiGet('/api/saude-lab');
+    reg('QA', 'Desligar o Docker desliga de verdade', off.ok && s1.docker !== 'active', (off.r || '') + ' estado=' + s1.docker);
+    const on = await api('/api/docker', { acao: 'ligar' }); await dormir(3000); const s2 = await apiGet('/api/saude-lab');
+    reg('QA', 'Ligar o Docker de novo funciona', on.ok && s2.docker === 'active', (on.r || '') + ' estado=' + s2.docker);
+  });
+  await passo('QA', 'favorito e página inicial', async () => {
+    const pag = fs.existsSync('../../files/gui/inicio.html') ? fs.readFileSync('../../files/gui/inicio.html', 'utf8') : '';
+    reg('QA', 'página inicial do Lab tem o link do Painel DevOps', pag.includes('http://localhost:8090'), '');
+  });
 
   // ------------------------------------------------------------------ relatório
   const txt = [`Laboratório do Painel — ${new Date().toISOString()}`, `Repositório de teste: ${REPO} (${BRANCH})`, `OK: ${oks}   FALHAS: ${falhas}`, '', ...linhas].join('\n');

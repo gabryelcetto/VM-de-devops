@@ -38,6 +38,11 @@
         "Placement": "toolbar"
       },
       {
+        "Title": "Painel DevOps",
+        "URL": "http://localhost:8090",
+        "Placement": "toolbar"
+      },
+      {
         "Title": "Jenkins",
         "URL": "http://localhost:8080",
         "Placement": "toolbar"

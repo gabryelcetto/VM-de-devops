@@ -14,6 +14,7 @@ on:
       - "ci/test-ova-virtualbox.sh"
       - "ci/vm-tests/**"
       - "ci/lab/**"
+      - "exemplos/**"
       - ".github/workflows/laboratorio-painel.yml"
       - ".github/workflows/codespaces.yml"
       - "ci/diag-video.sh"

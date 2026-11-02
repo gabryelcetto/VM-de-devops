@@ -17,6 +17,17 @@ gtk-update-icon-cache -f -q /usr/share/icons/hicolor || true
 python3 -m py_compile /usr/local/lib/devops-lab/painel/painel.py
 rm -rf /usr/local/lib/devops-lab/painel/__pycache__
 
+# O servidor do Painel liga junto com a sessão (só ~25 MB): assim http://localhost:8090
+# funciona direto no Firefox (favorito "Painel DevOps"), sem precisar clicar no ícone antes
+cat > /etc/xdg/autostart/painel-devops-servidor.desktop <<'AUTO'
+[Desktop Entry]
+Type=Application
+Name=Painel DevOps (servidor)
+Exec=/usr/local/bin/painel-devops --servidor
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
+AUTO
+
 # O painel lê o log do Jenkins para explicar erros internos (grupo systemd-journal: só leitura de logs)
 usermod -aG systemd-journal "${LAB_USER}"
 

@@ -182,6 +182,8 @@ if [ "${CORES:-0}" -gt 100 ]; then ok "Tela final desenhada ($CORES cores)"; els
 
 # ---------------------------------------------------------------- Painel DevOps (painel visual único)
 chk  "Atalho do Painel DevOps na área de trabalho, no menu e no painel" "ls /usr/share/applications/painel-devops.desktop ~/.config/xfce4/panel/launcher-15; grep -c painel-devops ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml" "painel-devops.desktop"
+chk  "Painel DevOps já está no ar depois do login (favorito do Firefox funciona sem abrir o ícone)" "curl -s -H 'Host: localhost:8090' http://127.0.0.1:8090/saude" '"ok": true'
+chk  "Firefox tem o favorito do Painel DevOps" "grep -c 'localhost:8090' /etc/firefox/policies/policies.json" "^[1-9]"
 gsh "painel-devops --servidor" >> "$OUT/qa-detalhes.txt"
 PAPI="curl -s -H 'Host: localhost:8090' http://127.0.0.1:8090"
 PTOK="T=\$($PAPI/ | sed -n 's/.*name=\"painel-token\" content=\"\\([^\"]*\\)\".*/\\1/p');"

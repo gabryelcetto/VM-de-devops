@@ -95,6 +95,45 @@ def rodar(cmd, cwd=None, timeout=120, entrada=None, so_saida=False):
         return 124, "tempo esgotado"
 
 
+DICAS = [
+    (r"port is already allocated|address already in use", "A porta já está sendo usada por outro container ou programa. Pare ou apague quem usa a porta (aba Docker) ou escolha outra porta."),
+    (r'The container name "/?([\w.-]+)" is already in use', "Já existe um container chamado {0}. Apague o antigo na aba Docker ou escolha outro nome."),
+    (r"Permission denied \(publickey\)", "O GitHub recusou a chave SSH. Em Git > Acesso ao GitHub: gere a chave, copie, cadastre em github.com/settings/keys e clique em Testar conexão."),
+    (r"Host key verification failed", "O servidor Git não é conhecido. Para o GitHub isso já vem configurado; confira se o endereço está certo."),
+    (r"terminal prompts disabled|could not read Username|Authentication failed", "O GitHub pediu login. Guarde um token em Git > Acesso ao GitHub (endereços https) ou use a chave SSH (endereços git@github.com)."),
+    (r"Repository not found|repository '.*' not found|does not appear to be a git repository", "Repositório não encontrado. Confira o endereço; se ele for privado, configure o token ou a chave SSH."),
+    (r"\[rejected\].*\(fetch first\)|Updates were rejected because the remote contains work|\(non-fast-forward\)", "O GitHub tem commits que você ainda não tem. Faça Pull primeiro e depois Push de novo."),
+    (r"refusing to merge unrelated histories", "O repositório do GitHub foi criado com arquivos próprios (ex.: README) e não tem histórico em comum com o seu. Use ⋯ > Pull juntando históricos."),
+    (r"There is no tracking information for the current branch", "Esta branch ainda não foi enviada ao GitHub. Faça Push primeiro: ele liga a branch ao GitHub."),
+    (r"CONFLICT \(content\)|Automatic merge failed", "Conflito: o mesmo trecho foi mudado nos dois lados. Abra o projeto no VS Code, escolha o que fica em cada conflito, salve e faça Commit."),
+    (r"destination path '([^']+)' already exists", "Já existe a pasta {0} em ~/projetos. Apague ou renomeie a pasta antes de clonar de novo."),
+    (r"src refspec \S+ does not match any", "Ainda não existe nenhum commit para enviar. Faça um Commit antes do primeiro Push."),
+    (r"Please tell me who you are|empty ident name", "Configure seu nome e e-mail em Git > Acesso ao GitHub antes de fazer commits."),
+    (r"ModuleNotFoundError: No module named '([\w.]+)'", "Falta o pacote Python {0}. Na aba Python, use o botão Instalar pacote (ou ponha no requirements.txt)."),
+    (r"Failed to query available provider packages|could not connect to registry.terraform.io|failed to request discovery document", "O terraform init precisa de internet para baixar os providers. Confira a conexão da VM."),
+    (r"Cannot connect to the Docker daemon|permission denied while trying to connect to the Docker daemon", "O Docker está desligado ou sem permissão. Ligue o Docker na aba Sistema; se for no Jenkins, reinicie o Jenkins."),
+    (r"pull access denied|manifest unknown|repository does not exist or may require", "Imagem não encontrada no Docker Hub. Confira o nome e a tag (ex.: nginx:alpine)."),
+    (r"no space left on device", "Disco cheio. Use Docker > Volumes e redes > Limpar o que não está em uso."),
+    (r"(?:yaml|YAML).*line (\d+)|mapping values are not allowed|found character that cannot start any token", "Erro de formatação no YAML (perto da linha {0}). Use espaços para indentar, nunca tab, e confira os dois-pontos."),
+    (r"couldn't resolve module/action '([\w.]+)'", "O módulo {0} vem de uma coleção que não está instalada. Use Ansible > Coleções."),
+    (r"Couldn't find any revision to build|couldn't find remote ref", "A branch informada não existe no repositório. Confira o nome (main ou master)."),
+    (r"Unable to find (\S*Jenkinsfile)|Jenkinsfile not found", "O Jenkinsfile não foi encontrado nesse caminho do repositório. Confira o campo Caminho do Jenkinsfile."),
+    (r"script returned exit code 127|: not found$|command not found", "Algum comando do script não existe na máquina. Confira a digitação ou instale o programa."),
+]
+
+
+def dicas_para(texto):
+    """Dicas em português para erros conhecidos que aparecem em um texto de saída."""
+    vistas = []
+    for padrao, dica in DICAS:
+        m = re.search(padrao, texto or "", re.M)
+        if m:
+            d = dica.format(*[g or "" for g in m.groups()]) if m.groups() else dica
+            if d not in vistas:
+                vistas.append(d)
+    return vistas
+
+
 def ok_ou_erro(r):
     cod, txt = r
     if cod != 0:
@@ -220,8 +259,12 @@ def arquivos_compose():
 def acao_docker(d):
     acao = d.get("acao")
     if acao == "ligar":
-        ok_ou_erro(rodar(["systemctl", "start", "docker.service"], timeout=90))
+        ok_ou_erro(rodar(["systemctl", "start", "docker.socket", "docker.service"], timeout=90))
         return "Docker ligado."
+    if acao == "desligar":
+        # o socket também, senão o Docker liga de novo no próximo uso
+        ok_ou_erro(rodar(["systemctl", "stop", "docker.socket", "docker.service"], timeout=120))
+        return "Docker desligado. Ele liga sozinho de novo quando você usar o docker ou clicar em Ligar."
     if acao in ("start", "stop", "restart", "rm"):
         alvo = d.get("container", "")
         if not REF_OK.match(alvo):
@@ -235,6 +278,25 @@ def acao_docker(d):
         if not REF_OK.match(alvo):
             raise Erro("Container inválido.")
         return rodar(["docker", "logs", "--tail", "300", "--timestamps", alvo], timeout=30)[1] or "(sem logs)"
+    if acao == "sugestao":
+        img = d.get("imagem", "").strip()
+        if not REF_OK.match(img):
+            raise Erro("Imagem inválida.")
+        cod, txt = rodar(["docker", "image", "inspect", "-f", "{{json .Config.ExposedPorts}}", img], so_saida=True)
+        expostas = sorted(int(p.split("/")[0]) for p in (json.loads(txt or "null") or {}) if p.split("/")[0].isdigit()) if cod == 0 else []
+        usadas = {int(m) for m in re.findall(r":(\d+)->", rodar(["docker", "ps", "-a", "--format", "{{.Ports}}"], so_saida=True)[1])}
+        usadas |= {8080, 8090}
+        portas = []
+        livre = 8100
+        for p in expostas[:3]:
+            while livre in usadas:
+                livre += 1
+            portas.append(f"{livre}:{p}")
+            usadas.add(livre)
+        nome = re.sub(r"[^a-z0-9_.-]", "-", img.split("/")[-1].split(":")[0].lower()) + "-1"
+        while rodar(["docker", "inspect", nome])[0] == 0:
+            nome = re.sub(r"-(\d+)$", lambda m: f"-{int(m.group(1)) + 1}", nome)
+        return {"portas": ",".join(portas), "nome": nome}
     if acao == "terminal":
         alvo = d.get("container", "")
         if not REF_OK.match(alvo):
@@ -343,19 +405,20 @@ def acao_docker(d):
         if comando:
             import shlex
             cmd += shlex.split(comando)
-        saida = ok_ou_erro(rodar(cmd, timeout=900))
+        cod_run, saida = rodar(cmd, timeout=900)
+        if cod_run != 0:
+            raise Erro("\n".join(dicas_para(saida)) or saida)
         achado = re.findall(r"\b[0-9a-f]{64}\b", saida)  # o id (a saída também pode ter o download da imagem)
         cid = achado[-1][:12] if achado else nome
         time.sleep(2)
         estado = rodar(["docker", "inspect", "-f", "{{.State.Status}} {{.State.ExitCode}}", cid], so_saida=True)[1].split()
         if estado and estado[0] == "exited":
             logs = rodar(["docker", "logs", "--tail", "15", cid])[1]
-            if nome_img == "hello-world":
-                return "O container hello-world rodou e terminou, como esperado:\n" + logs[-1200:]
-            explicacao = ("O programa principal do container terminou, então ele parou. Imagens de base precisam de um comando "
-                          "que continue rodando (ex.: sleep infinity ou um servidor)." if estado[1:] == ["0"]
-                          else f"O container parou com erro (código {estado[1] if len(estado) > 1 else '?'}). Veja os logs:")
-            raise Erro(f"Container {nome or cid} criado, mas parou logo em seguida.\n{explicacao}\n{logs[-1200:]}".strip())
+            if estado[1:] == ["0"]:
+                return (f"O container {nome or cid} rodou o programa dele e terminou com sucesso (programas de uma vez só, "
+                        "como scripts, param quando acabam; servidores continuam ligados). Saída:\n" + logs[-1200:]).strip()
+            raise Erro(f"O container {nome or cid} parou com erro (código {estado[1] if len(estado) > 1 else '?'}) logo depois de ligar. "
+                       f"Veja a saída:\n{logs[-1200:]}\n" + "\n".join(dicas_para(logs))).strip()
         return f"Container {nome or cid} criado e rodando.{aviso}"
     if acao in ("compose_up", "compose_down", "compose_ver"):
         arq = arquivo_permitido(d.get("arquivo", ""))
@@ -575,6 +638,8 @@ def _gatilhos(pai, d):
 
 def _url_git(url):
     url = (url or "").strip()
+    if re.search(r"github\.com[/:]usuario/repositorio", url):
+        raise Erro("Troque o endereço de exemplo (usuario/repositorio) pelo endereço do seu repositório no GitHub.")
     if not re.fullmatch(r"(https://|git@)[\w.@:/~\-]+?(\.git)?/?", url):
         raise Erro("URL do repositório inválida (ex.: https://github.com/usuario/repo.git ou git@github.com:usuario/repo.git).")
     return url
@@ -760,11 +825,25 @@ def acao_jenkins(d):
             return f"Multibranch '{completo}' criado. O Jenkins está procurando as branches com Jenkinsfile."
         return f"{ {'pipeline': 'Pipeline', 'pipeline_scm': 'Pipeline do Git', 'freestyle': 'Freestyle', 'pasta': 'Pasta'}[tipo] } '{completo}' criado."
     cj = caminho_job(nome)
+    if acao == "parametros":
+        _, txt = JEN.req(cj + "/api/json?tree=property[parameterDefinitions[name,type,description,choices,defaultParameterValue[value]]]")
+        defs = []
+        for prop in json.loads(txt).get("property", []):
+            for p in prop.get("parameterDefinitions") or []:
+                defs.append({"nome": p.get("name"), "tipo": (p.get("type") or "").replace("ParameterDefinition", ""),
+                             "descricao": p.get("description") or "", "opcoes": p.get("choices") or [],
+                             "padrao": (p.get("defaultParameterValue") or {}).get("value", "")})
+        return {"parametros": defs}
     if acao == "construir":
+        params = d.get("parametros")
+        if isinstance(params, dict) and params:
+            dados = urllib.parse.urlencode({str(k): str(v) for k, v in params.items()}).encode()
+            JEN.req(cj + "/buildWithParameters?delay=0sec", dados, "application/x-www-form-urlencoded")
+            return f"Construção de '{nome}' iniciada com os valores escolhidos."
         try:
             JEN.req(cj + "/build?delay=0sec", b"")
-        except Erro as e:
-            if "400" not in str(e):
+        except ErroJenkins as e:
+            if e.codigo != 400:
                 raise
             JEN.req(cj + "/buildWithParameters?delay=0sec", b"")
         return f"Construção de '{nome}' iniciada."
@@ -781,13 +860,20 @@ def acao_jenkins(d):
         pai = "/".join(nome.split("/")[:-1])
         JEN.req(f"{caminho_job(pai) if pai else ''}/createItem?name={urllib.parse.quote(novo, safe='')}&mode=copy&from="
                 + urllib.parse.quote(nome.split("/")[-1], safe=""), b"")
-        return f"Cópia '{novo}' criada."
+        # o Jenkins segura a cópia sem construir até a configuração ser salva uma vez: salva agora
+        completo = f"{pai}/{novo}" if pai else novo
+        _, cfg = JEN.req(caminho_job(completo) + "/config.xml")
+        JEN.req(caminho_job(completo) + "/config.xml", cfg.encode("utf-8"), "application/xml")
+        return f"Cópia '{novo}' criada e pronta para construir."
     if acao == "console":
         n = str(d.get("numero") or "lastBuild")
         if n != "lastBuild" and not n.isdigit():
             raise Erro("Número de build inválido.")
         _, txt = JEN.req(f"{cj}/{n}/consoleText", timeout=30)
-        return txt[-30000:]
+        txt = txt[-30000:]
+        if re.search(r"Finished: (FAILURE|UNSTABLE)\s*$", txt):
+            txt += "".join("\nDica: " + d for d in dicas_para(txt))
+        return txt
     if acao == "etapas":
         try:
             _, txt = JEN.req(cj + "/lastBuild/wfapi/describe", timeout=20)
@@ -1064,9 +1150,12 @@ def acao_git(d):
             ok_ou_erro(rodar(g + ["add", "-A", "--"] + list(arquivos)))
         else:
             ok_ou_erro(rodar(g + ["add", "-A"]))
-        return ok_ou_erro(rodar(g + ["commit", "-m", msg]))
+        cod_c, txt_c = rodar(g + ["commit", "-m", msg])
+        if cod_c != 0:
+            raise Erro("\n".join(dicas_para(txt_c)) or txt_c)
+        return txt_c
     if acao in ("pull", "push"):
-        cmd = g + ([acao] if acao == "pull" else ["push", "--follow-tags", "-u", "origin", "HEAD"])
+        cmd = g + (["pull", "--no-rebase", "--no-edit"] if acao == "pull" else ["push", "--follow-tags", "-u", "origin", "HEAD"])
         cod, txt = rodar(cmd, timeout=300)
         if cod != 0 and ("terminal prompts disabled" in txt or "could not read Username" in txt):
             raise Erro("O GitHub pediu login. Na aba Git, use 'Token do GitHub' (HTTPS) ou 'Chave SSH'.")
@@ -1229,6 +1318,9 @@ def iniciar_tarefa(ferramenta, titulo, cmd, cwd=None, env_extra=None):
                 if len(t["linhas"]) > 5000:
                     del t["linhas"][:1000]
             t["codigo"] = p.wait()
+            if t["codigo"] not in (0, None, -15):
+                for d in dicas_para("\n".join(t["linhas"][-300:])):
+                    t["linhas"] += ["", "Dica: " + d]
         except FileNotFoundError:
             t["linhas"].append(f"pasta não encontrada: {cwd}" if cwd and not os.path.isdir(cwd)
                                else f"comando não encontrado: {cmd[0]}")
@@ -1275,6 +1367,13 @@ def acao_executar(d):
                      "compose_logs": ["logs", "--tail", "200", "--no-color"]}[a]
             return iniciar_tarefa("docker", f"docker compose {' '.join(extra[:2])} ({arq.parent.name})",
                                   ["docker", "compose", "-f", str(arq)] + extra, cwd=str(arq.parent))
+        if a in ("compose_down_projeto", "compose_logs_projeto"):
+            # projetos cujo arquivo não está na sua pasta (ex.: criados por um pipeline do Jenkins)
+            proj = d.get("projeto", "").strip()
+            if not re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,62}", proj):
+                raise Erro("Nome de projeto Compose inválido.")
+            extra = ["down"] if a == "compose_down_projeto" else ["logs", "--tail", "200", "--no-color"]
+            return iniciar_tarefa("docker", f"docker compose -p {proj} {extra[0]}", ["docker", "compose", "-p", proj] + extra)
         if a == "build":
             pasta = dentro_da_home(d.get("pasta", ""))
             tag = d.get("tag", "").strip() or pasta.name.lower()
@@ -1292,9 +1391,13 @@ def acao_executar(d):
         if not (repo / ".git").exists():
             raise Erro("Isto não é um repositório Git.")
         if a in ("pull", "push", "fetch"):
-            cmd = {"pull": ["git", "pull"], "fetch": ["git", "fetch", "--all", "--prune"],
+            cmd = {"pull": ["git", "pull", "--no-rebase", "--no-edit"], "fetch": ["git", "fetch", "--all", "--prune"],
                    "push": ["git", "push", "--follow-tags", "-u", "origin", "HEAD"]}[a]
             return iniciar_tarefa("git", f"git {a} ({repo.name})", cmd, cwd=str(repo))
+        if a == "pull_juntar":
+            branch = rodar(["git", "-C", str(repo), "branch", "--show-current"], so_saida=True)[1] or "main"
+            return iniciar_tarefa("git", f"git pull juntando históricos ({repo.name})",
+                                  ["git", "pull", "--no-rebase", "--no-edit", "--allow-unrelated-histories", "origin", branch], cwd=str(repo))
     if f == "vscode":
         ext = d.get("extensao", "").strip()
         if not re.fullmatch(r"[\w\-]+\.[\w.\-]+", ext):

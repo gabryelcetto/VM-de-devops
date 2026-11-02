@@ -1,0 +1,25 @@
+// Jenkinsfile de exemplo do DevOps-Lab.
+// Os modelos "Pipeline do Git" e "Multibranch" do Painel DevOps usam este arquivo
+// para funcionar logo de cara. Para o seu trabalho, crie um Jenkinsfile no seu
+// repositório e troque o endereço no Painel.
+pipeline {
+  agent any
+  stages {
+    stage('Codigo baixado') {
+      steps {
+        sh 'git log -1 --format="Ultimo commit: %h %s (%an)"'
+        sh 'ls'
+      }
+    }
+    stage('Teste') {
+      steps {
+        sh 'test -f exemplos/Jenkinsfile && echo "Jenkinsfile encontrado"'
+      }
+    }
+    stage('Container') {
+      steps {
+        sh 'docker run --rm alpine echo "Ola de um container rodado pelo pipeline"'
+      }
+    }
+  }
+}

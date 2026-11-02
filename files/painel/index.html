@@ -673,7 +673,11 @@ function novoContainer(imagem){
       toast(await post('/api/docker', {acao:'run', ...v}, b)); fecharModal();
     }catch(e){ b.textContent = 'Criar e iniciar'; toast(e.message, true); }
   }, 'Criar e iniciar');
-  if(imagem){ document.querySelectorAll('#modal .modelo')[MODELOS_CONTAINER.length-1].click(); $('#a-imagem').value = imagem; }
+  if(imagem){
+    document.querySelectorAll('#modal .modelo')[MODELOS_CONTAINER.length-1].click(); $('#a-imagem').value = imagem;
+    // imagem que tem porta (ex.: site): já sugere uma porta livre no PC e um nome que não existe
+    post('/api/docker', {acao:'sugestao', imagem}).then(r => { if($('#a-portas') && !$('#a-portas').value) $('#a-portas').value = r.portas; if($('#a-nome') && !$('#a-nome').value) $('#a-nome').value = r.nome; }).catch(() => {});
+  }
 }
 function baixarImagem(){
   abrirModal('Baixar imagem do Docker Hub', '', `<div class="grade-modelos">${['nginx:alpine','python:3.12-slim','node:22-alpine','mysql:8.4','postgres:16-alpine','redis:alpine','ubuntu:24.04','alpine'].map(i => `<button class="modelo" onclick='$("#bx-img").value=${A(i)}'><b class="mono">${esc(i)}</b></button>`).join('')}</div>
@@ -681,7 +685,7 @@ function baixarImagem(){
     [{txt:ico('baixar') + 'Baixar', cls:'pri', fn: b => executar({ferramenta:'docker', acao:'pull', imagem:$('#bx-img').value}, b)}]);
 }
 const MODELOS_COMPOSE = [
-  {nome:'Site Nginx', desc:'1 serviço com limite de memória', valores:{nome:'site', memoria:'512m', conteudo:`services:\n  web:\n    image: nginx:alpine\n    container_name: site-web\n    ports:\n      - "8081:80"\n    mem_limit: 512m\n    restart: unless-stopped\n`}},
+  {nome:'Site Nginx', desc:'1 serviço na porta 8089, com limite de memória', valores:{nome:'site', memoria:'512m', conteudo:`services:\n  web:\n    image: nginx:alpine\n    ports:\n      - "8089:80"\n    mem_limit: 512m\n    restart: unless-stopped\n`}},
   {nome:'Nginx + Redis', desc:'2 serviços na mesma rede', valores:{nome:'web-cache', memoria:'256m', conteudo:`services:\n  web:\n    image: nginx:alpine\n    ports:\n      - "8083:80"\n    depends_on:\n      - cache\n    mem_limit: 256m\n  cache:\n    image: redis:alpine\n    mem_limit: 256m\n`}},
   {nome:'WordPress + MySQL', desc:'Site completo na porta 8084', valores:{nome:'wordpress', memoria:'', conteudo:`services:\n  db:\n    image: mysql:8.4\n    environment:\n      MYSQL_ROOT_PASSWORD: devops\n      MYSQL_DATABASE: wordpress\n    volumes:\n      - db-dados:/var/lib/mysql\n    mem_limit: 1g\n  wordpress:\n    image: wordpress:latest\n    depends_on:\n      - db\n    ports:\n      - "8084:80"\n    environment:\n      WORDPRESS_DB_HOST: db\n      WORDPRESS_DB_USER: root\n      WORDPRESS_DB_PASSWORD: devops\n      WORDPRESS_DB_NAME: wordpress\n    mem_limit: 512m\nvolumes:\n  db-dados:\n`}},
   {nome:'Em branco', desc:'Escreva do zero', valores:{nome:'meu-compose', memoria:'', conteudo:`services:\n  app:\n    image: nginx:alpine\n`}},
@@ -723,7 +727,7 @@ async function carregarDocker(){
     d.projetos.forEach(p => (p.arquivos||'').split(',').forEach(a => { if(a) rodando[a] = p.status; }));
     composes = [...new Set([...arqs.arquivos, ...Object.keys(rodando)])];
   }
-  contar('docker', {containers:d.containers.length, compose: s === 'compose' ? composes.length : (DADOS.contagem?.docker?.compose ?? d.projetos.length),
+  contar('docker', {containers:d.containers.length, compose: s === 'compose' ? new Set([...composes.filter(a => !/^\/var\/lib\/jenkins\//.test(a)), ...d.projetos.map(p => p.nome)]).size : (DADOS.contagem?.docker?.compose ?? d.projetos.length),
     imagens:d.imagens.length, armazenamento:d.volumes.length + d.redes.filter(r => !r.padrao).length});
   $('#n-docker').textContent = d.containers.filter(c => c.estado === 'running').length || '';
   el.innerHTML = {containers:htmlContainers, compose:htmlCompose, imagens:htmlImagens, armazenamento:htmlArmazenamento}[s](d, composes, rodando);
@@ -750,11 +754,17 @@ function htmlContainers(d){
 }
 const estadoCompose = t => { const m = (t || '').match(/(\w+)\((\d+)\)/g) || []; return m.map(x => { const [, e, n] = x.match(/(\w+)\((\d+)\)/); return e === 'running' ? st('ok', `Rodando (${n})`) : st('', `Parado (${n})`); }).join(' ') || st('', 'Parado'); };
 function htmlCompose(d, composes, rodando){
-  if(!composes.length) return vazio('Nenhum projeto Compose', 'Monte vários containers juntos com um docker-compose.yml.', BT('Novo projeto Compose', 'novoCompose()', {pri:1, icone:'novo'}));
-  return tabela(['Projeto', 'Estado', 'Arquivo', ''], composes.map(a => { const n = J(a); return `<tr><td class="nome">${esc(base(pai(a)))}</td><td>${rodando[a] ? estadoCompose(rodando[a]) : st('', 'Parado')}</td><td class="mono sub">${esc(curto(a))}</td>
+  const daCasa = new Set(composes.filter(a => !/^\/var\/lib\/jenkins\//.test(a)));
+  const deFora = d.projetos.filter(p => !(p.arquivos||'').split(',').some(a => daCasa.has(a)));
+  if(!daCasa.size && !deFora.length) return vazio('Nenhum projeto Compose', 'Monte vários containers juntos com um docker-compose.yml.', BT('Novo projeto Compose', 'novoCompose()', {pri:1, icone:'novo'}));
+  const linhasCasa = [...daCasa].map(a => { const n = J(a); return `<tr><td class="nome">${esc(base(pai(a)))}</td><td>${rodando[a] ? estadoCompose(rodando[a]) : st('', 'Parado')}</td><td class="mono sub">${esc(curto(a))}</td>
     <td class="acoes">${BT('Subir', `executar({ferramenta:"docker",acao:"compose_up",arquivo:${n}},this)`, {icone:'play', pri:1})}${BT('Derrubar', `executar({ferramenta:"docker",acao:"compose_down",arquivo:${n}},this)`, {icone:'parar'})}${M([
       {t:'Editar docker-compose.yml', i:'editar', js:`editarCompose(${n})`}, {t:'Logs', i:'logs', js:`executar({ferramenta:"docker",acao:"compose_logs",arquivo:${n}},this)`},
-      {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${J(pai(a))})`}])}</td></tr>`; }));
+      {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${J(pai(a))})`}])}</td></tr>`; });
+  const linhasFora = deFora.map(p => { const n = J(p.nome), jk = /\/var\/lib\/jenkins\//.test(p.arquivos || ''); return `<tr><td class="nome">${esc(p.nome)}</td><td>${estadoCompose(p.status)}</td>
+    <td>${jk ? etq('acento', 'Criado pelo Jenkins') : `<span class="mono sub">${esc(curto(p.arquivos))}</span>`}</td>
+    <td class="acoes">${BT('Derrubar', `executar({ferramenta:"docker",acao:"compose_down_projeto",projeto:${n}},this)`, {icone:'parar'})}${BT('Logs', `executar({ferramenta:"docker",acao:"compose_logs_projeto",projeto:${n}},this)`, {icone:'logs', so_icone:1})}</td></tr>`; });
+  return tabela(['Projeto', 'Estado', 'Arquivo', ''], [...linhasCasa, ...linhasFora]);
 }
 function htmlImagens(d){
   const imgs = d.imagens.length ? tabela(['Imagem', 'Tamanho', 'Criada', ''], d.imagens.map(i => `<tr><td class="mono">${esc(i.nome)}</td><td>${esc(i.tamanho)}</td><td class="sub">${esc(agoPt(i.criada))}</td>
@@ -817,10 +827,10 @@ const TIPOS_JENKINS = [
   {nome:'Pipeline: Docker Compose', desc:'Sobe um site com docker-compose (porta 8087)', valores:{tipo:'pipeline', nome:'subir-compose', script:SCRIPTS.compose}},
   {nome:'Pipeline: Testes Python', desc:'Roda dentro de um container', valores:{tipo:'pipeline', nome:'testes-python', script:SCRIPTS.python}},
   {nome:'Pipeline com parâmetros', desc:'Pergunta valores ao construir', valores:{tipo:'pipeline', nome:'com-parametros', script:SCRIPTS.parametros}},
-  {nome:'Pipeline do Git', desc:'Usa o Jenkinsfile do repositório', valores:{tipo:'pipeline_scm', nome:'meu-repo', repo:'https://github.com/usuario/repositorio.git', branch:'main', jenkinsfile:'Jenkinsfile', cron_scm:'H/5 * * * *'}},
+  {nome:'Pipeline do Git', desc:'Usa o Jenkinsfile do repositório (já vem com um exemplo que funciona)', valores:{tipo:'pipeline_scm', nome:'pipeline-do-git', repo:'https://github.com/gabryelcetto/VM-de-devops.git', branch:'main', jenkinsfile:'exemplos/Jenkinsfile'}},
   {nome:'Freestyle', desc:'Comandos de terminal, sem script', valores:{tipo:'freestyle', nome:'meu-freestyle', comandos:'echo "Ola do Freestyle!"\ndocker --version\ngit --version'}},
-  {nome:'Freestyle + Git', desc:'Baixa o repositório e roda comandos', valores:{tipo:'freestyle', nome:'freestyle-git', repo:'https://github.com/usuario/repositorio.git', branch:'main', comandos:'ls -la\ncat README.md || true'}},
-  {nome:'Multibranch', desc:'Um job para cada branch com Jenkinsfile', valores:{tipo:'multibranch', nome:'meu-multibranch', repo:'https://github.com/usuario/repositorio.git', jenkinsfile:'Jenkinsfile'}},
+  {nome:'Freestyle + Git', desc:'Baixa o repositório e roda comandos', valores:{tipo:'freestyle', nome:'freestyle-git', repo:'https://github.com/gabryelcetto/VM-de-devops.git', branch:'main', comandos:'ls -la\ngit log -3 --oneline\nhead -n 20 README.md'}},
+  {nome:'Multibranch', desc:'Um job para cada branch com Jenkinsfile', valores:{tipo:'multibranch', nome:'meu-multibranch', repo:'https://github.com/gabryelcetto/VM-de-devops.git', jenkinsfile:'exemplos/Jenkinsfile'}},
   {nome:'Pasta', desc:'Organiza os jobs em grupos', valores:{tipo:'pasta', nome:'minha-pasta'}},
 ];
 const temTipo = (...t) => m => t.includes(m.valores.tipo);
@@ -831,7 +841,7 @@ async function novoItemJenkins(pasta){
   assistente('Novo item no Jenkins', TIPOS_JENKINS, [
     {id:'nome', rot:'Nome (sem espaços)'},
     {id:'pasta', rot:'Criar dentro da pasta', tipo:'select', opcoes: () => pastas, padrao: pasta || '(raiz)'},
-    {id:'repo', rot:'URL do repositório Git', largo:1, so: temTipo('pipeline_scm','multibranch','freestyle')},
+    {id:'repo', rot:'URL do repositório Git', largo:1, ajuda:'O modelo vem com um repositório de exemplo que funciona. Para o seu trabalho, troque pelo endereço do seu repositório.', so: temTipo('pipeline_scm','multibranch','freestyle')},
     {id:'branch', rot:'Branch', so: temTipo('pipeline_scm','freestyle')},
     {id:'jenkinsfile', rot:'Caminho do Jenkinsfile', so: temTipo('pipeline_scm','multibranch')},
     {id:'credencial', rot:'Credencial (repositório privado)', tipo:'select', opcoes: () => creds, so: temTipo('pipeline_scm','multibranch','freestyle')},
@@ -926,7 +936,24 @@ function htmlCredenciais(creds){
   return tabela(['ID (use nos jobs)', 'Tipo', 'Descrição', ''], creds.map(c => `<tr><td class="mono nome">${esc(c.id)}</td><td>${esc(c.tipo)}</td><td class="sub">${esc(c.descricao || c.nome)}</td>
     <td class="acoes">${BT('Apagar', `if(confirm("Apagar a credencial " + ${J(c.id)} + "?")) acao("/api/jenkins",{acao:"apagar_credencial",id:${J(c.id)}},this)`, {icone:'lixo', so_icone:1, perigo:1})}</td></tr>`));
 }
-async function jkConstruir(nome, btn){ try{ await post('/api/jenkins', {acao:'construir', job:nome}, btn); acompanharBuild(nome); }catch(e){ toast(e.message, true); } }
+async function jkConstruir(nome, btn){
+  try{
+    const p = (await post('/api/jenkins', {acao:'parametros', job:nome}, btn)).parametros || [];
+    if(!p.length){ await post('/api/jenkins', {acao:'construir', job:nome}, btn); return acompanharBuild(nome); }
+    const campo = (x, i) => {
+      const rot = esc(x.nome) + (x.descricao ? ` <span class="dica">${esc(x.descricao)}</span>` : '');
+      if(x.tipo === 'Choice') return `<label class="campo">${rot}<select data-p="${esc(x.nome)}">${x.opcoes.map(o => `<option ${o === x.padrao ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select></label>`;
+      if(x.tipo === 'Boolean') return `<label class="check"><input type="checkbox" data-p="${esc(x.nome)}" ${x.padrao ? 'checked' : ''}>${esc(x.nome)}</label>`;
+      if(x.tipo === 'Text') return `<label class="campo largo">${rot}<textarea data-p="${esc(x.nome)}" style="min-height:90px">${esc(x.padrao)}</textarea></label>`;
+      return `<label class="campo">${rot}<input data-p="${esc(x.nome)}" value="${esc(x.padrao)}"></label>`;
+    };
+    abrirModal('Construir com parâmetros', nome, `<p class="sub" style="margin-top:0">Este job pede valores antes de rodar:</p><div class="campos">${p.map(campo).join('')}</div>`,
+      [{txt:ico('play') + 'Construir', cls:'pri', fn: async b => {
+        const valores = {}; document.querySelectorAll('[data-p]').forEach(e => valores[e.dataset.p] = e.type === 'checkbox' ? e.checked : e.value);
+        try{ await post('/api/jenkins', {acao:'construir', job:nome, parametros:valores}, b); acompanharBuild(nome); }catch(e){ toast(e.message, true); }
+      }}]);
+  }catch(e){ toast(e.message, true); }
+}
 async function jkEditar(nome, btn){
   try{
     const c = await post('/api/jenkins', {acao:'ver_config', job:nome}, btn);
@@ -1020,6 +1047,7 @@ function htmlRepos(g){
       <td class="acoes">${r.mudancas.length ? BT('Commit', `gitCommit(${i})`, {pri:1, icone:'ok'}) : ''}${r.remoto ? BT('Push', `executar({ferramenta:"git",acao:"push",repo:${c}},this)`, {icone:'subir', titulo:'Enviar seus commits para o GitHub'}) + BT('Pull', `executar({ferramenta:"git",acao:"pull",repo:${c}},this)`, {icone:'descer', so_icone:1, titulo:'Pull: baixar as novidades do GitHub'}) : ''}${M([
         {t:'Branches e merge', i:'branch', js:`gitBranch(${i})`}, r.remoto && {t:'Fetch (ver novidades sem aplicar)', i:'descer', js:`executar({ferramenta:"git",acao:"fetch",repo:${c}},this)`},
         {t:'Histórico (gráfico)', i:'logs', js:`acao("/api/git",{acao:"grafico",repo:${c}},this,"Histórico — " + ${J(r.nome)})`},
+        r.remoto && {t:'Pull juntando históricos (repositório do GitHub criado com README)', i:'descer', js:`executar({ferramenta:"git",acao:"pull_juntar",repo:${c}},this)`},
         {t:'Remoto, tags, stash e desfazer…', i:'mais', js:`gitMais(${i})`}, '-',
         {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${c})`}, {t:'Abrir terminal aqui', i:'terminal', js:`abrir("terminal",${c})`}])}</td></tr>`;
   }));
@@ -1283,7 +1311,7 @@ async function carregarSistema(){
       <div class="painel"><h3>Processador e memória</h3><div class="corpo-p"><div id="g-sis2"></div><div class="legenda"><span><i style="background:${COR.cpu}"></i>Processador</span><span><i style="background:${COR.mem}"></i>Memória</span></div></div></div>
       <div class="painel"><h3>Serviços</h3>${tabela(['Serviço', 'Situação', ''], [...Object.entries(serv).map(([k, [n, d, api]]) => `<tr><td style="width:55%"><div class="nome">${n}</div><div class="sub">${d}</div></td>
           <td>${s.servicos[k] === 'active' ? st('ok', 'Ligado') : st('', 'Desligado')}</td>
-          <td class="acoes">${s.servicos[k] === 'active' ? BT('Desligar', `acao(${J(api)},{acao:"desligar"},this)`, {icone:'parar'}) : BT('Ligar', `acao(${J(api)},{acao:"ligar"},this)`, {icone:'play', pri:1})}</td></tr>`),
+          <td class="acoes">${s.servicos[k] === 'active' ? BT('Desligar', `if(confirm(${J(k === 'docker' ? 'Desligar o Docker? Todos os containers param (os marcados para reiniciar voltam quando o Docker ligar).' : 'Desligar o Jenkins? Libera cerca de 500 MB de memória.')})) acao(${J(api)},{acao:"desligar"},this)`, {icone:'parar'}) : BT('Ligar', `acao(${J(api)},{acao:"ligar"},this)`, {icone:'play', pri:1})}</td></tr>`),
         ...[['NetworkManager','Rede'],['lightdm','Interface gráfica']].map(([k, n]) => `<tr><td class="nome">${n}</td><td>${s.servicos[k] === 'active' ? st('ok', 'Ligado') : st('erro', ({inactive:'Desligado', failed:'Com falha', activating:'Ligando'})[s.servicos[k]] || 'Indisponível')}</td><td></td></tr>`)]).replace('class="t"', 'class="t" style="border:0;border-radius:0"')}</div></div>
     <h2>Portas abertas <span class="sub">IP da VM: ${esc((s.ip||[]).join(', ') || '—')}</span></h2>
     <div class="chips">${(s.portas||[]).map(p => [22,53,631].includes(p.porta) ? etq('', ':' + p.porta + (p.nome ? ' ' + p.nome : '')) : BT(':' + p.porta + (p.nome ? '  ' + p.nome : ''), `abrirUrl("http://localhost:${p.porta}")`, {icone:'abrir', titulo:'Abrir no navegador'})).join('') || '<span class="sub">nenhuma</span>'}</div>
