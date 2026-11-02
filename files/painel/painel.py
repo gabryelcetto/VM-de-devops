@@ -868,12 +868,11 @@ def acao_jenkins(d):
         if not NOME_OK.match(novo):
             raise Erro("Nome da cópia inválido.")
         pai = "/".join(nome.split("/")[:-1])
-        JEN.req(f"{caminho_job(pai) if pai else ''}/createItem?name={urllib.parse.quote(novo, safe='')}&mode=copy&from="
-                + urllib.parse.quote(nome.split("/")[-1], safe=""), b"")
-        # o Jenkins segura a cópia sem construir até a configuração ser salva uma vez: salva agora
-        completo = f"{pai}/{novo}" if pai else novo
-        _, cfg = JEN.req(caminho_job(completo) + "/config.xml")
-        JEN.req(caminho_job(completo) + "/config.xml", cfg.encode("utf-8"), "application/xml")
+        # cria a cópia a partir do config.xml do original: o "copiar" do Jenkins deixa a cópia
+        # travada ("not buildable") até alguém salvar a configuração pela tela
+        _, cfg = JEN.req(cj + "/config.xml")
+        JEN.req(f"{caminho_job(pai) if pai else ''}/createItem?name={urllib.parse.quote(novo, safe='')}",
+                cfg.encode("utf-8"), "application/xml")
         return f"Cópia '{novo}' criada e pronta para construir."
     if acao == "console":
         n = str(d.get("numero") or "lastBuild")
