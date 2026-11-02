@@ -428,7 +428,7 @@ function assistente(titulo, modelos, campos, aoCriar, rotulo){
 const MEM_OK = v => !v || /^\d{1,6}[bkmgBKMG]?$/.test(v.trim());
 function trocarMemoriaScript(id, mem){
   const t = document.getElementById(id); if(!t || !MEM_OK(mem)) return; mem = mem.trim();
-  t.value = t.value.replace(/ --memory=\S+ --memory-swap=\S+/g, '').replace(/docker run --rm /g, mem ? `docker run --rm --memory=${mem} --memory-swap=${mem} ` : 'docker run --rm ');
+  t.value = t.value.replace(/ --memory=\S+ --memory-swap=\S+/g, '').replace(/docker run (-d|--rm) /g, (x, op) => mem ? `docker run ${op} --memory=${mem} --memory-swap=${mem} ` : `docker run ${op} `);
 }
 function trocarMemoriaCompose(id, mem){
   const t = document.getElementById(id); if(!t || !MEM_OK(mem)) return; mem = mem.trim();
@@ -508,7 +508,7 @@ const SUB = {}; try{ Object.assign(SUB, JSON.parse(localStorage.getItem('painel-
 const sub = aba => SUB[aba] || (SUBABAS[aba] ? SUBABAS[aba][0][0] : '');
 const AJUDA = {
   inicio:['Clique num indicador para ir à ferramenta.','Os botões "Novo…" de cada aba criam algo a partir de um modelo pronto.','Tudo o que você roda aparece em Atividade recente; clique para ver a saída.'],
-  docker:['Novo container: escolha um modelo (site, banco de dados…), ajuste porta e memória e clique em Criar e iniciar.','Com o container rodando, clique na porta (ex.: :8081) para abrir o site no navegador.','Um container fica ligado enquanto o programa principal dele estiver rodando. Imagens de base (python, ubuntu, alpine) precisam de um comando que não termine, como sleep infinity.','Compose sobe vários containers juntos a partir de um docker-compose.yml.'],
+  docker:['Novo container: escolha um modelo (site, banco de dados…), ajuste porta e memória e clique em Criar e iniciar.','Com o container rodando, clique na porta (ex.: :8081) para abrir o site no navegador.','Um container fica ligado enquanto o programa principal dele estiver rodando. Imagens de base (python, ubuntu, alpine) precisam de um comando que não termine, como sleep infinity.','Compose sobe vários containers juntos a partir de um docker-compose.yml.','Containers rodados com --rm (comum em testes de pipeline) são apagados quando terminam e por isso não aparecem aqui. Para ficar ligado, use docker run -d sem --rm.'],
   jenkins:['Novo item: Pipeline (script), Pipeline do Git (Jenkinsfile do repositório), Freestyle (comandos), Multibranch ou Pasta.','Repositório privado? Cadastre antes uma credencial (token ou chave SSH) na aba Credenciais.','Os quadradinhos são os últimos builds: verde = sucesso, vermelho = falha. Clique para ver o console.','No menu ⋯ de cada job: editar, gatilhos (rodar sozinho), copiar, desativar e apagar.'],
   git:['Antes do primeiro commit, configure seu nome e e-mail em Acesso ao GitHub.','Para falar com o GitHub use a chave SSH (gerar, copiar, colar no GitHub e testar) ou guarde um token para endereços https.','No dia a dia: altere arquivos, clique em Commit e depois em Push.'],
   vscode:['Abrir no VS Code edita o projeto inteiro.','Novo arquivo cria o arquivo e já abre no editor.'],
@@ -737,7 +737,7 @@ function htmlContainers(d){
     const estado = run ? st('ok', 'Rodando') : c.estado === 'exited' ? st(/Exited \(0\)/.test(c.status) ? '' : 'erro', 'Parado') : c.estado === 'restarting' ? st('aviso', 'Reiniciando', 1) : c.estado === 'created' ? st('', 'Criado') : st('aviso', c.estado);
     const portas = portasDe(c.portas);
     return `<tr><td><div class="nome">${esc(c.nome)}</div><div class="sub">${esc(statusPt(c))}</div></td>
-      <td>${estado}${c.projeto ? '<div>' + etq('info', 'Compose: ' + c.projeto) + '</div>' : ''}</td>
+      <td>${estado}${c.projeto ? '<div>' + etq('info', 'Compose: ' + c.projeto) + '</div>' : ''}${c.origem === 'jenkins' ? '<div>' + etq('acento', 'Criado pelo Jenkins') + '</div>' : ''}</td>
       <td class="mono">${esc(c.imagem)}</td>
       <td>${run && portas.length ? portas.map(p => BT(':' + p, `abrirUrl("http://localhost:${p}")`, {icone:'abrir', titulo:'Abrir no navegador'})).join(' ') : '<span class="fraco">—</span>'}</td>
       <td>${run ? `${esc(c.cpu || '—')} CPU<div class="sub">${memTxt(c)}</div>` : c.limite_memoria ? `<span class="sub">limite de ${mb(c.limite_memoria/1048576)}</span>` : '<span class="fraco">—</span>'}</td>
@@ -806,14 +806,14 @@ async function editarArquivo(caminho){
 /* ================= JENKINS ================= */
 const SCRIPTS = {
   ola:`pipeline {\n  agent any\n  stages {\n    stage('Ola') {\n      steps {\n        echo 'Ola do Jenkins!'\n      }\n    }\n    stage('Informacoes') {\n      steps {\n        sh 'date && hostname && whoami'\n      }\n    }\n  }\n}\n`,
-  docker:`pipeline {\n  agent any\n  stages {\n    stage('Rodar container') {\n      steps {\n        sh 'docker run --rm --memory=1g --memory-swap=1g hello-world'\n      }\n    }\n    stage('Conferir limite') {\n      steps {\n        sh 'docker run --rm --memory=1g --memory-swap=1g alpine cat /sys/fs/cgroup/memory.max'\n      }\n    }\n  }\n}\n`,
+  docker:`pipeline {\n  agent any\n  stages {\n    stage('Remover a versao anterior') {\n      steps {\n        sh 'docker rm -f site-jenkins || true'\n      }\n    }\n    stage('Subir o container') {\n      steps {\n        sh 'docker run -d --name site-jenkins --label criado-por=jenkins --restart unless-stopped --memory=1g --memory-swap=1g -p 8088:80 nginx:alpine'\n      }\n    }\n    stage('Conferir') {\n      steps {\n        sh 'docker ps --filter name=site-jenkins'\n        sh 'docker inspect -f "Limite de memoria: {{.HostConfig.Memory}} bytes" site-jenkins'\n        sh 'sleep 2 && curl -s http://localhost:8088 | grep -i "welcome to nginx"'\n      }\n    }\n  }\n}\n`,
   compose:`pipeline {\n  agent any\n  stages {\n    stage('Escrever o docker-compose.yml') {\n      steps {\n        writeFile file: 'docker-compose.yml', text: '''services:\n  web:\n    image: nginx:alpine\n    ports:\n      - "8087:80"\n    mem_limit: 256m\n'''\n      }\n    }\n    stage('Subir com Compose') {\n      steps {\n        sh 'docker compose -p site-jenkins up -d'\n      }\n    }\n    stage('Conferir') {\n      steps {\n        sh 'docker compose -p site-jenkins ps'\n        sh 'sleep 2 && curl -s http://localhost:8087 | grep -i nginx'\n      }\n    }\n  }\n}\n`,
   python:`pipeline {\n  agent { docker { image 'python:3.12-slim' } }\n  stages {\n    stage('Versao') {\n      steps { sh 'python --version' }\n    }\n    stage('Teste') {\n      steps { sh 'python -c "assert 1 + 1 == 2; print(123)"' }\n    }\n  }\n}\n`,
   parametros:`pipeline {\n  agent any\n  parameters {\n    string(name: 'NOME', defaultValue: 'turma', description: 'Quem cumprimentar')\n    choice(name: 'AMBIENTE', choices: ['dev', 'homologacao', 'producao'], description: 'Onde publicar')\n  }\n  stages {\n    stage('Ola') {\n      steps {\n        echo "Ola, \${params.NOME}! Publicando em \${params.AMBIENTE}."\n      }\n    }\n  }\n}\n`,
 };
 const TIPOS_JENKINS = [
   {nome:'Pipeline: Olá', desc:'O mais simples, 2 etapas', valores:{tipo:'pipeline', nome:'ola-jenkins', script:SCRIPTS.ola}},
-  {nome:'Pipeline: Docker', desc:'Container com o limite de memória que você escolher', valores:{tipo:'pipeline', nome:'container-docker', memoria:'1g', script:SCRIPTS.docker}},
+  {nome:'Pipeline: Docker', desc:'Sobe um site num container (porta 8088) com o limite de memória que você escolher', valores:{tipo:'pipeline', nome:'container-docker', memoria:'1g', script:SCRIPTS.docker}},
   {nome:'Pipeline: Docker Compose', desc:'Sobe um site com docker-compose (porta 8087)', valores:{tipo:'pipeline', nome:'subir-compose', script:SCRIPTS.compose}},
   {nome:'Pipeline: Testes Python', desc:'Roda dentro de um container', valores:{tipo:'pipeline', nome:'testes-python', script:SCRIPTS.python}},
   {nome:'Pipeline com parâmetros', desc:'Pergunta valores ao construir', valores:{tipo:'pipeline', nome:'com-parametros', script:SCRIPTS.parametros}},

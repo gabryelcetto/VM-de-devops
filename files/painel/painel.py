@@ -166,7 +166,9 @@ def info_docker():
                 cid, memoria, rotulos = (json.loads(x) for x in linha.split("\t"))
             except ValueError:
                 continue
-            limites[cid] = {"memoria": int(memoria or 0), "projeto": (rotulos or {}).get("com.docker.compose.project", "")}
+            rotulos = rotulos or {}
+            limites[cid] = {"memoria": int(memoria or 0), "projeto": rotulos.get("com.docker.compose.project", ""),
+                            "origem": rotulos.get("criado-por", "")}
     uso = {}
     if any(c.get("State") == "running" for c in cont):
         for s in json_linhas(rodar(["docker", "stats", "--no-stream", "--no-trunc", "--format", "{{json .}}"], timeout=40)[1]):
@@ -178,7 +180,7 @@ def info_docker():
         containers.append({
             "id": cid[:12], "nome": c.get("Names", ""), "imagem": c.get("Image", ""), "estado": c.get("State", ""),
             "status": c.get("Status", ""), "portas": c.get("Ports", ""), "criado": c.get("RunningFor", ""),
-            "limite_memoria": extra.get("memoria", 0), "projeto": extra.get("projeto", ""),
+            "limite_memoria": extra.get("memoria", 0), "projeto": extra.get("projeto", ""), "origem": extra.get("origem", ""),
             "cpu": uso.get(cid, {}).get("cpu", ""), "uso_memoria": uso.get(cid, {}).get("mem", ""),
         })
     imagens = [{"id": i.get("ID", ""), "nome": f'{i.get("Repository")}:{i.get("Tag")}', "tamanho": i.get("Size", ""),

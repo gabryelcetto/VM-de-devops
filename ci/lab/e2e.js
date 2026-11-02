@@ -189,6 +189,12 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
     const a = await esperarAviso(60000); reg('Jenkins', 'Freestyle dentro da Pasta', !a.erro, a.texto);
     const b = await esperarBuild(240000); reg('Jenkins', 'build dentro da Pasta', b.ok, fim(b.saida)); await fechar();
   });
+  await passo('Jenkins', 'container do pipeline fica ligado', async () => {
+    const d = await apiGet('/api/docker');
+    const c = (d.containers || []).find(x => x.nome === 'site-jenkins');
+    reg('Jenkins', 'container criado pelo "Pipeline: Docker" continua ligado e aparece no Docker', c && c.estado === 'running' && c.origem === 'jenkins', c ? `${c.estado} origem=${c.origem} limite=${c.limite_memoria}` : 'não apareceu');
+    reg('Jenkins', 'limite de 1 GB aplicado ao container do pipeline', c && c.limite_memoria === 1073741824, c ? String(c.limite_memoria) : '');
+  });
   // credenciais (4 modelos)
   const chaveOutra = fs.existsSync('/tmp/lab-chave') ? fs.readFileSync('/tmp/lab-chave', 'utf8') : '';
   for (const [i, campos] of [[0, { id: 'lab-token', usuario: 'aluno', senha: 'ghp_teste123' }], [1, { id: 'lab-ssh-minha' }], [2, { id: 'lab-ssh-outra', chave: chaveOutra }], [3, { id: 'lab-segredo', segredo: 's3gr3do' }]]) {
