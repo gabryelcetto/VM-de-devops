@@ -41,7 +41,8 @@ Painel DevOps (atalho na Área de Trabalho e no painel)
    - rodar playbooks do Ansible e init/plan/apply do Terraform;
    - projetos Python com .venv e pacotes;
    - gráficos de memória, processador, builds e commits.
- Endereço: http://localhost:8090 (só abre dentro da VM)
+ Endereço: http://localhost:8090 (favorito "Painel DevOps" no Firefox;
+ só abre dentro da VM)
 
 Comandos rápidos
 ----------------

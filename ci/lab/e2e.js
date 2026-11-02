@@ -218,6 +218,12 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
     reg('QA', 'job copiado constrói de verdade (não fica preso esperando salvar)', ok, (c.r || '') + ' ' + fim(txt));
     await api('/api/jenkins', { acao: 'apagar', job: 'lab-0-qa-copia' });
   });
+  await passo('QA', 'credencial vazia', async () => {
+    const r = await api('/api/jenkins', { acao: 'criar_credencial', tipo: 'usuario', id: 'qa-vazia', usuario: '', senha: '' });
+    reg('QA', 'credencial de token vazia é recusada com explicação', !r.ok && /Preencha/.test(r.r), r.r);
+    const r2 = await api('/api/jenkins', { acao: 'criar_credencial', tipo: 'usuario', id: 'qa-senha', usuario: 'aluno', senha: 'minhasenha123' });
+    reg('QA', 'senha da conta no lugar do token é recusada com explicação', !r2.ok && /token do GitHub/.test(r2.r), r2.r);
+  });
   await passo('QA', 'parâmetros', async () => {
     const p = await api('/api/jenkins', { acao: 'parametros', job: 'lab-4' });
     reg('QA', 'Painel lê os parâmetros do job', p.ok && (p.r.parametros || []).length === 2, JSON.stringify(p.r).slice(0, 200));
@@ -374,6 +380,12 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
       reg('Ansible', ac, r.ok, JSON.stringify(r.r).slice(0, 200));
     });
   }
+  await passo('QA', 'ansible com inventário', async () => {
+    await api('/api/arquivo', { acao: 'salvar', caminho: '/home/aluno/projetos/lab-ansible-0/inventario.ini', conteudo: '[local]\nlocalhost ansible_connection=local\n' });
+    await page.evaluate(() => executar({ ferramenta: 'ansible', acao: 'rodar', playbook: '/home/aluno/projetos/lab-ansible-0/playbook.yml' }));
+    const c = await esperarConsole(180000);
+    reg('QA', 'playbook com inventário próprio usa o inventário e roda', c.ok && !/-c local/.test(c.estado), c.estado + ' ' + fim(c.saida)); await fechar();
+  });
   await aba('ansible'); await print('ansible-depois');
 
   // ------------------------------------------------------------------ 6. Terraform

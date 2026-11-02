@@ -113,6 +113,7 @@ DICAS = [
     (r"Failed to query available provider packages|could not connect to registry.terraform.io|failed to request discovery document", "O terraform init precisa de internet para baixar os providers. Confira a conexão da VM."),
     (r"Cannot connect to the Docker daemon|permission denied while trying to connect to the Docker daemon", "O Docker está desligado ou sem permissão. Ligue o Docker na aba Sistema; se for no Jenkins, reinicie o Jenkins."),
     (r"pull access denied|manifest unknown|repository does not exist or may require", "Imagem não encontrada no Docker Hub. Confira o nome e a tag (ex.: nginx:alpine)."),
+    (r"Could not resolve host|Temporary failure in name resolution|getaddrinfo|Network is unreachable|i/o timeout|TLS handshake timeout", "Sem conexão com a internet (ou ela caiu no meio). Confira a rede da VM e tente de novo."),
     (r"no space left on device", "Disco cheio. Use Docker > Volumes e redes > Limpar o que não está em uso."),
     (r"(?:yaml|YAML).*line (\d+)|mapping values are not allowed|found character that cannot start any token", "Erro de formatação no YAML (perto da linha {0}). Use espaços para indentar, nunca tab, e confira os dois-pontos."),
     (r"couldn't resolve module/action '([\w.]+)'", "O módulo {0} vem de uma coleção que não está instalada. Use Ansible > Coleções."),
@@ -759,11 +760,18 @@ def criar_credencial(d):
         raise Erro("ID inválido: use letras, números, - _ . (ex.: github)")
     desc = d.get("descricao") or "Criada pelo Painel DevOps"
     if tipo == "usuario":
+        if not (d.get("usuario") or "").strip() or not (d.get("senha") or "").strip():
+            raise Erro("Preencha o usuário do GitHub e o token. Sem eles a credencial não funciona.")
+        if not re.match(r"(ghp_|github_pat_|gho_|ghs_)", d.get("senha", "").strip()):
+            raise Erro("Isso não parece um token do GitHub (eles começam com ghp_ ou github_pat_). "
+                       "O GitHub não aceita a senha da conta: crie um token em github.com/settings/personal-access-tokens.")
         raiz = ET.Element("com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl")
         for k, v in (("scope", "GLOBAL"), ("id", cid), ("description", desc), ("username", d.get("usuario", "")),
                      ("password", d.get("senha", ""))):
             _el(raiz, k, v)
     elif tipo == "segredo":
+        if not (d.get("segredo") or "").strip():
+            raise Erro("Preencha o segredo.")
         raiz = ET.Element("org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl")
         for k, v in (("scope", "GLOBAL"), ("id", cid), ("description", desc), ("secret", d.get("segredo", ""))):
             _el(raiz, k, v)
@@ -783,6 +791,8 @@ def criar_credencial(d):
         _el(pk, "privateKey", chave)
     else:
         raise Erro("Tipo de credencial desconhecido.")
+    if any(c["id"] == cid for c in info_credenciais().get("credenciais", [])):
+        raise Erro(f"Já existe uma credencial com o ID {cid}. Use outro ID ou apague a antiga.")
     JEN.req(CREDS + "/createCredentials", ET.tostring(raiz), "application/xml")
     return f"Credencial '{cid}' criada. Use o ID '{cid}' nos jobs."
 
@@ -1417,7 +1427,9 @@ def acao_executar(d):
             if not pb.is_file():
                 raise Erro("Playbook não encontrado.")
             inv = pb.parent / "inventario.ini"
-            cmd = ["ansible-playbook", "-i", str(inv) if inv.is_file() else "localhost,", "-c", "local", pb.name]
+            # com inventário próprio, cada máquina usa a conexão do inventário (SSH ou local);
+            # sem inventário, roda só nesta máquina
+            cmd = ["ansible-playbook", "-i", str(inv), pb.name] if inv.is_file() else ["ansible-playbook", "-i", "localhost,", "-c", "local", pb.name]
             cmd += {"rodar": [], "checar": ["--syntax-check"], "simular": ["--check", "--diff"]}[a]
             return iniciar_tarefa("ansible", f"ansible-playbook {pb.name}" + ("" if a == "rodar" else f" ({a})"),
                                   cmd, cwd=str(pb.parent))

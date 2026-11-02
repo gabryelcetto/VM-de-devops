@@ -767,8 +767,8 @@ function htmlCompose(d, composes, rodando){
   return tabela(['Projeto', 'Estado', 'Arquivo', ''], [...linhasCasa, ...linhasFora]);
 }
 function htmlImagens(d){
-  const imgs = d.imagens.length ? tabela(['Imagem', 'Tamanho', 'Criada', ''], d.imagens.map(i => `<tr><td class="mono">${esc(i.nome)}</td><td>${esc(i.tamanho)}</td><td class="sub">${esc(agoPt(i.criada))}</td>
-      <td class="acoes">${BT('Criar container', `novoContainer(${J(i.nome)})`, {icone:'play'})}${M([{t:'Apagar imagem', i:'lixo', p:1, js:`if(confirm("Apagar a imagem " + ${J(i.nome)} + "?")) acao("/api/docker",{acao:"rmi",imagem:${J(i.id)}},this)`}])}</td></tr>`))
+  const imgs = d.imagens.length ? tabela(['Imagem', 'Tamanho', 'Criada', ''], d.imagens.map(i => { const semNome = /<none>/.test(i.nome); return `<tr><td class="mono">${semNome ? '<span class="fraco">(sem nome: sobra de um build antigo)</span>' : esc(i.nome)}</td><td>${esc(i.tamanho)}</td><td class="sub">${esc(agoPt(i.criada))}</td>
+      <td class="acoes">${semNome ? '' : BT('Criar container', `novoContainer(${J(i.nome)})`, {icone:'play'})}${M([{t:'Apagar imagem', i:'lixo', p:1, js:`if(confirm("Apagar a imagem " + ${J(semNome ? i.id : i.nome)} + "?")) acao("/api/docker",{acao:"rmi",imagem:${J(i.id)}},this)`}])}</td></tr>`; }))
     : vazio('Nenhuma imagem baixada', 'Baixe uma imagem do Docker Hub ou construa a sua com um Dockerfile.', BT('Baixar imagem', 'baixarImagem()', {icone:'baixar'}));
   const dfs = d.dockerfiles.length ? `<h2>Dockerfiles nos seus projetos</h2>` + tabela(['Pasta', ''], d.dockerfiles.map(p => `<tr><td><div class="nome">${esc(base(p))}</div><div class="sub mono">${esc(curto(p))}</div></td>
       <td class="acoes">${BT('Construir imagem', `executar({ferramenta:"docker",acao:"build",pasta:${J(p)}},this)`, {icone:'imagem', pri:1})}${M([{t:'Editar Dockerfile', i:'editar', js:`editarArquivo(${J(p + '/Dockerfile')})`}, {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${J(p)})`}])}</td></tr>`)) : '';

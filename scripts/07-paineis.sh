@@ -107,7 +107,7 @@ ok_j "$(acao /api/jenkins '{"acao":"criar","tipo":"pipeline_scm","job":"teste-sc
 ok_j "$(acao /api/jenkins '{"acao":"criar","tipo":"multibranch","job":"teste-mb","repo":"https://github.com/jenkinsci/pipeline-examples.git"}')"
 ok_j "$(acao /api/jenkins '{"acao":"copiar","job":"teste-scm","novo":"teste-scm-copia"}')"
 ok_j "$(acao /api/jenkins '{"acao":"desativar","job":"teste-scm-copia"}')"
-ok_j "$(acao /api/jenkins '{"acao":"criar_credencial","tipo":"usuario","id":"teste-token","usuario":"aluno","senha":"x"}')"
+ok_j "$(acao /api/jenkins '{"acao":"criar_credencial","tipo":"usuario","id":"teste-token","usuario":"aluno","senha":"ghp_teste123"}')"
 ok_j "$(acao /api/jenkins '{"acao":"criar_credencial","tipo":"segredo","id":"teste-segredo","segredo":"y"}')"
 ssh-keygen -q -t ed25519 -N '' -f /tmp/chave-teste
 ok_j "$(acao /api/jenkins "$(python3 -c 'import json; print(json.dumps({"acao":"criar_credencial","tipo":"ssh","id":"teste-ssh","chave":open("/tmp/chave-teste").read()}))')")"
