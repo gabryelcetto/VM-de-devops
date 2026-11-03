@@ -6,8 +6,9 @@ Usuário: aluno
 Senha:   devops        (troque com o comando: passwd)
 
 Tudo já está instalado e pronto:
-  VS Code, Docker, Docker Compose, Git, Ansible, Terraform,
-  Python 3 e Jenkins (com plugins de Pipeline, Git e Docker).
+  VS Code, Docker, Docker Compose, Git, Terraform, Python 3,
+  Jenkins (com plugins de Pipeline, Git e Docker) e
+  monitoramento com Grafana, Prometheus e Uptime Kuma.
 
 Onde está cada coisa
 --------------------
@@ -29,16 +30,28 @@ Jenkins
    abre. Se a página não carregar, aguarde e recarregue.
  - Pipelines podem usar Docker (o Jenkins está no grupo docker).
 
+Monitoramento: Grafana, Prometheus e Uptime Kuma
+-------------------------------------------------
+ Ficam desligados para não gastar memória. Ligue no
+ Painel DevOps, aba Monitoramento (as imagens já vêm baixadas).
+ - Grafana:     http://localhost:3000  (aluno / devops)
+                já vem com o painel "Esta VM" (CPU, memória,
+                disco, rede e containers).
+ - Prometheus:  http://localhost:9090  (coleta as métricas)
+ - Uptime Kuma: http://localhost:3001  (aluno / devops)
+                já vigia Jenkins, Painel, Grafana e Prometheus.
+
 Painel DevOps (atalho na Área de Trabalho e no painel)
 --------------------------------------------------------
  Um painel visual único para Docker, Jenkins, Git, VS Code,
- Ansible, Terraform e Python. Tudo com botões e modelos prontos:
+ Terraform, Python e Monitoramento. Tudo com botões e modelos prontos:
    - criar containers (site, MySQL, PostgreSQL, Redis...),
      projetos Docker Compose e imagens com Dockerfile;
    - criar, editar e rodar pipelines do Jenkins, vendo as
      etapas e a saída ao vivo;
    - commit, branches, push, pull e clone no Git;
-   - rodar playbooks do Ansible e init/plan/apply do Terraform;
+   - init/plan/apply/destroy do Terraform;
+   - ligar Grafana, Prometheus e Uptime Kuma com um clique;
    - projetos Python com .venv e pacotes;
    - gráficos de memória, processador, builds e commits.
  Endereço: http://localhost:8090 (favorito "Painel DevOps" no Firefox;
@@ -49,7 +62,6 @@ Comandos rápidos
  code .                         abre a pasta atual no VS Code
  docker run hello-world         testa o Docker (sem sudo)
  docker compose up              sobe um compose.yaml
- ansible localhost -m ping      testa o Ansible
  terraform init                 inicia um projeto Terraform
  python3 -m venv .venv          cria um ambiente Python
  sudo apt install NOME          instala outro programa

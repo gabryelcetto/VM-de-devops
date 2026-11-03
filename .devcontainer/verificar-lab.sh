@@ -20,7 +20,6 @@ fi
 check "Docker"          docker --version
 check "Docker Compose"  docker compose version
 check "Git"             git --version
-check "Ansible"         ansible --version
 check "Terraform"       terraform -version
 check "Python"          python3 --version
 check "Docker roda"     bash -c "docker run --rm hello-world 2>/dev/null | grep 'Hello from Docker'"

@@ -79,7 +79,7 @@ PM_URL="$(curl -fsSL https://api.github.com/repos/jenkinsci/plugin-installation-
 [ -n "$PM_URL" ] || PM_URL="https://github.com/jenkinsci/plugin-installation-manager-tool/releases/download/2.13.2/jenkins-plugin-manager-2.13.2.jar"
 curl -fsSL -o "$PM" "$PM_URL"
 install -d -o jenkins -g jenkins "$JHOME/plugins"
-PLUGINS="workflow-aggregator pipeline-stage-view git github docker-workflow credentials-binding timestamper ws-cleanup ansicolor ansible"
+PLUGINS="workflow-aggregator pipeline-stage-view git github docker-workflow credentials-binding timestamper ws-cleanup ansicolor"
 for try in 1 2 3; do
   # shellcheck disable=SC2086
   if sudo -u jenkins java -jar "$PM" --war /usr/share/java/jenkins.war \
@@ -108,7 +108,7 @@ import json
 d = json.load(open('/tmp/plugins.json'))
 ativos = {p['shortName'] for p in d['plugins'] if p['active']}
 precisa = {'workflow-aggregator', 'workflow-job', 'git', 'github', 'docker-workflow',
-           'pipeline-stage-view', 'credentials-binding', 'timestamper', 'ws-cleanup', 'ansicolor', 'ansible'}
+           'pipeline-stage-view', 'credentials-binding', 'timestamper', 'ws-cleanup', 'ansicolor'}
 faltando = precisa - ativos
 print(f"{len(ativos)} plugins ativos")
 assert not faltando, f"plugins faltando/inativos: {faltando}"

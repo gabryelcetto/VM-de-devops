@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 03 - Ferramentas DevOps: Git, Python, VS Code, Docker + Compose, Terraform, Ansible
+# 03 - Ferramentas DevOps: Git, Python, VS Code, Docker + Compose, Terraform
 set -euxo pipefail
 
 APT="apt-get -y -o DPkg::Lock::Timeout=900 -o APT::Install-Recommends=false -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
@@ -43,34 +43,24 @@ chmod a+r /etc/apt/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [arch=${ARCH} signed-by=/etc/apt/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com ${CODENAME} main" \
   > /etc/apt/sources.list.d/hashicorp.list
 
-# ---------------------------------------------------------------- Ansible (PPA oficial)
-add-apt-repository -y ppa:ansible/ansible \
-  || echo "AVISO: PPA do Ansible indisponível, usando a versão do Ubuntu"
-
 $APT update
 $APT install code \
              docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
-             terraform \
-             ansible-core python3-requests
+             terraform
 
-# ---------------------------------------------------------------- Coleções do Ansible
-# ansible-core (~8 MB) + as coleções mais usadas em aula, no lugar do pacote
-# "ansible" completo (~280 MB). Outras: ansible-galaxy collection install NOME
-mkdir -p /usr/share/ansible/collections
-for try in 1 2 3; do
-  if ansible-galaxy collection install -p /usr/share/ansible/collections \
-       community.general community.docker ansible.posix; then break; fi
-  echo "ansible-galaxy falhou (tentativa $try)"; sleep 15
-  [ "$try" = 3 ] && echo "AVISO: coleções do Ansible não instaladas"
-done
 
 # ---------------------------------------------------------------- Ajustes Docker
-# Logs dos containers com tamanho limitado (o disco não enche)
+# - logs dos containers com tamanho limitado (o disco não enche)
+# - métricas do Docker em 127.0.0.1:9323 (o Prometheus do monitoramento lê)
+# - imagens no overlay2: o "containerd image store" (padrão do Docker 29) guarda cada imagem
+#   duas vezes (compactada + descompactada), o que deixava o .ova centenas de MB maior
 mkdir -p /etc/docker
 cat > /etc/docker/daemon.json <<'JSON'
 {
   "log-driver": "json-file",
-  "log-opts": { "max-size": "10m", "max-file": "3" }
+  "log-opts": { "max-size": "10m", "max-file": "3" },
+  "metrics-addr": "127.0.0.1:9323",
+  "features": { "containerd-snapshotter": false }
 }
 JSON
 systemctl enable --now docker containerd
@@ -83,6 +73,7 @@ for img in nginx:alpine python:3.12-slim alpine:latest hello-world:latest; do
   for t in 1 2 3; do docker pull -q "$img" && break; echo "falhou baixar $img (tentativa $t)"; sleep 10; done
 done
 docker image ls
+docker info --format 'Armazenamento das imagens: {{.Driver}}'
 
 # Atalho "docker-compose" (sintaxe antiga) -> "docker compose"
 cat > /usr/local/bin/docker-compose <<'EOF'
@@ -97,7 +88,7 @@ sudo -u "${LAB_USER}" -H bash -c 'touch ~/.bashrc && terraform -install-autocomp
 # ---------------------------------------------------------------- VS Code
 # Extensões (falha de uma não interrompe o build; o teste confere depois)
 for ext in ms-ceintl.vscode-language-pack-pt-br ms-python.python \
-           ms-azuretools.vscode-docker hashicorp.terraform redhat.vscode-yaml redhat.ansible; do
+           ms-azuretools.vscode-docker hashicorp.terraform redhat.vscode-yaml; do
   timeout 300 sudo -u "${LAB_USER}" -H code --install-extension "$ext" --force || true
 done
 HOME_DIR="$(getent passwd "${LAB_USER}" | cut -d: -f6)"

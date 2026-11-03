@@ -108,6 +108,7 @@ build {
       "${path.root}/../scripts/05-interface.sh",
       "${path.root}/../scripts/06-finalize.sh",
       "${path.root}/../scripts/07-paineis.sh",
+      "${path.root}/../scripts/08-monitoramento.sh",
       "${path.root}/../scripts/98-enxugar.sh",
       "${path.root}/../scripts/99-cleanup.sh"
     ]

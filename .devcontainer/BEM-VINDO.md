@@ -1,7 +1,7 @@
 # Bem-vindo ao DevOps-Lab (no navegador)
 
 Tudo já está instalado: **VS Code** (este editor), **Docker + Docker Compose**, **Git**,
-**Ansible**, **Terraform**, **Python** e **Jenkins**.
+**Terraform**, **Python** e **Jenkins**.
 
 ## Primeiros passos
 

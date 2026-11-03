@@ -42,7 +42,7 @@ if git fetch -q --depth 1 origin test-results 2>/dev/null; then
   if [ -n "$VL" ]; then
     VERSOES="$(python3 - "$VL" <<'PY'
 import re, sys
-quero = ["Ubuntu", "VS Code", "Docker", "Docker Compose", "Git", "Ansible", "Terraform", "Python", "Jenkins", "Firefox"]
+quero = ["Ubuntu", "VS Code", "Docker", "Docker Compose", "Git", "Terraform", "Python", "Jenkins", "Firefox"]
 achou = {}
 for linha in sys.argv[1].splitlines():
     m = re.match(r"\[OK\]\s+(.{16})(.*)", linha)
@@ -58,7 +58,7 @@ PY
   fi
 fi
 
-NOTES="VM Ubuntu 24.04 + XFCE com VS Code, Docker, Docker Compose, Git, Ansible, Terraform, Python, Jenkins e Painel DevOps. Testada automaticamente no VirtualBox 7.2.
+NOTES="VM Ubuntu 24.04 + XFCE com VS Code, Docker, Docker Compose, Git, Terraform, Python, Jenkins, Grafana, Prometheus, Uptime Kuma e Painel DevOps. Testada automaticamente no VirtualBox 7.2.
 
 ## Como instalar
 1. Baixe **DevOps-Lab.ova** (abaixo).

@@ -17,7 +17,7 @@ cat > /tmp/job.xml <<'XML'
   agent any
   stages {
     stage('Docker') { steps { sh 'docker run --rm hello-world | grep "Hello from Docker"' } }
-    stage('Ferramentas') { steps { sh 'git --version; python3 --version; terraform -version | head -n 1; ansible --version | head -n 1' } }
+    stage('Ferramentas') { steps { sh 'git --version; python3 --version; terraform -version | head -n 1' } }
   }
 }</script>
     <sandbox>true</sandbox>

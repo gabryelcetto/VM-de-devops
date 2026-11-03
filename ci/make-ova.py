@@ -80,7 +80,7 @@ def main(qcow2, ova):
     </ProductSection>
     <AnnotationSection>
       <Info>A human-readable annotation</Info>
-      <Annotation>Ubuntu 24.04 LTS + XFCE com VS Code, Docker, Docker Compose, Git, Ansible, Terraform, Python e Jenkins. Usuario: aluno / Senha: devops</Annotation>
+      <Annotation>Ubuntu 24.04 LTS + XFCE com VS Code, Docker, Docker Compose, Git, Terraform, Python, Jenkins, Grafana e Uptime Kuma. Usuario: aluno / Senha: devops</Annotation>
     </AnnotationSection>
     <OperatingSystemSection ovf:id="94">
       <Info>The kind of installed guest operating system</Info>

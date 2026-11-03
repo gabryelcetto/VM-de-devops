@@ -1,5 +1,5 @@
 // Teste de ponta a ponta do Painel DevOps: abre o painel num navegador e usa TUDO como o aluno
-// (modelos, botões, criação no Jenkins/Docker/Git/Ansible/Terraform/Python), anotando cada erro.
+// (modelos, botões, criação no Jenkins/Docker/Git/Terraform/Python, monitoramento), anotando cada erro.
 // Uso: node e2e.js <pasta-de-resultados>     (painel em http://localhost:8090)
 const { chromium } = require('playwright');
 const fs = require('fs');
@@ -89,7 +89,7 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
   await page.waitForSelector('#menu');
 
   // ------------------------------------------------------------------ 1. todas as abas abrem
-  for (const a of ['inicio', 'docker', 'jenkins', 'git', 'vscode', 'ansible', 'terraform', 'python', 'atividades', 'sistema']) {
+  for (const a of ['inicio', 'docker', 'jenkins', 'git', 'vscode', 'terraform', 'python', 'monitoramento', 'atividades', 'sistema']) {
     await passo('Abas', a, async () => {
       await aba(a); await page.waitForTimeout(1500);
       const at = await page.textContent('#atualizado');
@@ -351,7 +351,7 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
     await api('/api/docker', { acao: 'rm', container: 'qa-dup' });
   });
   await passo('QA', 'portas dos modelos', async () => {
-    const usadas = await page.evaluate(() => [...MODELOS_CONTAINER.map(m => (m.valores.portas || '').split(':')[0]), ...MODELOS_COMPOSE.flatMap(m => [...m.valores.conteudo.matchAll(/"(\d+):\d+"/g)].map(x => x[1])), '8080', '8087', '8088', '8090'].filter(Boolean));
+    const usadas = await page.evaluate(() => [...MODELOS_CONTAINER.map(m => (m.valores.portas || '').split(':')[0]), ...MODELOS_COMPOSE.flatMap(m => [...m.valores.conteudo.matchAll(/"(\d+):\d+"/g)].map(x => x[1])), '8080', '8087', '8088', '8090', '3000', '3001', '9090', '9100', '9323'].filter(Boolean));
     const rep = usadas.filter((p, i) => usadas.indexOf(p) !== i);
     reg('QA', 'modelos de container/Compose/Jenkins não usam a mesma porta', !rep.length, 'repetidas: ' + rep.join(','));
   });
@@ -361,32 +361,86 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
   });
   await aba('docker'); await print('docker-depois');
 
-  // ------------------------------------------------------------------ 5. Ansible
-  await aba('ansible');
-  const modelosAn = await page.evaluate(() => MODELOS_ANSIBLE.map(m => m.nome));
-  for (let i = 0; i < modelosAn.length; i++) {
-    await passo('Ansible', modelosAn[i], async () => {
-      await usarModelo(() => novoPlaybook(), i, { nome: 'lab-ansible-' + i });
-      const c = await esperarConsole(300000); reg('Ansible', `playbook "${modelosAn[i]}" roda`, c.ok, c.estado + ' ' + fim(c.saida)); await fechar();
-    });
+  // ------------------------------------------------------------------ 5. Monitoramento (Grafana, Prometheus, Uptime Kuma)
+  const monEstado = () => apiGet('/api/monitoramento');
+  async function esperarMon(cond, ms = 180000) {
+    let m = {}; const t0 = Date.now();
+    while (Date.now() - t0 < ms) { m = await monEstado(); if (cond(m)) return m; await dormir(3000); }
+    return m;
   }
-  await passo('Ansible', 'comando rápido', async () => {
-    await page.evaluate(() => adhoc()); await page.click('#m-rod button.pri');
-    const c = await esperarConsole(120000); reg('Ansible', 'comando rápido (ping)', c.ok, c.estado + ' ' + fim(c.saida)); await fechar();
+  const resumoMon = m => (m.servicos || []).map(x => `${x.id}=${x.estado || '-'}/${x.no_ar ? 'no ar' : 'fora'}`).join(' ');
+  await aba('monitoramento');
+  await passo('Monitoramento', 'começa desligado', async () => {
+    const m = await monEstado();
+    reg('Monitoramento', 'vem instalado e desligado (não gasta memória à toa)', m.instalado && (m.servicos || []).every(x => !x.no_ar), resumoMon(m));
+    await print('monitoramento-desligado');
   });
-  for (const ac of ['simular', 'checar']) {
-    await passo('Ansible', ac, async () => {
-      const r = await api('/api/executar', { ferramenta: 'ansible', acao: ac, playbook: '/home/aluno/projetos/lab-ansible-0/playbook.yml' });
-      reg('Ansible', ac, r.ok, JSON.stringify(r.r).slice(0, 200));
-    });
-  }
-  await passo('QA', 'ansible com inventário', async () => {
-    await api('/api/arquivo', { acao: 'salvar', caminho: '/home/aluno/projetos/lab-ansible-0/inventario.ini', conteudo: '[local]\nlocalhost ansible_connection=local\n' });
-    await page.evaluate(() => executar({ ferramenta: 'ansible', acao: 'rodar', playbook: '/home/aluno/projetos/lab-ansible-0/playbook.yml' }));
-    const c = await esperarConsole(180000);
-    reg('QA', 'playbook com inventário próprio usa o inventário e roda', c.ok && !/-c local/.test(c.estado), c.estado + ' ' + fim(c.saida)); await fechar();
+  await passo('Monitoramento', 'ligar', async () => {
+    await limparAvisos(); await page.click('#acoes-topo button.pri', { timeout: 10000 });
+    const c = await esperarConsole(300000);
+    reg('Monitoramento', 'botão "Ligar monitoramento" sobe os 4 serviços', c.ok, c.estado + ' ' + fim(c.saida)); await fechar();
+    const m = await esperarMon(m => (m.servicos || []).length === 4 && m.servicos.every(x => x.no_ar));
+    reg('Monitoramento', 'Grafana, Uptime Kuma, Prometheus e node-exporter respondem', (m.servicos || []).every(x => x.no_ar), resumoMon(m));
+    await aba('monitoramento'); await page.waitForTimeout(1500); await print('monitoramento-ligado');
+    const txt = await page.textContent('#monitoramento');
+    reg('Monitoramento', 'aba mostra os serviços no ar', (txt.match(/No ar/g) || []).length >= 4, txt.replace(/\s+/g, ' ').slice(0, 300));
   });
-  await aba('ansible'); await print('ansible-depois');
+  const basic = { Authorization: 'Basic ' + Buffer.from('aluno:devops').toString('base64') };
+  const pega = async (u, h) => { try { const r = await fetch(u, { headers: h || {}, redirect: 'manual' }); return { status: r.status, corpo: await r.text() }; } catch (e) { return { status: 0, corpo: e.message }; } };
+  await passo('Monitoramento', 'Grafana', async () => {
+    const h = await pega('http://127.0.0.1:3000/api/datasources/uid/prometheus/health', basic);
+    reg('Monitoramento', 'Grafana entra com aluno/devops e a fonte Prometheus funciona', h.status === 200 && /"status":"OK"/i.test(h.corpo), h.status + ' ' + h.corpo.slice(0, 200));
+    const d = await pega('http://127.0.0.1:3000/api/dashboards/uid/esta-vm', basic);
+    reg('Monitoramento', 'Grafana já tem o painel "Esta VM"', d.status === 200 && d.corpo.includes('Esta VM'), d.status + ' ' + d.corpo.slice(0, 120));
+    const q = await pega('http://127.0.0.1:3000/api/datasources/proxy/uid/prometheus/api/v1/query?query=node_memory_MemTotal_bytes', basic);
+    reg('Monitoramento', 'gráfico de memória tem dados (Grafana → Prometheus → node-exporter)', q.status === 200 && /"result":\[\{/.test(q.corpo), q.status + ' ' + q.corpo.slice(0, 160));
+    const pg = await ctx.newPage();
+    try {
+      await pg.goto('http://localhost:3000/login'); await pg.fill('input[name="user"]', 'aluno'); await pg.fill('input[name="password"]', 'devops');
+      await pg.click('button[type="submit"]'); await pg.waitForTimeout(6000); await pg.screenshot({ path: path.join(OUT, 'grafana.png') });
+      const t = await pg.textContent('body');
+      reg('Monitoramento', 'login no Grafana pela tela abre o painel "Esta VM"', /Esta VM/.test(t) && /Processador|Mem[óo]ria/.test(t), t.replace(/\s+/g, ' ').slice(0, 160));
+    } finally { await pg.close(); }
+  });
+  await passo('Monitoramento', 'Prometheus', async () => {
+    const q = await pega('http://127.0.0.1:9090/api/v1/query?query=up');
+    let jobs = {}; try { for (const r of JSON.parse(q.corpo).data.result) jobs[r.metric.job] = r.value[1]; } catch (e) {}
+    reg('Monitoramento', 'Prometheus coleta a VM, o Docker e ele mesmo', jobs.prometheus === '1' && jobs['esta-vm'] === '1' && jobs.docker === '1', JSON.stringify(jobs));
+  });
+  await passo('Monitoramento', 'Uptime Kuma', async () => {
+    const k = await pega('http://127.0.0.1:3001/');
+    reg('Monitoramento', 'Uptime Kuma responde em :3001', k.status > 0 && k.status < 500, String(k.status));
+    const pg = await ctx.newPage();
+    try {
+      await pg.goto('http://localhost:3001/dashboard'); await pg.waitForTimeout(4000);
+      const temLogin = await pg.$('input[autocomplete="username"], #floatingInput');
+      if (temLogin) {
+        await pg.fill('#floatingInput, input[autocomplete="username"]', 'aluno'); await pg.fill('#floatingPassword, input[type="password"]', 'devops');
+        await pg.click('button[type="submit"]'); await pg.waitForTimeout(8000);
+      }
+      await pg.screenshot({ path: path.join(OUT, 'uptime-kuma.png') });
+      const t = await pg.textContent('body');
+      const faltam = ['Jenkins', 'Painel DevOps', 'Grafana', 'Prometheus'].filter(n => !t.includes(n));
+      reg('Monitoramento', 'Uptime Kuma entra com aluno/devops e já vigia Jenkins, Painel, Grafana e Prometheus', !!temLogin && !faltam.length, faltam.length ? 'faltam: ' + faltam.join(', ') : '');
+    } finally { await pg.close(); }
+  });
+  await passo('Monitoramento', 'logs e reiniciar', async () => {
+    await page.evaluate(() => executar({ ferramenta: 'docker', acao: 'compose_logs_projeto', projeto: 'monitoramento' }));
+    const l = await esperarConsole(60000); reg('Monitoramento', 'ver os logs do monitoramento', l.ok, l.estado + ' ' + fim(l.saida)); await fechar();
+    await page.evaluate(() => executar({ ferramenta: 'monitoramento', acao: 'reiniciar' }));
+    const c = await esperarConsole(180000); reg('Monitoramento', 'reiniciar', c.ok, c.estado + ' ' + fim(c.saida)); await fechar();
+    const m = await esperarMon(m => (m.servicos || []).every(x => x.no_ar));
+    reg('Monitoramento', 'volta ao ar depois de reiniciar', (m.servicos || []).every(x => x.no_ar), resumoMon(m));
+  });
+  await passo('Monitoramento', 'desligar', async () => {
+    await page.evaluate(() => executar({ ferramenta: 'monitoramento', acao: 'desligar' }));
+    const c = await esperarConsole(180000); reg('Monitoramento', 'Desligar', c.ok, c.estado + ' ' + fim(c.saida)); await fechar();
+    const m = await esperarMon(m => (m.servicos || []).every(x => !x.no_ar), 60000);
+    reg('Monitoramento', 'desligado de verdade (memória liberada)', (m.servicos || []).every(x => !x.no_ar), resumoMon(m));
+    const d = await apiGet('/api/docker');
+    reg('Monitoramento', 'dados do Grafana e do Kuma continuam guardados (volumes)', (d.volumes || []).some(v => /grafana-dados/.test(v.nome || v)) && (d.volumes || []).some(v => /kuma-dados/.test(v.nome || v)), JSON.stringify((d.volumes || []).map(v => v.nome || v)).slice(0, 200));
+  });
+  await aba('monitoramento'); await print('monitoramento-depois');
 
   // ------------------------------------------------------------------ 6. Terraform
   await aba('terraform');
@@ -402,6 +456,58 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
       }
     });
   }
+  const idxTfDocker = await page.evaluate(() => MODELOS_TF.findIndex(m => m.nome === 'Container Docker'));
+  const tfProjetos = async () => ((await apiGet('/api/terraform')).projetos || []);
+  const container = async n => ((await apiGet('/api/docker')).containers || []).find(x => x.nome === n);
+  await passo('Terraform', 'conferir com a realidade', async () => {
+    const P = '/home/aluno/projetos/lab-tf-refresh';
+    await usarModelo(() => novoTerraform(), idxTfDocker, { nome: 'lab-tf-refresh' });
+    await esperarConsole(300000); await fechar();
+    await page.evaluate(p => executar({ ferramenta: 'terraform', acao: 'apply', pasta: p }), P);
+    const ap = await esperarConsole(300000); await fechar();
+    reg('Terraform', 'apply do "Container Docker" cria o nginx-terraform', ap.ok && (await container('nginx-terraform'))?.estado === 'running', ap.estado);
+    // o caso do aluno: apagou o container por fora (Docker) -> o Terraform ainda acha que existe
+    await api('/api/docker', { acao: 'rm', container: 'nginx-terraform' });
+    let pr = (await tfProjetos()).find(x => x.pasta === P);
+    reg('Terraform', 'apagar o container por fora não avisa o Terraform (estado ainda lista docker_container.web)', pr && pr.recursos.includes('docker_container.web'), JSON.stringify(pr && pr.recursos));
+    await page.evaluate(p => executar({ ferramenta: 'terraform', acao: 'refresh', pasta: p }), P);
+    const rf = await esperarConsole(300000); await fechar();
+    pr = (await tfProjetos()).find(x => x.pasta === P);
+    reg('Terraform', '"Conferir com a realidade (refresh)" tira do estado o que não existe mais', rf.ok && pr && !pr.recursos.includes('docker_container.web'), rf.estado + ' ' + JSON.stringify(pr && pr.recursos) + ' ' + fim(rf.saida));
+    await page.evaluate(p => executar({ ferramenta: 'projeto', acao: 'apagar', pasta: p }), P);
+    const del = await esperarConsole(300000); await fechar();
+    reg('Terraform', 'apagar projeto depois do refresh', del.ok && !(await tfProjetos()).some(x => x.pasta === P), del.estado + ' ' + fim(del.saida));
+  });
+  await passo('Terraform', 'apagar projeto', async () => {
+    const P = '/home/aluno/projetos/lab-tf-apagar';
+    await usarModelo(() => novoTerraform(), idxTfDocker, { nome: 'lab-tf-apagar' });
+    await esperarConsole(300000); await fechar();
+    await page.evaluate(p => executar({ ferramenta: 'terraform', acao: 'apply', pasta: p }), P);
+    await esperarConsole(300000); await fechar();
+    const antes = await container('nginx-terraform');
+    await aba('terraform'); await print('terraform-apagar-antes');
+    await page.evaluate(p => executar({ ferramenta: 'projeto', acao: 'apagar', pasta: p }), P);
+    const c = await esperarConsole(300000); await print('terraform-apagar-console'); await fechar();
+    const depois = await container('nginx-terraform');
+    reg('Terraform', '"Apagar projeto" roda o destroy antes de apagar a pasta', c.ok && /terraform destroy/.test(c.saida) && /Destroy complete/.test(c.saida), c.estado + ' ' + fim(c.saida));
+    reg('Terraform', 'o container criado pelo Terraform some junto (não fica sobrando)', !!antes && !depois, `antes=${antes && antes.estado} depois=${depois ? depois.estado : 'não existe'}`);
+    reg('Terraform', 'a pasta do projeto some da lista', !(await tfProjetos()).some(x => x.pasta === P), '');
+    const img = ((await apiGet('/api/docker')).imagens || []).some(i => /nginx/.test(JSON.stringify(i)) && /alpine/.test(JSON.stringify(i)));
+    reg('Terraform', 'a imagem nginx:alpine continua (keep_locally)', img, '');
+  });
+  await passo('QA', 'apagar projeto fora de ~/projetos', async () => {
+    const r = await api('/api/executar', { ferramenta: 'projeto', acao: 'apagar', pasta: '/home/aluno/.config' });
+    reg('QA', 'Painel recusa apagar pasta que não é projeto', !r.ok && /direto em ~\/projetos/.test(r.r), r.r);
+  });
+  await passo('Docker', 'apagar projeto Compose', async () => {
+    await usarModelo(() => novoCompose(), 0, { nome: 'lab-compose-apagar' });
+    const up = await esperarConsole(600000); await fechar();
+    const antes = ((await apiGet('/api/docker')).containers || []).filter(x => x.projeto === 'lab-compose-apagar').length;
+    await page.evaluate(() => executar({ ferramenta: 'projeto', acao: 'apagar', pasta: '/home/aluno/projetos/lab-compose-apagar' }));
+    const c = await esperarConsole(300000); await fechar();
+    const depois = ((await apiGet('/api/docker')).containers || []).filter(x => x.projeto === 'lab-compose-apagar').length;
+    reg('Docker', '"Apagar projeto" do Compose derruba os containers e apaga a pasta', up.ok && antes > 0 && c.ok && depois === 0 && /compose down/.test(c.saida), `antes=${antes} depois=${depois} ${fim(c.saida)}`);
+  });
   await aba('terraform'); await print('terraform-depois');
 
   // ------------------------------------------------------------------ 7. Python
@@ -426,6 +532,12 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
   await passo('Python', 'pytest', async () => {
     await page.evaluate(() => executar({ ferramenta: 'python', acao: 'pytest', pasta: '/home/aluno/projetos/lab-py-2' }));
     const k = await esperarConsole(120000); reg('Python', 'rodar testes (pytest)', k.ok, k.estado + ' ' + fim(k.saida)); await fechar();
+  });
+  await passo('Python', 'apagar projeto', async () => {
+    await page.evaluate(() => executar({ ferramenta: 'projeto', acao: 'apagar', pasta: '/home/aluno/projetos/lab-py-0' }));
+    const c = await esperarConsole(60000); await fechar();
+    const ps = (await apiGet('/api/python')).projetos || [];
+    reg('Python', 'apagar projeto Python', c.ok && !ps.some(x => x.pasta === '/home/aluno/projetos/lab-py-0'), c.estado);
   });
   await aba('python'); await print('python-depois');
 

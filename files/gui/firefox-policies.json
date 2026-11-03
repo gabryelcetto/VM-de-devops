@@ -60,12 +60,6 @@
         "Folder": "Documentação"
       },
       {
-        "Title": "Ansible Docs",
-        "URL": "https://docs.ansible.com/",
-        "Placement": "toolbar",
-        "Folder": "Documentação"
-      },
-      {
         "Title": "Python (pt-BR)",
         "URL": "https://docs.python.org/pt-br/3/",
         "Placement": "toolbar",

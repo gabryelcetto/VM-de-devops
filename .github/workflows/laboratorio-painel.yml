@@ -1,7 +1,7 @@
 name: Laboratório do Painel (testes de ponta a ponta)
 
 # Monta uma cópia "sem tela" da VM num runner (Jenkins pelo mesmo script da VM, Docker,
-# Ansible, Terraform, Python e o Painel DevOps) e usa o Painel num navegador como o aluno,
+# Terraform, Python, Grafana/Prometheus/Uptime Kuma e o Painel DevOps) e usa o Painel num navegador como o aluno,
 # clicando em todos os modelos e botões. Não gera .ova e não publica nada.
 # Resultados (relatório, prints e logs) ficam na branch lab-results.
 

@@ -198,7 +198,6 @@ sudo -u "${LAB_USER}" -H code --version
 docker --version
 docker compose version
 git --version
-ansible --version
 terraform -version
 python3 --version
 java -version
@@ -208,5 +207,4 @@ systemctl is-enabled jenkins-atrasado.timer docker.socket devops-lab-apt-update.
 sudo -u "${LAB_USER}" -H code --list-extensions | tee /tmp/extensoes.txt
 grep -qi ms-ceintl.vscode-language-pack-pt-br /tmp/extensoes.txt
 grep -qi hashicorp.terraform /tmp/extensoes.txt
-ansible-galaxy collection list 2>/dev/null | grep -E "community.general|community.docker|ansible.posix" || echo "AVISO: coleções do Ansible ausentes"
 ls -l "${DESKTOP}"

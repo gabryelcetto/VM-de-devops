@@ -2,7 +2,7 @@
 #  DevOps-Lab  -  Template Packer para gerar DevOps-Lab.ova
 #
 #  Ubuntu 24.04 LTS + XFCE (leve) + VS Code + Docker/Compose + Git +
-#  Ansible + Terraform + Python + Jenkins
+#  Terraform + Python + Jenkins + Grafana/Prometheus/Uptime Kuma
 #
 #  Uso:   packer init .   &&   packer build .
 #  (ou simplesmente rode build.ps1 no Windows / build.sh no Linux/macOS)
@@ -128,7 +128,7 @@ source "virtualbox-iso" "devops_lab" {
     "--vsys", "0",
     "--product", "DevOps Lab",
     "--version", "1.0",
-    "--description", "Ubuntu 24.04 LTS + XFCE com VS Code, Docker, Docker Compose, Git, Ansible, Terraform, Python e Jenkins. Usuario: aluno / Senha: devops"
+    "--description", "Ubuntu 24.04 LTS + XFCE com VS Code, Docker, Docker Compose, Git, Terraform, Python, Jenkins, Grafana e Uptime Kuma. Usuario: aluno / Senha: devops"
   ]
 }
 
@@ -172,6 +172,7 @@ build {
       "scripts/05-interface.sh",
       "scripts/06-finalize.sh",
       "scripts/07-paineis.sh",
+      "scripts/08-monitoramento.sh",
       "scripts/98-enxugar.sh",
       "scripts/99-cleanup.sh"
     ]

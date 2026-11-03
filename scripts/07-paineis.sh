@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 07 - Painel DevOps (localhost:8090): um painel visual único para Docker, Jenkins, Git,
-#      VS Code, Ansible, Terraform e Python, com modelos prontos, botões para criar/rodar/editar,
+#      VS Code, Terraform, Python e Monitoramento (Grafana/Uptime Kuma), com modelos prontos, botões para criar/rodar/editar,
 #      saída dos comandos ao vivo e gráficos. Só roda quando o aluno abre (não pesa no boot).
 set -euxo pipefail
 
@@ -122,7 +122,7 @@ ok_j "$(acao /api/git '{"acao":"gerar_chave","email":"teste@devops-lab"}')"
 api /api/git | python3 -c 'import json,sys; k=json.load(sys.stdin)["chave"]; assert k["existe"] and k["publica"].startswith("ssh-ed25519"); print("chave ok")'
 rm -f "$HOME_DIR/.ssh/id_ed25519" "$HOME_DIR/.ssh/id_ed25519.pub"
 
-# Ansible, Terraform e Python pelo painel (tarefas com saída ao vivo)
+# Terraform e Python pelo painel (tarefas com saída ao vivo)
 espera() {  # $1 = resposta do /api/executar ; imprime a saída e falha se o comando falhou
   local id; id="$(echo "$1" | python3 -c 'import json,sys; print(json.load(sys.stdin)["resultado"]["tarefa"])')"
   for _ in $(seq 1 120); do
@@ -130,8 +130,6 @@ espera() {  # $1 = resposta do /api/executar ; imprime a saída e falha se o com
   done
   api "/api/tarefa?id=$id" | python3 -c 'import json,sys; t=json.load(sys.stdin); print("\n".join(t["linhas"][-15:])); print("codigo", t["codigo"]); sys.exit(t["codigo"])'
 }
-acao /api/arquivo '{"acao":"projeto","nome":"teste-painel-ansible","arquivos":{"playbook.yml":"- name: Teste\n  hosts: localhost\n  gather_facts: false\n  tasks:\n    - name: ping\n      ansible.builtin.ping:\n"}}'
-espera "$(acao /api/executar "{\"ferramenta\":\"ansible\",\"acao\":\"rodar\",\"playbook\":\"$HOME_DIR/projetos/teste-painel-ansible/playbook.yml\"}")"
 acao /api/arquivo '{"acao":"projeto","nome":"teste-painel-tf","arquivos":{"main.tf":"resource \"terraform_data\" \"x\" {\n  input = \"ok\"\n}\noutput \"x\" {\n  value = terraform_data.x.output\n}\n"}}'
 espera "$(acao /api/executar "{\"ferramenta\":\"terraform\",\"acao\":\"init\",\"pasta\":\"$HOME_DIR/projetos/teste-painel-tf\"}")"
 espera "$(acao /api/executar "{\"ferramenta\":\"terraform\",\"acao\":\"apply\",\"pasta\":\"$HOME_DIR/projetos/teste-painel-tf\"}")"

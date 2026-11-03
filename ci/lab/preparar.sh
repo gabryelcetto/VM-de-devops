@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Laboratório do Painel: monta no runner do GitHub uma cópia "sem tela" da VM
-# (usuário aluno, Docker, Jenkins pelo MESMO script da VM, Ansible, Terraform, Python)
+# (usuário aluno, Docker, Jenkins pelo MESMO script da VM, Terraform, Python, monitoramento)
 # e liga o Painel DevOps como o aluno, para os testes de ponta a ponta (e2e.js).
 # Uso (no runner): sudo bash ci/lab/preparar.sh
 set -euxo pipefail
@@ -17,14 +17,25 @@ apt-get update -qq
 $APT install openjdk-21-jre-headless fontconfig python3-venv python3-pip git curl jq
 update-alternatives --set java /usr/lib/jvm/java-21-openjdk-amd64/bin/java
 
-# Terraform e Ansible como na VM (scripts/03-devops-tools.sh)
+# Terraform como na VM (scripts/03-devops-tools.sh)
 curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor --yes -o /etc/apt/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/etc/apt/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(. /etc/os-release; echo "$VERSION_CODENAME") main" \
   > /etc/apt/sources.list.d/hashicorp.list
 apt-get update -qq
-$APT install terraform ansible-core python3-requests
-mkdir -p /usr/share/ansible/collections
-ansible-galaxy collection install -p /usr/share/ansible/collections community.general community.docker ansible.posix
+$APT install terraform
+
+# Docker: métricas em 127.0.0.1:9323 como na VM (o Prometheus lê). Junta com o daemon.json do runner.
+mkdir -p /etc/docker
+[ -s /etc/docker/daemon.json ] || echo '{}' > /etc/docker/daemon.json
+jq '. + {"metrics-addr": "127.0.0.1:9323"}' /etc/docker/daemon.json > /tmp/daemon.json
+mv /tmp/daemon.json /etc/docker/daemon.json
+cat /etc/docker/daemon.json
+systemctl restart docker
+for _ in $(seq 1 30); do curl -fsS -o /dev/null http://127.0.0.1:9323/metrics && break; sleep 1; done
+
+# Monitoramento: exatamente o script da VM (baixa as imagens, testa e deixa desligado)
+rm -rf /tmp/files && mkdir -p /tmp/files && cp -r files/monitoramento /tmp/files/
+bash scripts/08-monitoramento.sh
 
 # Jenkins: exatamente o script da VM. Na VM o grupo docker do Jenkins vale depois do
 # reboot; aqui reiniciamos o serviço para valer na hora.

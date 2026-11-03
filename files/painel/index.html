@@ -238,9 +238,9 @@ svg.graf text{fill:var(--fraco);font-size:11px;font-family:inherit}
     <button data-aba="jenkins"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="19" cy="12" r="2.5"/><path d="M7.5 12h2M14.5 12h2"/></svg><span>Jenkins</span><span class="cont" id="n-jenkins"></span></button>
     <button data-aba="git"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="5" r="2.5"/><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="9" r="2.5"/><path d="M6 7.5v9M18 11.5c0 4-6 3-11.5 6"/></svg><span>Git</span></button>
     <button data-aba="vscode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3l4 2v14l-4 2L7 13l-4 3-1-1V9l1-1 4 3L17 3zM17 8l-5 4 5 4z"/></svg><span>VS Code</span></button>
-    <button data-aba="ansible"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 17l4-10 4 10M10 13l5 2.5"/></svg><span>Ansible</span></button>
     <button data-aba="terraform"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4l5 3v6L3 10zM9.5 7.5l5 3v6l-5-3zM16 10.5l5-3v6l-5 3zM9.5 15l5 3v4l-5-3z"/></svg><span>Terraform</span></button>
     <button data-aba="python"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3c-4 0-4 1.5-4 3v2h4.5v1H6c-2 0-3 1.5-3 4s1 4 3 4h1.5v-2.5c0-1.5 1-2.5 2.5-2.5h4.5c1.5 0 2.5-1 2.5-2.5V6c0-1.5-1-3-5-3z"/><path d="M12 21c4 0 4-1.5 4-3v-2h-4.5v-1H18c2 0 3-1.5 3-4"/></svg><span>Python</span></button>
+    <button data-aba="monitoramento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><span>Monitoramento</span><span class="cont" id="n-monitoramento"></span></button>
     <div class="grupo">Laboratório</div>
     <button data-aba="atividades"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="17" r="3"/></svg><span>Atividades</span><span class="cont" id="n-atividades"></span></button>
     <button data-aba="sistema"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4M6 12l3-3 3 2 4-4"/></svg><span>Sistema</span></button>
@@ -264,9 +264,9 @@ svg.graf text{fill:var(--fraco);font-size:11px;font-family:inherit}
     <section id="jenkins"></section>
     <section id="git"></section>
     <section id="vscode"></section>
-    <section id="ansible"></section>
     <section id="terraform"></section>
     <section id="python"></section>
+    <section id="monitoramento"></section>
     <section id="atividades"></section>
     <section id="sistema"></section>
   </main>
@@ -492,9 +492,9 @@ const PAGINAS = {
   jenkins:['Jenkins','Pipelines e outros jobs: criar, construir e acompanhar ao vivo.'],
   git:['Git','Seus repositórios e o acesso ao GitHub.'],
   vscode:['VS Code','Abra seus projetos no editor e gerencie as extensões.'],
-  ansible:['Ansible','Playbooks e comandos de automação nesta máquina.'],
   terraform:['Terraform','Infraestrutura como código: init, plan, apply e destroy.'],
   python:['Python','Projetos, ambientes virtuais, pacotes e scripts.'],
+  monitoramento:['Monitoramento','Grafana, Prometheus e Uptime Kuma: gráficos desta VM e vigia dos serviços.'],
   atividades:['Atividades','Tudo o que você rodou pelo painel, com a saída completa.'],
   sistema:['Sistema','Memória, processador, serviços e programas em execução.'],
 };
@@ -512,8 +512,8 @@ const AJUDA = {
   jenkins:['Novo item: Pipeline (script), Pipeline do Git (Jenkinsfile do repositório), Freestyle (comandos), Multibranch ou Pasta.','Repositório privado? Cadastre antes uma credencial (token ou chave SSH) na aba Credenciais.','Os quadradinhos são os últimos builds: verde = sucesso, vermelho = falha. Clique para ver o console.','No menu ⋯ de cada job: editar, gatilhos (rodar sozinho), copiar, desativar e apagar.'],
   git:['Antes do primeiro commit, configure seu nome e e-mail em Acesso ao GitHub.','Para falar com o GitHub use a chave SSH (gerar, copiar, colar no GitHub e testar) ou guarde um token para endereços https.','No dia a dia: altere arquivos, clique em Commit e depois em Push.'],
   vscode:['Abrir no VS Code edita o projeto inteiro.','Novo arquivo cria o arquivo e já abre no editor.'],
-  ansible:['Novo playbook cria um playbook a partir de um modelo e já roda.','Simular (--check) mostra o que mudaria sem mudar nada.','Comando rápido roda um módulo direto, sem playbook.'],
-  terraform:['Siga a ordem dos botões: Init, Validate, Plan e Apply.','Plan mostra o que vai ser criado; Apply cria de verdade; Destroy apaga tudo que o projeto criou.','O modelo Variáveis e saídas funciona até sem internet.'],
+  terraform:['Siga a ordem dos botões: Init, Validate, Plan e Apply.','Para apagar o que o projeto criou use Destroy, ou Apagar projeto (faz o destroy e depois apaga a pasta). Apagar a pasta ou o container por fora não avisa o Terraform.','Mexeu em algo por fora (apagou um container no Docker)? Use ⋯ > Conferir com a realidade.','Plan mostra o que vai ser criado; Apply cria de verdade; Destroy apaga tudo que o projeto criou.','O modelo Variáveis e saídas funciona até sem internet.'],
+  monitoramento:['Clique em Ligar monitoramento. Na primeira vez leva cerca de 1 minuto.','O Grafana (aluno / devops) já abre no painel Esta VM. Crie ou pare um container e veja o gráfico mudar.','No Uptime Kuma (aluno / devops), adicione um monitor para o seu site (ex.: http://127.0.0.1:8081) e pare o container para ver o alerta.','No Prometheus, em Query, experimente node_load1 ou engine_daemon_container_states_containers.','Desligue quando terminar: libera cerca de 400 MB de memória.'],
   python:['Novo projeto cria a pasta, o ambiente .venv e instala os pacotes.','Clique no nome de um script para rodar e ver a saída ao vivo.'],
   atividades:['Cada comando rodado pelo painel fica aqui. Clique para ver a saída completa.'],
   sistema:['Desligue o Jenkins quando não estiver usando: libera cerca de 500 MB de memória.','Portas abertas mostra os serviços rodando; clique para abrir no navegador.'],
@@ -529,7 +529,7 @@ function botoesTopo(aba){
     jenkins: () => (s === 'credenciais' ? N('Nova credencial', 'credenciais()') : N('Novo item', 'novoItemJenkins()')) + S('Abrir o Jenkins', "abrirUrl('http://localhost:8080')", 'abrir'),
     git: () => s === 'acesso' ? '' : S('Clonar do GitHub', 'clonarRepo()', 'baixar') + N('Novo repositório', 'novoRepo()'),
     vscode: () => N('Abrir ~/projetos no VS Code', "abrir('vscode','~/projetos')"),
-    ansible: () => S('Comando rápido', 'adhoc()', 'terminal') + S('Coleções', 'colecoes()', 'imagem') + N('Novo playbook', 'novoPlaybook()'),
+    monitoramento: () => S('Desligar', "executar({ferramenta:'monitoramento',acao:'desligar'},this)", 'parar') + BT('Ligar monitoramento', "executar({ferramenta:'monitoramento',acao:'ligar'},this)", {pri:1, icone:'play'}),
     terraform: () => N('Novo projeto', 'novoTerraform()'),
     python: () => N('Novo projeto', 'novoPython()'),
   };
@@ -601,7 +601,7 @@ async function carregarInicio(){
     k('docker', 'Docker', r.docker.ligado ? `${r.docker.rodando} de ${r.docker.total}` : '—', r.docker.ligado ? `containers rodando, ${r.docker.imagens} imagens` : 'liga sozinho ao usar') +
     k('jenkins', 'Jenkins', r.jenkins.respondendo ? r.jenkins.jobs : '—', r.jenkins.respondendo ? `itens: ${r.jenkins.sucessos} ok, ${r.jenkins.falhas} falhando` : (r.jenkins.servico === 'active' ? 'ligando…' : 'desligado')) +
     k('git', 'Git', r.git.repos, `repositórios, ${r.git.com_mudancas} com mudanças`) +
-    k('ansible', 'Ansible', r.ansible.playbooks, 'playbooks') +
+    k('monitoramento', 'Monitoramento', r.monitoramento.ligados ? `${r.monitoramento.ligados} de ${r.monitoramento.total}` : '—', r.monitoramento.ligados ? 'serviços no ar' : 'desligado (ligue quando quiser)') +
     k('terraform', 'Terraform', r.terraform.projetos, `projetos, ${r.terraform.recursos} recursos`) +
     k('python', 'Python', r.python.projetos, 'projetos') +
     k('sistema', 'Memória', mb(usoMem), `de ${mb(s.mem_total)}, disco ${s.disco_usado} de ${s.disco_total} GB`);
@@ -617,7 +617,7 @@ function desenharFerramentas(){
   if(!$('#ferramentas')) return;
   $('#ferramentas').innerHTML = `<div class="lista-atv">${DADOS.ferr.ferramentas.map(f => `<div class="atv" style="cursor:default"><span class="st ${f.ok?'ok':'erro'}">${esc(f.nome)}</span><span class="tit sub mono" style="text-align:right">${esc(f.versao)}</span></div>`).join('')}</div>`;
 }
-const NOME_FERR = {docker:'Docker', jenkins:'Jenkins', git:'Git', ansible:'Ansible', terraform:'Terraform', python:'Python', vscode:'VS Code'};
+const NOME_FERR = {docker:'Docker', jenkins:'Jenkins', git:'Git', terraform:'Terraform', python:'Python', vscode:'VS Code', monitoramento:'Monitoramento', projeto:'Projeto'};
 function listaAtividades(ts){
   return (ts || []).map(t => `<div class="atv" onclick='abrirConsole(${A(t.id)},${A(t.titulo)})'>
     ${t.fim ? st(t.codigo === 0 ? 'ok' : 'erro', '') : st('aviso', '', 1)}
@@ -760,7 +760,8 @@ function htmlCompose(d, composes, rodando){
   const linhasCasa = [...daCasa].map(a => { const n = J(a); return `<tr><td class="nome">${esc(base(pai(a)))}</td><td>${rodando[a] ? estadoCompose(rodando[a]) : st('', 'Parado')}</td><td class="mono sub">${esc(curto(a))}</td>
     <td class="acoes">${BT('Subir', `executar({ferramenta:"docker",acao:"compose_up",arquivo:${n}},this)`, {icone:'play', pri:1})}${BT('Derrubar', `executar({ferramenta:"docker",acao:"compose_down",arquivo:${n}},this)`, {icone:'parar'})}${M([
       {t:'Editar docker-compose.yml', i:'editar', js:`editarCompose(${n})`}, {t:'Logs', i:'logs', js:`executar({ferramenta:"docker",acao:"compose_logs",arquivo:${n}},this)`},
-      {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${J(pai(a))})`}])}</td></tr>`; });
+      {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${J(pai(a))})`},
+      emProjetos(pai(a)) && '-', emProjetos(pai(a)) && {t:'Apagar projeto', i:'lixo', p:1, js:`apagarProjeto(${J(pai(a))}, "Antes, os containers e volumes do projeto são removidos (docker compose down -v).")`}])}</td></tr>`; });
   const linhasFora = deFora.map(p => { const n = J(p.nome), jk = /\/var\/lib\/jenkins\//.test(p.arquivos || ''); return `<tr><td class="nome">${esc(p.nome)}</td><td>${estadoCompose(p.status)}</td>
     <td>${jk ? etq('acento', 'Criado pelo Jenkins') : `<span class="mono sub">${esc(curto(p.arquivos))}</span>`}</td>
     <td class="acoes">${BT('Derrubar', `executar({ferramenta:"docker",acao:"compose_down_projeto",projeto:${n}},this)`, {icone:'parar'})}${BT('Logs', `executar({ferramenta:"docker",acao:"compose_logs_projeto",projeto:${n}},this)`, {icone:'logs', so_icone:1})}</td></tr>`; });
@@ -1049,7 +1050,8 @@ function htmlRepos(g){
         {t:'Histórico (gráfico)', i:'logs', js:`acao("/api/git",{acao:"grafico",repo:${c}},this,"Histórico — " + ${J(r.nome)})`},
         r.remoto && {t:'Pull juntando históricos (repositório do GitHub criado com README)', i:'descer', js:`executar({ferramenta:"git",acao:"pull_juntar",repo:${c}},this)`},
         {t:'Remoto, tags, stash e desfazer…', i:'mais', js:`gitMais(${i})`}, '-',
-        {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${c})`}, {t:'Abrir terminal aqui', i:'terminal', js:`abrir("terminal",${c})`}])}</td></tr>`;
+        {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${c})`}, {t:'Abrir terminal aqui', i:'terminal', js:`abrir("terminal",${c})`},
+        emProjetos(r.caminho) && '-', emProjetos(r.caminho) && {t:'Apagar repositório (a pasta)', i:'lixo', p:1, js:`apagarProjeto(${c}, "Só a cópia nesta VM é apagada. O que já foi enviado ao GitHub continua lá.")`}])}</td></tr>`;
   }));
 }
 function htmlAcessoGit(g){
@@ -1144,7 +1146,7 @@ function gitIdent(){
 
 /* ================= VS CODE ================= */
 const SUGESTOES_EXT = [['eamodio.gitlens','GitLens','Quem mudou cada linha (Git)'],['mhutchie.git-graph','Git Graph','Desenho das branches'],['ms-azuretools.vscode-docker','Docker','Containers no editor'],
-  ['redhat.vscode-yaml','YAML','Compose, Ansible e pipelines'],['hashicorp.terraform','Terraform','Realce e autocompletar .tf'],['redhat.ansible','Ansible','Playbooks com ajuda'],
+  ['redhat.vscode-yaml','YAML','Compose e pipelines'],['hashicorp.terraform','Terraform','Realce e autocompletar .tf'],
   ['ms-python.python','Python','Rodar e depurar Python'],['secanis.jenkinsfile-support','Jenkinsfile','Realce de pipelines'],['esbenp.prettier-vscode','Prettier','Formatar código'],
   ['ritwickdey.LiveServer','Live Server','Ver HTML ao vivo'],['christian-kohler.path-intellisense','Path Intellisense','Completa caminhos'],['usernamehw.errorlens','Error Lens','Erros na própria linha']];
 async function carregarVscode(){
@@ -1160,8 +1162,8 @@ async function carregarVscode(){
     return;
   }
   $('#vscode').innerHTML = (v.pastas.length ? tabela(['Projeto em ~/projetos', ''], v.pastas.map(p => `<tr><td><div class="nome">${esc(base(p))}</div><div class="sub mono">${esc(curto(p))}</div></td>
-      <td class="acoes">${BT('Abrir no VS Code', `abrir("vscode",${J(p)})`, {icone:'codigo', pri:1})}${BT('Novo arquivo', `novoArquivo(${J(p)})`, {icone:'novo'})}${M([{t:'Abrir terminal aqui', i:'terminal', js:`abrir("terminal",${J(p)})`}, {t:'Abrir a pasta', i:'pasta', js:`abrir("pasta",${J(p)})`}])}</td></tr>`))
-    : vazio('Nenhum projeto ainda', 'Crie um pelas abas Git, Python, Terraform, Ansible ou Docker.', ''))
+      <td class="acoes">${BT('Abrir no VS Code', `abrir("vscode",${J(p)})`, {icone:'codigo', pri:1})}${BT('Novo arquivo', `novoArquivo(${J(p)})`, {icone:'novo'})}${M([{t:'Abrir terminal aqui', i:'terminal', js:`abrir("terminal",${J(p)})`}, {t:'Abrir a pasta', i:'pasta', js:`abrir("pasta",${J(p)})`}, emProjetos(p) && '-', emProjetos(p) && {t:'Apagar projeto', i:'lixo', p:1, js:`apagarProjeto(${J(p)}, "Se for um projeto Terraform ou Compose, antes ele desfaz o que criou.")`}])}</td></tr>`))
+    : vazio('Nenhum projeto ainda', 'Crie um pelas abas Git, Python, Terraform ou Docker.', ''))
     + `<h2>Abertos recentemente</h2>` + (v.recentes.length ? tabela(['Caminho', ''], v.recentes.map(r => `<tr><td><span class="fraco">${ico(r.tipo === 'pasta' ? 'pasta' : 'logs').replace('<svg', '<svg style="width:15px;height:15px;vertical-align:-2px;margin-right:8px"')}</span><span class="mono">${esc(curto(r.caminho))}</span></td>
       <td class="acoes">${r.existe ? BT('Abrir', `abrir("vscode",${J(r.caminho)})`, {icone:'codigo'}) : etq('erro', 'não existe mais')}</td></tr>`)) : '<p class="sub">Nada aberto ainda.</p>');
 }
@@ -1170,46 +1172,31 @@ function novoArquivo(pasta){
     [{txt:'Criar e abrir no VS Code', cls:'pri', fn: b => { acao('/api/abrir', {acao:'novo_arquivo', caminho:pasta, nome:$('#na-nome').value}, b); fecharModal(); }}]);
 }
 
-/* ================= ANSIBLE ================= */
-const MODELOS_ANSIBLE = [
-  {nome:'Olá Ansible', desc:'ping + mensagem', valores:{nome:'ola-ansible', conteudo:`- name: Ola Ansible\n  hosts: localhost\n  gather_facts: true\n  tasks:\n    - name: Testar conexao\n      ansible.builtin.ping:\n\n    - name: Mostrar informacoes da maquina\n      ansible.builtin.debug:\n        msg: "Ola! Esta maquina e {{ ansible_hostname }} com {{ ansible_distribution }} {{ ansible_distribution_version }}"\n`}},
-  {nome:'Criar pastas e arquivos', desc:'Estrutura de projeto', valores:{nome:'estrutura', conteudo:`- name: Criar estrutura de projeto\n  hosts: localhost\n  gather_facts: false\n  vars:\n    base: "{{ lookup('env', 'HOME') }}/projetos/criado-pelo-ansible"\n  tasks:\n    - name: Criar pastas\n      ansible.builtin.file:\n        path: "{{ base }}/{{ item }}"\n        state: directory\n      loop: [src, docs, testes]\n\n    - name: Criar README\n      ansible.builtin.copy:\n        dest: "{{ base }}/README.md"\n        content: "# Criado pelo Ansible\\n"\n`}},
-  {nome:'Container com Ansible', desc:'Nginx na porta 8086', valores:{nome:'container-ansible', conteudo:`- name: Subir um container com Ansible\n  hosts: localhost\n  gather_facts: false\n  tasks:\n    - name: Nginx na porta 8086\n      community.docker.docker_container:\n        name: nginx-ansible\n        image: nginx:alpine\n        state: started\n        ports:\n          - "8086:80"\n        memory: 256m\n`}},
-  {nome:'Informações do sistema', desc:'Coleta e mostra fatos', valores:{nome:'fatos', conteudo:`- name: Fatos do sistema\n  hosts: localhost\n  gather_facts: true\n  tasks:\n    - name: Memoria e processador\n      ansible.builtin.debug:\n        msg:\n          - "Memoria total: {{ ansible_memtotal_mb }} MB"\n          - "CPUs: {{ ansible_processor_vcpus }}"\n          - "Kernel: {{ ansible_kernel }}"\n`}},
-];
-function novoPlaybook(){
-  assistente('Novo playbook do Ansible', MODELOS_ANSIBLE, [{id:'nome', rot:'Nome da pasta (em ~/projetos)'}, {id:'conteudo', rot:'playbook.yml', tipo:'area', alt:300}, {id:'rodar', rot:'Rodar logo depois de criar', tipo:'check', padrao:true}],
-  async (v, m, b) => {
-    try{ const r = await post('/api/arquivo', {acao:'projeto', nome:v.nome, arquivos:{'playbook.yml': v.conteudo}}, b); toast(r.msg);
-      if(v.rodar) executar({ferramenta:'ansible', acao:'rodar', playbook:r.pasta + '/playbook.yml'}); else fecharModal(); }catch(e){ toast(e.message, true); }
-  });
+/* ================= MONITORAMENTO ================= */
+async function carregarMonitoramento(){
+  const m = await get('/api/monitoramento'); const el = $('#monitoramento');
+  if(!m.instalado){ el.innerHTML = vazio('Monitoramento não instalado', 'Esta VM não tem o Grafana e o Uptime Kuma.', ''); return; }
+  const noAr = m.servicos.filter(x => x.no_ar).length, todos = noAr === m.servicos.length;
+  $('#n-monitoramento').textContent = noAr ? noAr + ' no ar' : '';
+  const situacao = x => x.no_ar ? st('ok', 'No ar') : x.estado === 'running' ? st('aviso', 'Ligando', 1) : x.estado ? st('erro', 'Parado (' + x.estado + ')') : st('', 'Desligado');
+  el.innerHTML = `<div class="faixa">
+      <div><div class="r">Situação</div><div class="n" style="font-size:16px;margin-top:6px">${todos ? st('ok', 'Tudo no ar') : noAr ? st('aviso', noAr + ' de ' + m.servicos.length + ' no ar') : st('', 'Desligado')}</div>
+        <div class="d">${noAr ? 'Ligado usa cerca de 400 MB de memória.' : 'Fica desligado para não gastar memória. As imagens já estão baixadas: liga em segundos.'}</div></div>
+      <div><div class="r">Login do Grafana e do Uptime Kuma</div><div class="n" style="font-size:16px;margin-top:6px"><span class="mono">aluno / devops</span></div><div class="d">o mesmo do resto do laboratório</div></div>
+      <div><div class="r">Arquivo do Docker Compose</div><div class="n" style="font-size:13.5px;margin-top:8px"><span class="mono">${esc(m.arquivo)}</span></div><div class="d">os quatro serviços sobem juntos</div></div></div>`
+    + (m.docker !== 'active' && !noAr ? `<div class="faixa-aviso info">O Docker liga sozinho quando você ligar o monitoramento.</div>` : '')
+    + tabela(['Serviço', 'Situação', 'Endereço', 'Login', ''], m.servicos.map(x => `<tr><td><div class="nome">${esc(x.nome)}</div><div class="sub" style="max-width:520px">${esc(x.faz)}</div></td>
+      <td>${situacao(x)}</td><td class="mono">localhost:${x.porta}</td><td class="mono sub">${esc(x.login || '—')}</td>
+      <td class="acoes">${x.no_ar ? BT('Abrir', `abrirUrl(${J(x.url)})`, {icone:'abrir', pri: x.id === 'grafana' || x.id === 'uptime-kuma'}) : ''}</td></tr>`))
+    + `<div style="margin-top:12px">${BT('Ver os logs do monitoramento', `executar({ferramenta:"docker",acao:"compose_logs_projeto",projeto:"monitoramento"},this)`, {icone:'logs'})} ${noAr ? BT('Reiniciar', `executar({ferramenta:"monitoramento",acao:"reiniciar"},this)`, {icone:'reiniciar'}) : ''}</div>`;
 }
-function editarInventario(pasta){
-  post('/api/arquivo', {acao:'ler', caminho:pasta + '/inventario.ini'}).then(txt => {
-    modalEditor('Inventário do Ansible', curto(pasta) + '/inventario.ini', txt || '[local]\nlocalhost ansible_connection=local\n\n# Outras máquinas (exemplo):\n# [web]\n# 192.168.0.10 ansible_user=aluno\n', [
-      {txt:'Salvar', cls:'pri', fn: async b => { try{ toast(await post('/api/arquivo', {acao:'salvar', caminho:pasta + '/inventario.ini', conteudo:$('#m-edit').value}, b)); fecharModal(); }catch(e){ toast(e.message, true); } }}]);
-  }).catch(e => toast(e.message, true));
+
+/* ================= APAGAR PROJETO ================= */
+function apagarProjeto(pasta, oQueFaz){
+  if(!confirm(`Apagar o projeto ${base(pasta)}?\n\n${oQueFaz ? oQueFaz + '\n\n' : ''}A pasta ${curto(pasta)} e tudo dentro dela serão apagados. Não dá para desfazer.`)) return;
+  executar({ferramenta:'projeto', acao:'apagar', pasta});
 }
-function colecoes(){
-  abrirModal('Coleções do Ansible', 'pacotes de módulos extras', `<p class="sub" style="margin-top:0">Já vêm instaladas: community.general, community.docker e ansible.posix. Para instalar outra:</p>
-    <div class="grade-modelos">${[['community.mysql','Bancos MySQL'],['community.postgresql','Bancos PostgreSQL'],['community.crypto','Certificados e chaves'],['kubernetes.core','Kubernetes'],['amazon.aws','Amazon AWS'],['azure.azcollection','Microsoft Azure']].map(([c, d]) => `<button class="modelo" onclick='$("#col").value=${A(c)}'><b class="mono">${esc(c)}</b><span>${esc(d)}</span></button>`).join('')}</div>
-    <label class="campo" style="margin-top:16px">Coleção<input id="col" value="community.mysql"></label>`,
-    [{txt:'Ver instaladas', fn: b => executar({ferramenta:'ansible', acao:'colecoes'}, b)}, {txt:ico('baixar') + 'Instalar', cls:'pri', fn: b => executar({ferramenta:'ansible', acao:'colecao', colecao:$('#col').value}, b)}]);
-}
-function adhoc(){
-  abrirModal('Comando rápido do Ansible', 'roda nesta máquina (localhost)', `<div class="grade-modelos">${[['ping','','Testar conexão'],['setup','filter=ansible_memtotal_mb','Ver memória'],['command','uptime','Tempo ligada'],['command','df -h /','Espaço em disco'],['shell','docker ps','Containers rodando']].map(x => `<button class="modelo" onclick='$("#ah-m").value=${A(x[0])};$("#ah-a").value=${A(x[1])}'><b>${esc(x[2])}</b><span class="mono">-m ${esc(x[0])} ${esc(x[1])}</span></button>`).join('')}</div>
-    <div class="campos" style="margin-top:16px"><label class="campo">Módulo<input id="ah-m" value="ping"></label><label class="campo">Argumentos<input id="ah-a" value=""></label></div>`,
-    [{txt:ico('play') + 'Rodar', cls:'pri', fn: b => executar({ferramenta:'ansible', acao:'adhoc', modulo:$('#ah-m').value, args:$('#ah-a').value}, b)}]);
-}
-async function carregarAnsible(){
-  const a = await get('/api/ansible');
-  $('#ansible').innerHTML = a.playbooks.length ? tabela(['Playbook', 'Máquinas (hosts)', 'Tarefas', 'Inventário', ''], a.playbooks.map(p => { const f = J(p.arquivo); return `<tr>
-    <td><div class="nome">${esc(p.nome)}</div><div class="sub mono">${esc(curto(p.arquivo))}</div></td><td>${etq('', p.hosts)}</td><td>${p.tarefas}</td><td class="sub">${p.inventario ? 'próprio (inventario.ini)' : 'só esta máquina'}</td>
-    <td class="acoes">${BT('Rodar', `executar({ferramenta:"ansible",acao:"rodar",playbook:${f}},this)`, {icone:'play', pri:1})}${BT('Simular', `executar({ferramenta:"ansible",acao:"simular",playbook:${f}},this)`, {titulo:'Mostra o que mudaria, sem mudar nada (--check)'})}${M([
-      {t:'Checar sintaxe', i:'ok', js:`executar({ferramenta:"ansible",acao:"checar",playbook:${f}},this)`}, {t:'Editar playbook', i:'editar', js:`editarArquivo(${f})`},
-      {t:'Editar inventário', i:'logs', js:`editarInventario(${J(pai(p.arquivo))})`}, {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${J(pai(p.arquivo))})`}])}</td></tr>`; }))
-    : vazio('Nenhum playbook ainda', 'Crie um a partir de um modelo e rode com um clique.', BT('Novo playbook', 'novoPlaybook()', {pri:1, icone:'novo'}) + BT('Comando rápido', 'adhoc()', {icone:'terminal'}));
-}
+const emProjetos = p => /^\/home\/[^/]+\/projetos\/[^/]+$/.test(p);
 
 /* ================= TERRAFORM ================= */
 const MODELOS_TF = [
@@ -1238,9 +1225,10 @@ async function carregarTerraform(){
     <td>${p.iniciado ? st('ok', 'Iniciado') : st('aviso', 'Precisa de init')}</td>
     <td>${p.recursos.length ? `<span class="mono sub">${p.recursos.map(esc).join(', ')}</span>` : '<span class="fraco">nenhum</span>'}</td>
     <td><span class="grupo-b"><button class="b peq" onclick="${esc(tf(p, 'init'))}">1. Init</button><button class="b peq" onclick="${esc(tf(p, 'validate'))}">2. Validate</button><button class="b peq" onclick="${esc(tf(p, 'plan'))}">3. Plan</button><button class="b peq pri" onclick="${esc(tf(p, 'apply'))}">4. Apply</button></span></td>
-    <td class="acoes">${M([{t:'Ver saídas (output)', i:'logs', js:tf(p, 'output')}, {t:'Ver estado (show)', i:'info', js:tf(p, 'show')}, {t:'Formatar arquivos (fmt)', i:'editar', js:tf(p, 'fmt')}, '-',
+    <td class="acoes">${M([{t:'Conferir com a realidade (refresh)', i:'reiniciar', js:tf(p, 'refresh')}, {t:'Ver saídas (output)', i:'logs', js:tf(p, 'output')}, {t:'Ver estado (show)', i:'info', js:tf(p, 'show')}, {t:'Formatar arquivos (fmt)', i:'editar', js:tf(p, 'fmt')}, '-',
       ...p.arquivos.map(a => ({t:'Editar ' + a, i:'editar', js:`editarArquivo(${J(p.pasta + '/' + a)})`})), {t:'Novo arquivo .tf', i:'novo', js:`novoArquivoTf(${J(p.pasta)})`}, {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${J(p.pasta)})`}, '-',
-      {t:'Destroy (apagar o que foi criado)', i:'lixo', p:1, js:'if(confirm("Destruir tudo o que este projeto criou?")) ' + tf(p, 'destroy')}])}</td></tr>`))
+      {t:'Destroy (apagar o que foi criado)', i:'lixo', p:1, js:'if(confirm("Destruir tudo o que este projeto criou?")) ' + tf(p, 'destroy')},
+      emProjetos(p.pasta) && {t:'Apagar projeto (destroy + apagar a pasta)', i:'lixo', p:1, js:`apagarProjeto(${J(p.pasta)}, ${J(p.recursos.length ? 'Antes, o Terraform destrói o que o projeto criou (' + p.recursos.join(', ') + ').' : '')})`}])}</td></tr>`))
     : vazio('Nenhum projeto Terraform ainda', 'O modelo Variáveis e saídas funciona até sem internet.', BT('Novo projeto', 'novoTerraform()', {pri:1, icone:'novo'}));
 }
 
@@ -1275,7 +1263,8 @@ async function carregarPython(){
       x.venv && {t:'Pacotes instalados', i:'logs', js:`executar({ferramenta:"python",acao:"piplist",pasta:${pa}},this)`},
       x.venv && {t:'Salvar requirements.txt', i:'ok', js:`executar({ferramenta:"python",acao:"freeze",pasta:${pa}},this)`}, '-',
       ...x.scripts.map(s => ({t:'Editar ' + s, i:'editar', js:`editarArquivo(${J(x.pasta + '/' + s)})`})), {t:'Novo arquivo .py', i:'novo', js:`novoArquivoPy(${pa})`},
-      {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${pa})`}, {t:'Abrir terminal aqui', i:'terminal', js:`abrir("terminal",${pa})`}])}</td></tr>`; }))
+      {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${pa})`}, {t:'Abrir terminal aqui', i:'terminal', js:`abrir("terminal",${pa})`},
+      emProjetos(x.pasta) && '-', emProjetos(x.pasta) && {t:'Apagar projeto', i:'lixo', p:1, js:`apagarProjeto(${pa}, "")`}])}</td></tr>`; }))
     : vazio('Nenhum projeto Python ainda', 'Crie um com o ambiente virtual e os pacotes já instalados.', BT('Novo projeto', 'novoPython()', {pri:1, icone:'novo'})));
 }
 function novoArquivoPy(pasta){
@@ -1294,7 +1283,7 @@ async function carregarAtividades(){
   $('#atividades').innerHTML = t.tarefas.length ? tabela(['Situação', 'Ferramenta', 'O que rodou', 'Duração', 'Quando'], t.tarefas.map(x => `<tr class="clic" onclick='abrirConsole(${A(x.id)},${A(x.titulo)})'>
       <td>${x.fim ? (x.codigo === 0 ? st('ok', 'Concluído') : st('erro', 'Erro')) : st('aviso', 'Rodando', 1)}</td><td>${etq('', NOME_FERR[x.ferramenta] || x.ferramenta)}</td>
       <td>${esc(x.titulo)}</td><td class="sub">${x.fim ? dur(x.duracao) : '—'}</td><td class="sub">${quando(x.inicio)}</td></tr>`))
-    : vazio('Nenhuma atividade ainda', 'Tudo o que você rodar pelo painel (Compose, Terraform, Ansible, pip, Git…) aparece aqui com a saída completa.', '');
+    : vazio('Nenhuma atividade ainda', 'Tudo o que você rodar pelo painel (Compose, Terraform, pip, Git, monitoramento…) aparece aqui com a saída completa.', '');
 }
 
 /* ================= SISTEMA ================= */
@@ -1324,7 +1313,7 @@ async function carregarSistema(){
 
 /* ================= ciclo ================= */
 const CARREGAR = {inicio:carregarInicio, docker:carregarDocker, jenkins:carregarJenkins, git:carregarGit, vscode:carregarVscode,
-  ansible:carregarAnsible, terraform:carregarTerraform, python:carregarPython, atividades:carregarAtividades, sistema:carregarSistema};
+  terraform:carregarTerraform, monitoramento:carregarMonitoramento, python:carregarPython, atividades:carregarAtividades, sistema:carregarSistema};
 async function carregar(forcar){
   if(ocupado) return;
   if(!forcar && ($('#modal').classList.contains('aberto') || $('#menu-pop') || ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))) return;

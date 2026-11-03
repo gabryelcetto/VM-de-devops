@@ -38,7 +38,7 @@ Usuário ............ aluno
 Senha .............. devops
 
 - Já vem configurado: sem assistente inicial e com os plugins
-  de Pipeline, Git, GitHub, Docker, Ansible e outros instalados.
+  de Pipeline, Git, GitHub, Docker e outros instalados.
 - Ele liga sozinho ~1 minuto depois que a VM abre.
 - O usuário de sistema "jenkins" está no grupo docker
   (pipelines podem usar comandos docker).
@@ -72,7 +72,6 @@ VS Code ............ code               (menu Aplicativos > Desenvolvimento)
 Docker ............. docker run hello-world
 Docker Compose ..... docker compose version   (ou docker-compose)
 Git ................ git --version
-Ansible ............ ansible --version
 Terraform .......... terraform -version
 Python 3 ........... python3 --version  (pip3, venv, pipx)
 Java 21 ............ java -version      (usado pelo Jenkins)

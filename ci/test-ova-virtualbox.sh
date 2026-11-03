@@ -121,6 +121,9 @@ chk  "Teclado ABNT2 na interface" "$XENV setxkbmap -query" "layout: +br"
 chk  "Integração com o VirtualBox (VBoxClient)" "pgrep -a VBoxClient" "VBoxClient"
 # (antes de qualquer teste baixar imagens: confere que vieram dentro do .ova)
 chk  "Imagens Docker já baixadas (nginx, python, alpine, hello-world)" "docker image inspect nginx:alpine python:3.12-slim alpine:latest hello-world:latest --format '{{.Id}}' | wc -l" "^4$"
+chk  "Imagens do monitoramento já baixadas (Grafana, Uptime Kuma, Prometheus, node-exporter)" "docker image inspect grafana/grafana:latest louislam/uptime-kuma:2-slim prom/prometheus:latest prom/node-exporter:latest --format '{{.Id}}' | wc -l" "^4$"
+chk  "Docker guarda as imagens no overlay2 (sem cópia dupla do containerd)" "docker info --format '{{.Driver}}'" "^overlay2$"
+chk  "Monitoramento vem desligado (não gasta memória no boot)" "docker ps --filter label=com.docker.compose.project=monitoramento --format '{{.Names}}' | wc -l" "^0$"
 chk  "Firefox com página inicial e favoritos do Lab" "python3 -m json.tool /etc/firefox/policies/policies.json | grep -E 'inicio.html|localhost:8080'" "inicio.html"
 chk  "VS Code em português, sem chaveiro e sem aceleração de GPU" "cat ~/.vscode/argv.json" "pt-br"
 
@@ -155,10 +158,9 @@ chk "Internet dentro da VM" "curl -sS -o /dev/null -w '%{http_code}' https://www
 chk "docker run hello-world (sem sudo)" "docker run --rm hello-world" "Hello from Docker"
 chk "Docker Compose sobe um serviço" "d=\$(mktemp -d) && cd \$d && printf 'services:\n  web:\n    image: hello-world\n' > compose.yaml && docker compose up 2>&1 | tail -n 5" "exited with code 0"
 chk "Firefox instalado" "firefox --version" "Mozilla Firefox"
-chk "Extensões do VS Code (pt-BR, Python, Docker, Terraform, YAML, Ansible)" "code --list-extensions" "ms-python.python"
+chk "Extensões do VS Code (pt-BR, Python, Docker, Terraform, YAML)" "code --list-extensions" "ms-python.python"
 chk "apt update funciona (repositórios e chaves OK)" "echo devops | sudo -S -p '' apt-get update 2>&1 | tail -n 3" "Lendo listas|Reading package lists"
-chk "Ansible executa (ping no localhost)" "ansible localhost -c local -m ping 2>&1" "pong"
-chk "Coleções do Ansible (general, docker, posix)" "ansible-galaxy collection list 2>/dev/null" "community.docker"
+nchk "Ansible não vem mais na VM" "command -v ansible ansible-playbook" "ansible"
 chk "Terraform executa (init/apply local)" "d=\$(mktemp -d) && cd \$d && printf 'output \"ok\" { value = \"terraform-ok\" }\n' > main.tf && terraform init -input=false >/dev/null && terraform apply -auto-approve -input=false 2>&1 | tail -n 3" "terraform-ok"
 chk "Python venv + pip" "python3 -m venv /tmp/venv-qa && /tmp/venv-qa/bin/pip --version" "pip "
 chk "Git configura e faz commit" "d=\$(mktemp -d) && cd \$d && git init -q && git -c user.name=qa -c user.email=qa@x commit -q --allow-empty -m qa && git log --oneline | wc -l" "^1$"
@@ -189,7 +191,7 @@ PAPI="curl -s -H 'Host: localhost:8090' http://127.0.0.1:8090"
 PTOK="T=\$($PAPI/ | sed -n 's/.*name=\"painel-token\" content=\"\\([^\"]*\\)\".*/\\1/p');"
 PPOST="curl -s -X POST -H 'Host: localhost:8090' -H \"X-Painel-Token: \$T\" -H 'Content-Type: application/json' http://127.0.0.1:8090"
 chk  "Painel DevOps responde em localhost:8090" "$PAPI/saude" '"ok": true'
-for a in docker jenkins git vscode ansible terraform python sistema resumo tarefas ferramentas; do
+for a in docker jenkins git vscode terraform python monitoramento sistema resumo tarefas ferramentas; do
   chk "Painel DevOps: aba $a carrega" "$PAPI/api/$a | python3 -c 'import json,sys; d=json.load(sys.stdin); print(\"ok\" if \"erro\" not in d else d)'" "^ok$"
 done
 chk  "Painel DevOps: Docker ligado e Jenkins respondendo" "$PAPI/api/resumo | python3 -c 'import json,sys; d=json.load(sys.stdin); print(\"docker\", d[\"docker\"][\"ligado\"], \"jenkins\", d[\"jenkins\"][\"respondendo\"])'" "docker True jenkins True"
@@ -201,6 +203,21 @@ chk  "Painel DevOps: gera chave SSH do Git" "$PTOK $PPOST/api/git -d '{\"acao\":
 chk  "GitHub conhecido para SSH (sem pergunta de confiança)" "ssh-keygen -F github.com -f /etc/ssh/ssh_known_hosts | grep -c github.com" "^[1-9]"
 chk  "Painel DevOps: recusa ação sem token (segurança)" "curl -s -X POST -H 'Host: localhost:8090' http://127.0.0.1:8090/api/sistema -d '{}'" "Token inv"
 chk  "Painel DevOps: recusa acesso por outro endereço (segurança)" "curl -s -H 'Host: exemplo.com' http://127.0.0.1:8090/api/resumo" "permitido só"
+# espera uma tarefa do Painel (saída ao vivo) terminar e mostra o código de saída
+PTAREFA="python3 -c 'import json,sys; print(json.load(sys.stdin)[\"resultado\"][\"tarefa\"])'"
+PESPERA="for i in \$(seq 1 120); do $PAPI/api/tarefa?id=\$I | grep -q '\"fim\": true' && break; sleep 2; done; $PAPI/api/tarefa?id=\$I | python3 -c 'import json,sys; t=json.load(sys.stdin); print(\"codigo\", t[\"codigo\"])';"
+PMON="$PAPI/api/monitoramento | python3 -c 'import json,sys; print(\" \".join(x[\"id\"]+\"=\"+(\"no-ar\" if x[\"no_ar\"] else \"fora\") for x in json.load(sys.stdin)[\"servicos\"]))'"
+chk  "Painel DevOps: Ligar monitoramento sobe Grafana, Uptime Kuma, Prometheus e node-exporter" "$PTOK I=\$($PPOST/api/executar -d '{\"ferramenta\":\"monitoramento\",\"acao\":\"ligar\"}' | $PTAREFA); $PESPERA for i in \$(seq 1 60); do $PMON | grep -q fora || break; sleep 3; done; $PMON" "grafana=no-ar uptime-kuma=no-ar prometheus=no-ar node-exporter=no-ar"
+chk  "Grafana: login aluno/devops e fonte Prometheus funcionando" "curl -s -u aluno:devops http://127.0.0.1:3000/api/datasources/uid/prometheus/health" '"status":"OK"'
+chk  "Grafana: painel Esta VM com dados da VM" "echo \$(curl -s -u aluno:devops http://127.0.0.1:3000/api/dashboards/uid/esta-vm | grep -o 'Esta VM' | head -n 1; curl -s -u aluno:devops 'http://127.0.0.1:3000/api/datasources/proxy/uid/prometheus/api/v1/query?query=node_memory_MemTotal_bytes' | grep -o '\"result\":\[{' | head -n 1)" 'Esta VM "result"'
+chk  "Prometheus coleta a VM, o Docker e ele mesmo" "curl -s 'http://127.0.0.1:9090/api/v1/query?query=up' | python3 -c 'import json,sys; print(sorted((r[\"metric\"][\"job\"], r[\"value\"][1]) for r in json.load(sys.stdin)[\"data\"][\"result\"]))'" "\('docker', '1'\), \('esta-vm', '1'\), \('prometheus', '1'\)"
+chk  "Uptime Kuma responde em localhost:3001" "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3001/" "^(200|302)$"
+{ echo "===== memória do monitoramento ligado ====="; gsh "docker stats --no-stream --format '{{.Name}} {{.MemUsage}}'; free -m"; } >> "$OUT/qa-detalhes.txt" 2>&1
+gsh "$XENV setsid -f firefox http://localhost:3000 >/dev/null 2>&1; sleep 25" >/dev/null
+print_tela tela-5-grafana >/dev/null
+gsh "pkill -u aluno firefox; sleep 2; true" >/dev/null
+chk  "Painel DevOps: Desligar monitoramento libera a memória (dados ficam guardados)" "$PTOK I=\$($PPOST/api/executar -d '{\"ferramenta\":\"monitoramento\",\"acao\":\"desligar\"}' | $PTAREFA); $PESPERA $PMON; docker volume ls --format '{{.Name}}' | grep -c 'monitoramento_'" "grafana=fora uptime-kuma=fora prometheus=fora node-exporter=fora"
+chk  "Painel DevOps: Apagar projeto Terraform roda o destroy antes de apagar a pasta" "$PTOK $PPOST/api/arquivo -d '{\"acao\":\"projeto\",\"nome\":\"qa-tf\",\"arquivos\":{\"main.tf\":\"resource \\\"terraform_data\\\" \\\"x\\\" {\\n  input = \\\"qa\\\"\\n}\\n\"}}' >/dev/null; for a in init apply; do I=\$($PPOST/api/executar -d '{\"ferramenta\":\"terraform\",\"acao\":\"'\$a'\",\"pasta\":\"~/projetos/qa-tf\"}' | $PTAREFA); $PESPERA done; I=\$($PPOST/api/executar -d '{\"ferramenta\":\"projeto\",\"acao\":\"apagar\",\"pasta\":\"~/projetos/qa-tf\"}' | $PTAREFA); $PESPERA D=\$($PAPI/api/tarefa?id=\$I | grep -o 'Destroy complete' | head -n 1); test -e ~/projetos/qa-tf && P=pasta-ficou || P=pasta-apagada; echo \"\$D \$P\"" "Destroy complete pasta-apagada"
 gsh "$XENV setsid -f firefox http://localhost:8090 >/dev/null 2>&1; sleep 30" >/dev/null
 CORES="$(print_tela tela-4-painel-devops)"
 if [ "${CORES:-0}" -gt 100 ]; then ok "Painel DevOps aberto no Firefox ($CORES cores)"; else bad "Painel DevOps não apareceu no Firefox ($CORES cores)"; fi
@@ -215,7 +232,7 @@ gsh "pkill -u aluno firefox; docker rm -f painel-web >/dev/null; cd ~/projetos/q
   echo; echo "===== processos que mais usam memória ====="; gsh "ps -eo rss,comm --sort=-rss | head -n 15"
   echo; echo "===== disco ====="; gsh "df -h /"
   echo; echo "===== maiores pacotes (MB) ====="; gsh "dpkg-query -Wf '\${Installed-Size}\t\${Package}\n' | sort -n | tail -n 25 | awk '{printf \"%8.1f  %s\n\", \$1/1024, \$2}'"
-  echo; echo "===== pastas grandes ====="; gsh "echo devops | sudo -S -p '' du -sh /usr/share/code /usr/lib/firefox /var/lib/jenkins /usr/share/java /usr/lib/jvm /usr/share/ansible /usr/lib/modules 2>/dev/null"
+  echo; echo "===== pastas grandes ====="; gsh "echo devops | sudo -S -p '' du -sh /usr/share/code /usr/lib/firefox /var/lib/jenkins /usr/share/java /usr/lib/jvm /usr/lib/modules /var/lib/docker /var/lib/containerd /opt 2>/dev/null"
   echo; echo "===== pacotes removidos no enxugamento ====="; gsh "cat /usr/share/devops-lab/pacotes-removidos.txt"
   echo; echo "===== quem puxou pacotes grandes ====="; gsh "for p in libwebkitgtk-6.0-4 python3-botocore libllvm20 ubuntu-wallpapers-noble; do echo \"## \$p\"; apt-cache rdepends --installed \$p 2>/dev/null | tail -n +3 | head -n 8; done"
   echo; echo "===== autostart da sessão ====="; gsh "ls /etc/xdg/autostart ~/.config/autostart"

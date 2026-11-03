@@ -25,7 +25,6 @@
         "ms-azuretools.vscode-docker",
         "hashicorp.terraform",
         "redhat.vscode-yaml",
-        "redhat.ansible",
         "ms-python.python"
       ]
     },

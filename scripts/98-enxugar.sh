@@ -10,7 +10,7 @@ apt dpkg bash coreutils sudo login passwd adduser systemd systemd-sysv systemd-r
 init grub-pc grub-common grub2-common netplan.io network-manager network-manager-gnome wpasupplicant
 openssh-server curl ca-certificates locales language-pack-pt-base ubuntu-minimal
 python3 python3-minimal python3.12 python3-pip python3-venv pipx git
-code firefox firefox-l10n-pt-br jenkins openjdk-21-jre-headless terraform ansible-core
+code firefox firefox-l10n-pt-br jenkins openjdk-21-jre-headless terraform
 docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-buildx-plugin
 lightdm lightdm-gtk-greeter xserver-xorg-core xserver-xorg-input-libinput
 xfce4-session xfce4-panel xfwm4 xfdesktop4 xfce4-settings xfce4-terminal xfce4-notifyd
@@ -70,9 +70,9 @@ fi
 
 # Conferência: nada essencial pode ter sumido
 set -e
-for p in code firefox jenkins docker-ce terraform ansible-core git python3 lightdm xfce4-session xfce4-panel xfdesktop4 network-manager openssh-server; do
+for p in code firefox jenkins docker-ce terraform git python3 lightdm xfce4-session xfce4-panel xfdesktop4 network-manager openssh-server; do
   dpkg -s "$p" >/dev/null
 done
 code --version >/dev/null 2>&1 || sudo -u "${LAB_USER}" code --version >/dev/null
-docker --version && firefox --version && terraform -version >/dev/null && ansible --version >/dev/null
+docker --version && firefox --version && terraform -version >/dev/null
 echo "Enxugamento concluído:"; cat "$REL"

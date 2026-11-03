@@ -116,7 +116,6 @@ DICAS = [
     (r"Could not resolve host|Temporary failure in name resolution|getaddrinfo|Network is unreachable|i/o timeout|TLS handshake timeout", "Sem conexão com a internet (ou ela caiu no meio). Confira a rede da VM e tente de novo."),
     (r"no space left on device", "Disco cheio. Use Docker > Volumes e redes > Limpar o que não está em uso."),
     (r"(?:yaml|YAML).*line (\d+)|mapping values are not allowed|found character that cannot start any token", "Erro de formatação no YAML (perto da linha {0}). Use espaços para indentar, nunca tab, e confira os dois-pontos."),
-    (r"couldn't resolve module/action '([\w.]+)'", "O módulo {0} vem de uma coleção que não está instalada. Use Ansible > Coleções."),
     (r"Couldn't find any revision to build|couldn't find remote ref", "A branch informada não existe no repositório. Confira o nome (main ou master)."),
     (r"Unable to find (\S*Jenkinsfile)|Jenkinsfile not found", "O Jenkinsfile não foi encontrado nesse caminho do repositório. Confira o campo Caminho do Jenkinsfile."),
     (r"script returned exit code 127|: not found$|command not found", "Algum comando do script não existe na máquina. Confira a digitação ou instale o programa."),
@@ -1316,7 +1315,7 @@ def iniciar_tarefa(ferramenta, titulo, cmd, cwd=None, env_extra=None):
             TAREFAS.pop(velho["id"], None)
 
     def correr():
-        env = dict(os.environ, GIT_TERMINAL_PROMPT="0", ANSIBLE_FORCE_COLOR="0", PYTHONUNBUFFERED="1",
+        env = dict(os.environ, GIT_TERMINAL_PROMPT="0", PYTHONUNBUFFERED="1",
                    TF_IN_AUTOMATION="1", **(env_extra or {}))
         try:
             p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
@@ -1413,31 +1412,30 @@ def acao_executar(d):
             raise Erro("ID de extensão inválido (ex.: ms-python.python).")
         op = "--install-extension" if a == "instalar" else "--uninstall-extension"
         return iniciar_tarefa("vscode", f"{'instalar' if a == 'instalar' else 'remover'} extensão {ext}", ["code", op, ext])
-    if f == "ansible" and a in ("colecao", "colecoes"):
-        if a == "colecoes":
-            return iniciar_tarefa("ansible", "coleções instaladas", ["ansible-galaxy", "collection", "list"], cwd=str(HOME))
-        col = d.get("colecao", "").strip()
-        if not re.fullmatch(r"[a-z0-9_]+\.[a-z0-9_]+", col):
-            raise Erro("Coleção inválida (ex.: community.mysql).")
-        return iniciar_tarefa("ansible", f"instalar coleção {col}", ["ansible-galaxy", "collection", "install", col], cwd=str(HOME))
-    if f == "ansible":
-        pb = dentro_da_home(d.get("playbook", ""))
-        if a in ("rodar", "checar", "simular"):
-            if not pb.is_file():
-                raise Erro("Playbook não encontrado.")
-            inv = pb.parent / "inventario.ini"
-            # com inventário próprio, cada máquina usa a conexão do inventário (SSH ou local);
-            # sem inventário, roda só nesta máquina
-            cmd = ["ansible-playbook", "-i", str(inv), pb.name] if inv.is_file() else ["ansible-playbook", "-i", "localhost,", "-c", "local", pb.name]
-            cmd += {"rodar": [], "checar": ["--syntax-check"], "simular": ["--check", "--diff"]}[a]
-            return iniciar_tarefa("ansible", f"ansible-playbook {pb.name}" + ("" if a == "rodar" else f" ({a})"),
-                                  cmd, cwd=str(pb.parent))
-        if a == "adhoc":
-            mod, args = d.get("modulo", "ping").strip(), d.get("args", "").strip()
-            if not re.fullmatch(r"[a-z0-9_.]{1,80}", mod):
-                raise Erro("Módulo inválido.")
-            cmd = ["ansible", "localhost", "-c", "local", "-m", mod] + (["-a", args] if args else [])
-            return iniciar_tarefa("ansible", f"ansible -m {mod}", cmd, cwd=str(HOME))
+    if f == "monitoramento":
+        if a not in ("ligar", "desligar", "reiniciar"):
+            raise Erro("Ação de monitoramento desconhecida.")
+        if not MON_COMPOSE.is_file():
+            raise Erro("O monitoramento não está instalado nesta VM.")
+        cmd = {"ligar": ["up", "-d"], "desligar": ["down"], "reiniciar": ["restart"]}[a]
+        titulo = {"ligar": "ligar o monitoramento", "desligar": "desligar o monitoramento", "reiniciar": "reiniciar o monitoramento"}[a]
+        return iniciar_tarefa("monitoramento", titulo, ["docker", "compose", "-f", str(MON_COMPOSE)] + cmd, cwd=str(MON_COMPOSE.parent))
+    if f == "projeto" and a == "apagar":
+        pasta = dentro_da_home(d.get("pasta", ""))
+        if pasta.parent != PROJETOS or not pasta.is_dir():
+            raise Erro("Só dá para apagar pastas de projeto que ficam direto em ~/projetos.")
+        passos, nomes = [], []
+        estado = pasta / "terraform.tfstate"
+        if any(pasta.glob("*.tf")) and estado.is_file() and '"mode": "managed"' in estado.read_text(errors="replace"):
+            passos.append("echo '== terraform destroy: apagando o que o projeto criou =='; terraform destroy -auto-approve -input=false -no-color")
+            nomes.append("destroy")
+        compose = next((c for c in ("docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml") if (pasta / c).is_file()), None)
+        if compose:
+            passos.append(f"echo '== docker compose down: removendo containers e volumes do projeto =='; docker compose -f {compose} down -v --remove-orphans")
+            nomes.append("compose down")
+        passos.append('echo "== apagando a pasta $PWD =="; cd .. && rm -rf -- "$1" && echo "Projeto apagado."')
+        return iniciar_tarefa("projeto", f"apagar projeto {pasta.name}" + (f" ({' + '.join(nomes)})" if nomes else ""),
+                              ["bash", "-c", " && ".join(passos), "apagar", str(pasta)], cwd=str(pasta))
     if f == "terraform":
         pasta = dentro_da_home(d.get("pasta", ""))
         if not any(pasta.glob("*.tf")):
@@ -1446,7 +1444,7 @@ def acao_executar(d):
                 "plan": ["plan", "-input=false", "-no-color"], "apply": ["apply", "-auto-approve", "-input=false", "-no-color"],
                 "destroy": ["destroy", "-auto-approve", "-input=false", "-no-color"], "fmt": ["fmt", "-diff", "-no-color"],
                 "output": ["output", "-no-color"], "state": ["state", "list"], "show": ["show", "-no-color"],
-                "graph": ["graph"]}
+                "graph": ["graph"], "refresh": ["apply", "-refresh-only", "-auto-approve", "-input=false", "-no-color"]}
         if a not in cmds:
             raise Erro("Ação do Terraform desconhecida.")
         return iniciar_tarefa("terraform", f"terraform {a} ({pasta.name})", ["terraform"] + cmds[a], cwd=str(pasta))
@@ -1484,7 +1482,7 @@ def acao_executar(d):
     raise Erro("Ação desconhecida.")
 
 
-# ---------------------------------------------------------------- Ansible, Terraform, Python, arquivos
+# ---------------------------------------------------------------- Terraform, Python, arquivos
 def _pastas_projetos(prof_max=3):
     if not PROJETOS.is_dir():
         return
@@ -1495,24 +1493,42 @@ def _pastas_projetos(prof_max=3):
         yield Path(raiz), arqs
 
 
-def info_ansible():
-    playbooks = []
-    for raiz, arqs in _pastas_projetos():
-        for a in arqs:
-            if a.endswith((".yml", ".yaml")) and not re.fullmatch(r"(docker-)?compose.*", a):
-                cam = raiz / a
-                try:
-                    txt = cam.read_text(errors="replace")[:20000]
-                except OSError:
-                    continue
-                if re.search(r"^\s*-?\s*hosts\s*:", txt, re.M):
-                    nome = re.search(r"^\s*-\s*name\s*:\s*(.+)$", txt, re.M)
-                    hosts = re.search(r"hosts\s*:\s*(.+)$", txt, re.M)
-                    playbooks.append({"arquivo": str(cam), "nome": nome.group(1).strip() if nome else a,
-                                      "hosts": hosts.group(1).strip() if hosts else "",
-                                      "inventario": str(raiz / "inventario.ini") if (raiz / "inventario.ini").is_file() else "",
-                                      "tarefas": len(re.findall(r"^\s+- name\s*:", txt, re.M))})
-    return {"playbooks": playbooks}
+MON_COMPOSE = Path("/opt/devops-lab/monitoramento/docker-compose.yml")
+MON_SERVICOS = [
+    {"id": "grafana", "nome": "Grafana", "porta": 3000, "teste": "/api/health", "abrir": "/",
+     "faz": "Gráficos e painéis. Já vem com o painel Esta VM (CPU, memória, disco, rede, containers).", "login": "aluno / devops"},
+    {"id": "uptime-kuma", "nome": "Uptime Kuma", "porta": 3001, "teste": "/", "abrir": "/dashboard",
+     "faz": "Vigia se os serviços estão no ar e mostra o histórico. Já vigia Jenkins, Painel, Grafana e Prometheus.", "login": "aluno / devops"},
+    {"id": "prometheus", "nome": "Prometheus", "porta": 9090, "teste": "/-/ready", "abrir": "/targets",
+     "faz": "Coleta as métricas a cada 15 s e guarda por 2 dias. É a fonte de dados do Grafana.", "login": ""},
+    {"id": "node-exporter", "nome": "node-exporter", "porta": 9100, "teste": "/metrics", "abrir": "/metrics",
+     "faz": "Mede CPU, memória, disco e rede desta VM para o Prometheus.", "login": ""},
+]
+
+
+def _no_ar(porta, caminho):
+    try:
+        with urllib.request.urlopen(f"http://127.0.0.1:{porta}{caminho}", timeout=1.5) as r:
+            return r.status < 500
+    except urllib.error.HTTPError as e:
+        return e.code < 500
+    except Exception:
+        return False
+
+
+def info_monitoramento():
+    instalado = MON_COMPOSE.is_file()
+    estados = {}
+    if instalado and docker_ligado():
+        for c in json_linhas(rodar(["docker", "compose", "-f", str(MON_COMPOSE), "ps", "-a", "--format", "json"], so_saida=True)[1]):
+            estados[c.get("Service", "")] = c.get("State", "")
+    servicos = []
+    for sv in MON_SERVICOS:
+        no_ar = _no_ar(sv["porta"], sv["teste"])
+        servicos.append({**sv, "estado": estados.get(sv["id"], ""), "no_ar": no_ar,
+                         "url": f"http://localhost:{sv['porta']}{sv['abrir']}"})
+    return {"instalado": instalado, "docker": servico_ativo("docker"), "servicos": servicos,
+            "arquivo": str(MON_COMPOSE)}
 
 
 def info_terraform():
@@ -1553,7 +1569,7 @@ def info_ferramentas():
     if time.time() - _FERR["quando"] < 600 and _FERR["dados"]:
         return {"ferramentas": _FERR["dados"]}
     lista = [("Docker", ["docker", "--version"]), ("Docker Compose", ["docker", "compose", "version", "--short"]),
-             ("Git", ["git", "--version"]), ("VS Code", ["code", "--version"]), ("Ansible", ["ansible", "--version"]),
+             ("Git", ["git", "--version"]), ("VS Code", ["code", "--version"]),
              ("Terraform", ["terraform", "-version"]), ("Python", ["python3", "--version"]),
              ("Java", ["java", "-version"]), ("Firefox", ["firefox", "--version"])]
     dados = []
@@ -1634,7 +1650,7 @@ def resumo():
             "builds": builds[-30:], "historico": {k: HIST[k] for k in ("t", "cpu", "mem")},
             "git": {"repos": len(repos), "com_mudancas": pend, "por_dia": commits_por_dia(repos)},
             "vscode": {"recentes": len(vscode_recentes())},
-            "ansible": {"playbooks": len(info_ansible()["playbooks"])},
+            "monitoramento": (lambda m: {"ligados": sum(1 for x in m["servicos"] if x["no_ar"]), "total": len(m["servicos"])})(info_monitoramento()),
             "terraform": (lambda t: {"projetos": len(t["projetos"]), "recursos": sum(len(p["recursos"]) for p in t["projetos"])})(info_terraform()),
             "python": {"projetos": len(info_python()["projetos"])},
             "tarefas": listar_tarefas()["tarefas"][:12]}
@@ -1663,7 +1679,7 @@ GETS = {"/api/saude-lab": saude_lab, "/api/resumo": resumo, "/api/docker": info_
         "/api/compose-arquivos": lambda: {"arquivos": arquivos_compose()},
         "/api/modelo-pipeline": lambda: {"script": SCRIPT_EXEMPLO},
         "/api/historico": lambda: {k: HIST[k] for k in ("t", "cpu", "mem")},
-        "/api/ansible": info_ansible, "/api/terraform": info_terraform, "/api/python": info_python,
+        "/api/monitoramento": info_monitoramento, "/api/terraform": info_terraform, "/api/python": info_python,
         "/api/ferramentas": info_ferramentas, "/api/tarefas": listar_tarefas}
 GETS_Q = {"/api/tarefa": ver_tarefa}
 POSTS = {"/api/docker": acao_docker, "/api/jenkins": acao_jenkins, "/api/git": acao_git,

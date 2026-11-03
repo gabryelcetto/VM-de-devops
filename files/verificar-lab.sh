@@ -20,7 +20,6 @@ check "VS Code"         code --version
 check "Docker"          docker --version
 check "Docker Compose"  docker compose version
 check "Git"             git --version
-check "Ansible"         ansible --version
 check "Terraform"       terraform -version
 check "Python"          python3 --version
 check "pip"             pip3 --version

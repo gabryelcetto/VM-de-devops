@@ -8,7 +8,7 @@ set -euxo pipefail
 IN="$1"
 OUTDIR="$2"
 VM="DevOps-Lab"
-DESC="Ubuntu 24.04 LTS + XFCE com VS Code, Docker, Docker Compose, Git, Ansible, Terraform, Python e Jenkins. Usuario: aluno / Senha: devops"
+DESC="Ubuntu 24.04 LTS + XFCE com VS Code, Docker, Docker Compose, Git, Terraform, Python, Jenkins, Grafana e Uptime Kuma. Usuario: aluno / Senha: devops"
 mkdir -p "$OUTDIR"
 
 VBoxManage import "$IN" --vsys 0 --vmname "$VM"

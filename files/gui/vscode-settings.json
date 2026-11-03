@@ -24,7 +24,6 @@
   "npm.fetchOnlinePackageInfo": false,
   "git.autofetch": false,
   "python.analysis.indexing": false,
-  "ansible.validation.lint.enabled": false,
   "files.watcherExclude": {
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,
