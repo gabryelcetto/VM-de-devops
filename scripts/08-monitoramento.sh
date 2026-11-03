@@ -32,7 +32,7 @@ for _ in $(seq 1 30); do
   if curl -fsS 'http://127.0.0.1:9090/api/v1/query?query=up' | python3 -c '
 import json, sys
 r = json.load(sys.stdin)["data"]["result"]
-s = {x["labels"]["job"]: x["value"][1] for x in r}
+s = {x["metric"]["job"]: x["value"][1] for x in r}
 print(s)
 sys.exit(0 if all(s.get(j) == "1" for j in ("prometheus", "esta-vm", "docker")) else 1)'; then ok=1; break; fi
   sleep 3
