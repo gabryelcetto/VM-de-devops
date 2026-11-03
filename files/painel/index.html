@@ -1314,13 +1314,16 @@ async function carregarSistema(){
 /* ================= ciclo ================= */
 const CARREGAR = {inicio:carregarInicio, docker:carregarDocker, jenkins:carregarJenkins, git:carregarGit, vscode:carregarVscode,
   terraform:carregarTerraform, monitoramento:carregarMonitoramento, python:carregarPython, atividades:carregarAtividades, sistema:carregarSistema};
+// Se o aluno troca de aba enquanto outra ainda está carregando (o Jenkins pode demorar),
+// a aba nova carrega logo depois, em vez de ficar mostrando dados velhos.
+let pendente = false;
 async function carregar(forcar){
-  if(ocupado) return;
+  if(ocupado){ if(forcar) pendente = true; return; }
   if(!forcar && ($('#modal').classList.contains('aberto') || $('#menu-pop') || ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))) return;
   ocupado = true;
   try{ await CARREGAR[ABA](); $('#atualizado').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR'); }
   catch(e){ $('#atualizado').textContent = 'Erro: ' + e.message; }
-  finally{ ocupado = false; }
+  finally{ ocupado = false; if(pendente){ pendente = false; carregar(true); } }
 }
 let inicial = 'inicio'; try{ const a = localStorage.getItem('painel-aba'); if(a && CARREGAR[a]) inicial = a; }catch(e){}
 irPara(inicial);
