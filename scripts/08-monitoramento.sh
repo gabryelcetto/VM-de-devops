@@ -61,6 +61,8 @@ docker compose up -d uptime-kuma
 espera http://127.0.0.1:3001/
 /tmp/kseed/bin/python "$K" testar http://127.0.0.1:3001
 docker compose down
+# de novo com o Kuma desligado: limpa o histórico gerado durante o build
+/tmp/kseed/bin/python "$K" senha "$KDB"
 rm -rf /tmp/kseed
 
 docker image ls

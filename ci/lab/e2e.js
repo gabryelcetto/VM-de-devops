@@ -392,7 +392,9 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
     reg('Monitoramento', 'Grafana entra com aluno/devops e a fonte Prometheus funciona', h.status === 200 && /"status":"OK"/i.test(h.corpo), h.status + ' ' + h.corpo.slice(0, 200));
     const d = await pega('http://127.0.0.1:3000/api/dashboards/uid/esta-vm', basic);
     reg('Monitoramento', 'Grafana já tem o painel "Esta VM"', d.status === 200 && d.corpo.includes('Esta VM'), d.status + ' ' + d.corpo.slice(0, 120));
-    const q = await pega('http://127.0.0.1:3000/api/datasources/proxy/uid/prometheus/api/v1/query?query=node_memory_MemTotal_bytes', basic);
+    // o Prometheus coleta a cada 15 s: a primeira coleta pode levar alguns segundos depois de ligar
+    let q = {};
+    for (let i = 0; i < 30; i++) { q = await pega('http://127.0.0.1:3000/api/datasources/proxy/uid/prometheus/api/v1/query?query=node_memory_MemTotal_bytes', basic); if (/"result":\[\{/.test(q.corpo)) break; await dormir(3000); }
     reg('Monitoramento', 'gráfico de memória tem dados (Grafana → Prometheus → node-exporter)', q.status === 200 && /"result":\[\{/.test(q.corpo), q.status + ' ' + q.corpo.slice(0, 160));
     const pg = await ctx.newPage();
     try {
@@ -403,8 +405,13 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
     } finally { await pg.close(); }
   });
   await passo('Monitoramento', 'Prometheus', async () => {
-    const q = await pega('http://127.0.0.1:9090/api/v1/query?query=up');
-    let jobs = {}; try { for (const r of JSON.parse(q.corpo).data.result) jobs[r.metric.job] = r.value[1]; } catch (e) {}
+    let jobs = {};
+    for (let i = 0; i < 30; i++) {
+      const q = await pega('http://127.0.0.1:9090/api/v1/query?query=up');
+      jobs = {}; try { for (const r of JSON.parse(q.corpo).data.result) jobs[r.metric.job] = r.value[1]; } catch (e) {}
+      if (jobs.prometheus === '1' && jobs['esta-vm'] === '1' && jobs.docker === '1') break;
+      await dormir(3000);
+    }
     reg('Monitoramento', 'Prometheus coleta a VM, o Docker e ele mesmo', jobs.prometheus === '1' && jobs['esta-vm'] === '1' && jobs.docker === '1', JSON.stringify(jobs));
   });
   await passo('Monitoramento', 'Uptime Kuma', async () => {

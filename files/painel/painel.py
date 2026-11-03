@@ -1501,7 +1501,7 @@ MON_SERVICOS = [
      "faz": "Vigia se os serviços estão no ar e mostra o histórico. Já vigia Jenkins, Painel, Grafana e Prometheus.", "login": "aluno / devops"},
     {"id": "prometheus", "nome": "Prometheus", "porta": 9090, "teste": "/-/ready", "abrir": "/targets",
      "faz": "Coleta as métricas a cada 15 s e guarda por 2 dias. É a fonte de dados do Grafana.", "login": ""},
-    {"id": "node-exporter", "nome": "node-exporter", "porta": 9100, "teste": "/metrics", "abrir": "/metrics",
+    {"id": "node-exporter", "nome": "node-exporter", "porta": 9100, "teste": "/", "abrir": "/metrics",
      "faz": "Mede CPU, memória, disco e rede desta VM para o Prometheus.", "login": ""},
 ]
 

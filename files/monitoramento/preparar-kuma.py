@@ -125,7 +125,14 @@ def senha(banco):
     h = bcrypt.hashpw(SENHA.encode(), bcrypt.gensalt(rounds=10, prefix=b"2a")).decode()
     con = sqlite3.connect(banco)
     n = con.execute("UPDATE user SET password = ? WHERE username = ?", (h, USUARIO)).rowcount
+    # apaga o histórico do build (Jenkins e Painel aparecem "fora" enquanto a VM é montada):
+    # o aluno começa com o histórico limpo
+    tabelas = {t for (t,) in con.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
+    for t in ("heartbeat", "stat_minutely", "stat_hourly", "stat_daily"):
+        if t in tabelas:
+            con.execute(f"DELETE FROM {t}")
     con.commit()
+    con.execute("VACUUM")
     con.close()
     if n != 1:
         sys.exit(f"conta {USUARIO} não encontrada em {banco}")
