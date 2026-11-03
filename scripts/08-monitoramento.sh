@@ -45,11 +45,23 @@ curl -fsS -u aluno:devops http://127.0.0.1:3000/api/dashboards/uid/esta-vm | gre
 
 # Uptime Kuma: conta e monitores (pela mesma API que a tela usa; ferramenta temporária)
 python3 -m venv /tmp/kseed
-/tmp/kseed/bin/pip install -q "python-socketio[client]" websocket-client
-/tmp/kseed/bin/python /tmp/files/monitoramento/preparar-kuma.py http://127.0.0.1:3001
-rm -rf /tmp/kseed
+/tmp/kseed/bin/pip install -q "python-socketio[client]" websocket-client bcrypt
+K=/tmp/files/monitoramento/preparar-kuma.py
+/tmp/kseed/bin/python "$K" contas http://127.0.0.1:3001
 
 # Desliga (os containers saem; imagens e dados ficam nos volumes)
 docker compose down
+
+# Senha aluno/devops (o Kuma não aceita senha fraca pela tela; vai direto no banco)
+KDB="$(docker volume inspect -f '{{.Mountpoint}}' monitoramento_kuma-dados)/kuma.db"
+/tmp/kseed/bin/python "$K" senha "$KDB"
+
+# Confere: liga só o Kuma, entra com aluno/devops e vê os monitores
+docker compose up -d uptime-kuma
+espera http://127.0.0.1:3001/
+/tmp/kseed/bin/python "$K" testar http://127.0.0.1:3001
+docker compose down
+rm -rf /tmp/kseed
+
 docker image ls
 docker volume ls
