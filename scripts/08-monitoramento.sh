@@ -17,9 +17,29 @@ cd "$M"
 for t in 1 2 3; do docker compose pull -q && break; echo "falhou baixar as imagens (tentativa $t)"; sleep 20; done
 docker compose up -d
 
-espera() {  # espera um endereço responder
-  for _ in $(seq 1 90); do curl -fsS -o /dev/null "$1" && return 0; sleep 2; done
-  echo "ERRO: não respondeu: $1"; docker compose ps; docker compose logs --tail 40; return 1
+diagnostico() {  # o que aconteceu com os containers (para entender falhas no build)
+  set +e
+  docker compose ps -a
+  for c in $(docker compose ps -aq); do
+    docker inspect -f '{{.Name}} estado={{.State.Status}} saida={{.State.ExitCode}} oom={{.State.OOMKilled}} erro={{.State.Error}} inicio={{.State.StartedAt}} fim={{.State.FinishedAt}}' "$c"
+  done
+  free -m; uptime
+  journalctl -k --since "-10 min" --no-pager | tail -n 40
+  journalctl -u docker -u containerd -u earlyoom --since "-10 min" --no-pager | tail -n 80
+  ps -eo pid,rss,etimes,comm --sort=-rss | head -n 15
+  set -e
+}
+espera() {  # espera um endereço responder; se os containers caírem, mostra o motivo e sobe de novo uma vez
+  local tentou=0
+  for _ in $(seq 1 120); do
+    curl -fsS -o /dev/null "$1" && return 0
+    if [ "$tentou" = 0 ] && [ -n "$(docker compose ps -aq --status exited)" ]; then
+      echo "AVISO: containers do monitoramento pararam sozinhos:"; diagnostico
+      tentou=1; docker compose up -d
+    fi
+    sleep 2
+  done
+  echo "ERRO: não respondeu: $1"; diagnostico; docker compose logs --tail 40; return 1
 }
 espera http://127.0.0.1:9090/-/ready
 espera http://127.0.0.1:9100/metrics
