@@ -1,0 +1,16 @@
+name: Medir imagens (temporário)
+on:
+  push:
+    branches: [medir-imagens]
+jobs:
+  medir:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Tamanhos
+        run: |
+          for i in grafana/grafana:latest grafana/grafana:12.3.0 grafana/grafana:12.2.0 grafana/grafana:12.1.0 grafana/grafana:12.0.0 grafana/grafana:11.6.0 grafana/grafana:11.3.0 grafana/grafana:10.4.0 louislam/uptime-kuma:2-slim louislam/uptime-kuma:1 prom/prometheus:latest; do
+            docker pull -q "$i" >/dev/null 2>&1 || { echo "$i NAO EXISTE"; continue; }
+            v=$(docker image inspect -f '{{index .Config.Labels "org.opencontainers.image.version"}}' "$i")
+            echo "$i versao=$v disco=$(docker image inspect -f '{{.Size}}' "$i" | awk '{printf "%.0f MB", $1/1e6}') gzip=$(docker save "$i" | gzip -1 | wc -c | awk '{printf "%.0f MB", $1/1e6}')"
+            docker rmi -f "$i" >/dev/null
+          done
