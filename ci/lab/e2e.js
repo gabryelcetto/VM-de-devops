@@ -401,8 +401,9 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
     try {
       await pg.goto('http://localhost:3000/login'); await pg.fill('input[name="user"]', 'aluno'); await pg.fill('input[name="password"]', 'devops');
       await pg.click('button[type="submit"]'); await pg.waitForTimeout(6000); await pg.screenshot({ path: path.join(OUT, 'grafana.png') });
-      const t = await pg.textContent('body');
-      reg('Monitoramento', 'login no Grafana pela tela abre o painel "Esta VM"', /Esta VM/.test(t) && /Processador|Mem[óo]ria/.test(t), t.replace(/\s+/g, ' ').slice(0, 160));
+      // o painel "Esta VM" é a página inicial (no Grafana 12 o título aparece como "Página inicial")
+      const t = await pg.innerText('body');
+      reg('Monitoramento', 'login no Grafana pela tela abre o painel "Esta VM"', /Processador/.test(t) && /Mem[óo]ria usada/.test(t) && /Containers/.test(t), t.replace(/\s+/g, ' ').slice(0, 160));
     } finally { await pg.close(); }
   });
   await passo('Monitoramento', 'Prometheus', async () => {
