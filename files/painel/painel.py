@@ -1417,8 +1417,16 @@ def acao_executar(d):
             raise Erro("Ação de monitoramento desconhecida.")
         if not MON_COMPOSE.is_file():
             raise Erro("O monitoramento não está instalado nesta VM.")
-        cmd = {"ligar": ["up", "-d"], "desligar": ["down"], "reiniciar": ["restart"]}[a]
-        titulo = {"ligar": "ligar o monitoramento", "desligar": "desligar o monitoramento", "reiniciar": "reiniciar o monitoramento"}[a]
+        if a == "ligar":
+            # As imagens vêm na VM compactadas (imagens.tar.zst) para o .ova caber no limite do GitHub.
+            # Na primeira vez o Docker carrega as imagens; depois liga em segundos.
+            script = ('if [ -f imagens.tar.zst ] && ! docker compose config --images | xargs docker image inspect >/dev/null 2>&1; then '
+                      'echo "== Primeira vez: preparando as imagens que vêm na VM (cerca de 1 minuto) =="; '
+                      'zstd -d -q --long=27 -c imagens.tar.zst | docker load || exit 1; fi; '
+                      'docker compose up -d')
+            return iniciar_tarefa("monitoramento", "ligar o monitoramento", ["bash", "-c", script], cwd=str(MON_COMPOSE.parent))
+        cmd = {"desligar": ["down"], "reiniciar": ["restart"]}[a]
+        titulo = {"desligar": "desligar o monitoramento", "reiniciar": "reiniciar o monitoramento"}[a]
         return iniciar_tarefa("monitoramento", titulo, ["docker", "compose", "-f", str(MON_COMPOSE)] + cmd, cwd=str(MON_COMPOSE.parent))
     if f == "projeto" and a == "apagar":
         pasta = dentro_da_home(d.get("pasta", ""))

@@ -1181,7 +1181,7 @@ async function carregarMonitoramento(){
   const situacao = x => x.no_ar ? st('ok', 'No ar') : x.estado === 'running' ? st('aviso', 'Ligando', 1) : x.estado ? st('erro', 'Parado (' + x.estado + ')') : st('', 'Desligado');
   el.innerHTML = `<div class="faixa">
       <div><div class="r">Situação</div><div class="n" style="font-size:16px;margin-top:6px">${todos ? st('ok', 'Tudo no ar') : noAr ? st('aviso', noAr + ' de ' + m.servicos.length + ' no ar') : st('', 'Desligado')}</div>
-        <div class="d">${noAr ? 'Ligado usa cerca de 400 MB de memória.' : 'Fica desligado para não gastar memória. As imagens já estão baixadas: liga em segundos.'}</div></div>
+        <div class="d">${noAr ? 'Ligado usa cerca de 400 MB de memória.' : 'Fica desligado para não gastar memória. As imagens já vêm na VM: na primeira vez leva cerca de 1 minuto para prepará-las, depois liga em segundos.'}</div></div>
       <div><div class="r">Login do Grafana e do Uptime Kuma</div><div class="n" style="font-size:16px;margin-top:6px"><span class="mono">aluno / devops</span></div><div class="d">o mesmo do resto do laboratório</div></div>
       <div><div class="r">Arquivo do Docker Compose</div><div class="n" style="font-size:13.5px;margin-top:8px"><span class="mono">${esc(m.arquivo)}</span></div><div class="d">os quatro serviços sobem juntos</div></div></div>`
     + (m.docker !== 'active' && !noAr ? `<div class="faixa-aviso info">O Docker liga sozinho quando você ligar o monitoramento.</div>` : '')

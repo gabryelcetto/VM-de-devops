@@ -35,7 +35,7 @@ services:
     restart: "no"
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:12.4.0
     network_mode: host
     environment:
       GF_SERVER_HTTP_ADDR: 127.0.0.1

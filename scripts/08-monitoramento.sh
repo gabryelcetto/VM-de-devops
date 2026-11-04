@@ -85,5 +85,15 @@ docker compose down
 /tmp/kseed/bin/python "$K" senha "$KDB"
 rm -rf /tmp/kseed
 
+# Imagens guardadas compactadas com zstd (bem menor que a compressão do .ova): o .ova cabe no
+# limite de 2 GiB do GitHub. O Painel carrega as imagens na primeira vez que o aluno liga.
+apt-get -y -o DPkg::Lock::Timeout=900 install zstd
+IMGS="$(docker compose config --images | sort -u | tr '\n' ' ')"
+echo "Guardando: $IMGS"
+docker save $IMGS | zstd -19 --long=27 -T0 -q -o "$M/imagens.tar.zst"
+zstd -tq --long=27 "$M/imagens.tar.zst"
+chmod 644 "$M/imagens.tar.zst"
+ls -la "$M/imagens.tar.zst"
+docker rmi $IMGS
 docker image ls
 docker volume ls
