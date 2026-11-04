@@ -8,9 +8,17 @@ jobs:
     steps:
       - name: Tamanhos
         run: |
-          for i in grafana/grafana:latest grafana/grafana:12.3.0 grafana/grafana:12.2.0 grafana/grafana:12.1.0 grafana/grafana:12.0.0 grafana/grafana:11.6.0 grafana/grafana:11.3.0 grafana/grafana:10.4.0 louislam/uptime-kuma:2-slim louislam/uptime-kuma:1 prom/prometheus:latest; do
+          sudo apt-get install -y -qq zstd xz-utils >/dev/null
+          for i in grafana/grafana:latest grafana/grafana:12 grafana/grafana:12.3 grafana/grafana:12.4.0 grafana/grafana:13.0.0; do
             docker pull -q "$i" >/dev/null 2>&1 || { echo "$i NAO EXISTE"; continue; }
-            v=$(docker image inspect -f '{{index .Config.Labels "org.opencontainers.image.version"}}' "$i")
-            echo "$i versao=$v disco=$(docker image inspect -f '{{.Size}}' "$i" | awk '{printf "%.0f MB", $1/1e6}') gzip=$(docker save "$i" | gzip -1 | wc -c | awk '{printf "%.0f MB", $1/1e6}')"
-            docker rmi -f "$i" >/dev/null
+            echo "$i id=$(docker image inspect -f '{{.Id}}' "$i" | cut -c8-19) disco=$(docker image inspect -f '{{.Size}}' "$i" | awk '{printf "%.0f MB", $1/1e6}') criada=$(docker image inspect -f '{{.Created}}' "$i")"
+            docker run --rm --entrypoint grafana "$i" --version 2>/dev/null || docker run --rm --entrypoint grafana-server "$i" -v 2>/dev/null
           done
+          S="grafana/grafana:12.3.0 louislam/uptime-kuma:2-slim prom/prometheus:latest prom/node-exporter:latest"
+          for i in $S; do docker pull -q $i >/dev/null; done
+          docker save $S > /tmp/todas.tar
+          echo "tar=$(du -m /tmp/todas.tar | cut -f1)MB"
+          echo "gzip6=$(gzip -6 -c /tmp/todas.tar | wc -c | awk '{printf "%.0f", $1/1e6}')MB"
+          time zstd -19 --long=27 -T0 -q -c /tmp/todas.tar > /tmp/t.zst; echo "zstd19=$(du -m /tmp/t.zst | cut -f1)MB"
+          time xz -9e -T0 -c /tmp/todas.tar > /tmp/t.xz; echo "xz9=$(du -m /tmp/t.xz | cut -f1)MB"
+          time zstd -d -c /tmp/t.zst > /dev/null
