@@ -116,7 +116,7 @@ chk  "Papel de parede DevOps Lab como padrão" "readlink -f /usr/share/backgroun
 chk  "Tema Greybird, ícones elementary e fonte Ubuntu" "$XENV xfconf-query -c xsettings -p /Net/ThemeName; xfconf-query -c xsettings -p /Net/IconThemeName; xfconf-query -c xsettings -p /Gtk/FontName" "Ubuntu 10"
 chk  "Painel com menu, atalhos, tarefas, bandeja e relógio" "$XENV xfconf-query -c xfce4-panel -l -v | grep -E '^/plugins/plugin-[0-9]+ '" "whiskermenu"
 chk  "Compositor leve ligado (janelas não deixam rastro ao arrastar)" "$XENV echo \$(xfconf-query -c xfwm4 -p /general/use_compositing) \$(xfconf-query -c xfwm4 -p /general/vblank_mode) \$(xfconf-query -c xfwm4 -p /general/show_frame_shadow)" "true xpresent false"
-chk  "Atalhos confiáveis na Área de Trabalho" "D=\$(xdg-user-dir DESKTOP); ls \"\$D\"; n=0; for f in \"\$D\"/*.desktop; do $XENV gio info -a metadata::xfce-exe-checksum \"\$f\" | grep -q checksum && n=\$((n+1)); done; echo confiaveis=\$n" "confiaveis=5"
+chk  "Atalhos confiáveis na Área de Trabalho" "D=\$(xdg-user-dir DESKTOP); ls \"\$D\"; n=0; for f in \"\$D\"/*.desktop; do $XENV gio info -a metadata::xfce-exe-checksum \"\$f\" | grep -q checksum && n=\$((n+1)); done; echo confiaveis=\$n" "confiaveis=8"
 chk  "Teclado ABNT2 na interface" "$XENV setxkbmap -query" "layout: +br"
 chk  "Integração com o VirtualBox (VBoxClient)" "pgrep -a VBoxClient" "VBoxClient"
 # (antes de qualquer teste baixar imagens: confere que vieram dentro do .ova)
@@ -219,6 +219,12 @@ gsh "$XENV setsid -f firefox http://localhost:3000 >/dev/null 2>&1; sleep 25" >/
 print_tela tela-5-grafana >/dev/null
 gsh "pkill -u aluno firefox; sleep 2; true" >/dev/null
 chk  "Painel DevOps: Desligar monitoramento libera a memória (dados ficam guardados)" "$PTOK I=\$($PPOST/api/executar -d '{\"ferramenta\":\"monitoramento\",\"acao\":\"desligar\"}' | $PTAREFA); $PESPERA $PMON; docker volume ls --format '{{.Name}}' | grep -c 'monitoramento_'" "grafana=fora uptime-kuma=fora prometheus=fora node-exporter=fora"
+chk  "Atalhos Grafana e Uptime Kuma na área de trabalho e no menu" "D=\$(xdg-user-dir DESKTOP); ls \"\$D\"/grafana-devops-lab.desktop \"\$D\"/uptime-kuma-devops-lab.desktop /usr/share/applications/prometheus-devops-lab.desktop | wc -l" "^3$"
+chk  "Atalho Grafana liga o monitoramento desligado e abre o Firefox" "mkdir -p /tmp/ff && printf '#!/bin/sh\\necho ABRIU \$*\\n' > /tmp/ff/firefox && chmod +x /tmp/ff/firefox && PATH=/tmp/ff:\$PATH timeout 300 abrir-monitoramento grafana 2>&1 | tail -n 1; cd /opt/devops-lab/monitoramento && docker compose down >/dev/null 2>&1" "ABRIU http://localhost:3000"
+chk  "Atalho Docker abre a tela do Docker (estilo do app) numa janela própria" "D=\$(xdg-user-dir DESKTOP); grep -h '^Exec=' \"\$D\"/docker-devops-lab.desktop; PATH=/tmp/ff:\$PATH painel-devops docker" "ABRIU --new-window http://localhost:8090/\\?app=docker#docker"
+gsh "$XENV setsid -f painel-devops docker >/dev/null 2>&1; sleep 25" >/dev/null
+print_tela tela-6-docker-app >/dev/null
+gsh "pkill -u aluno firefox; sleep 2; true" >/dev/null
 chk  "Painel DevOps: Apagar projeto Terraform roda o destroy antes de apagar a pasta" "$PTOK $PPOST/api/arquivo -d '{\"acao\":\"projeto\",\"nome\":\"qa-tf\",\"arquivos\":{\"main.tf\":\"resource \\\"terraform_data\\\" \\\"x\\\" {\\n  input = \\\"qa\\\"\\n}\\n\"}}' >/dev/null; for a in init apply; do I=\$($PPOST/api/executar -d '{\"ferramenta\":\"terraform\",\"acao\":\"'\$a'\",\"pasta\":\"~/projetos/qa-tf\"}' | $PTAREFA); $PESPERA done; I=\$($PPOST/api/executar -d '{\"ferramenta\":\"projeto\",\"acao\":\"apagar\",\"pasta\":\"~/projetos/qa-tf\"}' | $PTAREFA); $PESPERA D=\$($PAPI/api/tarefa?id=\$I | grep -o 'Destroy complete' | head -n 1); test -e ~/projetos/qa-tf && P=pasta-ficou || P=pasta-apagada; echo \"\$D \$P\"" "Destroy complete pasta-apagada"
 gsh "$XENV setsid -f firefox http://localhost:8090 >/dev/null 2>&1; sleep 30" >/dev/null
 CORES="$(print_tela tela-4-painel-devops)"

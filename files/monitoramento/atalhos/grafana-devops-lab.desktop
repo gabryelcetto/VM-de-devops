@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Grafana
+GenericName=Gráficos da VM
+Comment=Gráficos de CPU, memória, disco, rede e containers (aluno / devops). Liga o monitoramento se estiver desligado.
+Exec=/usr/local/bin/abrir-monitoramento grafana
+Icon=utilities-system-monitor
+Terminal=false
+Categories=Development;Monitor;
+StartupNotify=false

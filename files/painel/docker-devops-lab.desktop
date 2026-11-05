@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Docker
+GenericName=Containers, imagens, volumes e Compose
+Comment=Containers, imagens, volumes e Compose numa janela parecida com o aplicativo do Docker
+Exec=/usr/local/bin/painel-devops docker
+Icon=package-x-generic
+Terminal=false
+Categories=Development;
+StartupNotify=false

@@ -299,6 +299,68 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
     });
   }
   await aba('docker'); await print('docker-containers');
+  // ------------------------------------------------------------------ 4b. Docker no estilo do aplicativo (atalho "Docker")
+  await passo('Docker', 'tela no estilo do app', async () => {
+    const pg = await ctx.newPage(); const erros = [];
+    pg.on('pageerror', e => erros.push(e.message));
+    try {
+      await pg.goto(URL + '?app=docker#docker');
+      await pg.waitForSelector('#docker table.t', { timeout: 30000 });
+      const app = await pg.evaluate(() => ({ menuGeral: getComputedStyle(document.querySelector('aside:not(#app-lado)')).display,
+        lado: [...document.querySelectorAll('#app-nav button')].map(b => b.textContent.replace(/\d+$/, '').trim()), titulo: document.title,
+        barra: document.querySelector('#dk-barra')?.textContent || '' }));
+      reg('Docker', 'modo aplicativo: menu próprio (Containers, Imagens, Volumes, Redes, Projetos Compose, Builds) no lugar do menu do Painel',
+          app.menuGeral === 'none' && app.lado.join('|') === 'Containers|Imagens|Volumes|Redes|Projetos Compose|Builds', JSON.stringify(app));
+      reg('Docker', 'barra de baixo mostra o Docker rodando e o uso dos containers', /Docker rodando/.test(app.barra) && /containers rodando/.test(app.barra), app.barra);
+      await pg.screenshot({ path: path.join(OUT, 'docker-app-containers.png') });
+      const cartoes = await pg.$$eval('.dk-cartao', e => e.map(x => x.textContent.replace(/\s+/g, ' ')));
+      reg('Docker', 'cartões de uso de CPU e memória dos containers', cartoes.length === 2 && /CPU/.test(cartoes[0]) && /memória/.test(cartoes[1]), cartoes.join(' / '));
+      // detalhes de um container: logs, inspecionar, executar e estatísticas
+      await pg.click('#docker a.dk-link.nome:text-is("meu-site")');
+      await pg.waitForFunction(() => /\S/.test(document.querySelector('#dk-det-corpo pre')?.textContent || '') && !/Carregando/.test(document.querySelector('#dk-det-corpo pre').textContent), null, { timeout: 30000 });
+      const logs = await pg.textContent('#dk-det-corpo pre');
+      reg('Docker', 'clicar no nome abre os detalhes com os logs do container', /\d{4}-\d\d-\d\dT/.test(logs), logs.slice(-160));
+      await pg.screenshot({ path: path.join(OUT, 'docker-app-detalhes.png') });
+      await pg.click('[data-dkaba="inspecionar"]');
+      await pg.waitForFunction(() => /"Id"/.test(document.querySelector('#dk-det-corpo pre')?.textContent || ''), null, { timeout: 30000 });
+      reg('Docker', 'aba Inspecionar mostra o docker inspect formatado', /\n  \{|\n    "Id"/.test(await pg.textContent('#dk-det-corpo pre')), '');
+      await pg.click('[data-dkaba="executar"]'); await pg.fill('#dk-cmd', 'nginx -v'); await pg.click('.dk-exec button');
+      await pg.waitForFunction(() => /nginx version/.test(document.querySelector('#dk-exec-saida')?.textContent || ''), null, { timeout: 30000 }).catch(() => {});
+      const ex = await pg.textContent('#dk-exec-saida');
+      reg('Docker', 'aba Executar roda um comando dentro do container', /nginx version/.test(ex), ex.slice(0, 160));
+      await pg.click('[data-dkaba="estatisticas"]'); await pg.waitForTimeout(500);
+      reg('Docker', 'aba Estatísticas mostra CPU e memória', (await pg.$$('#dk-det-corpo .dk-cartao')).length === 2, '');
+      await pg.click('.dk-volta'); await pg.waitForSelector('#docker table.t', { timeout: 20000 });
+      // ações em lote
+      for (const n of ['meu-apache', 'meu-redis']) await pg.check(`#docker input[data-sel="c:${n}"]`);
+      const lote = await pg.textContent('#dk-lote');
+      reg('Docker', 'marcar dois containers mostra as ações em lote', /2 selecionados/.test(lote), lote);
+      await pg.click('#dk-lote button:has-text("Parar")');
+      await pg.waitForFunction(() => /Feito: 2 containers/.test(document.querySelector('#avisos')?.textContent || ''), null, { timeout: 60000 }).catch(() => {});
+      const d1 = await apiGet('/api/docker');
+      const parados = ['meu-apache', 'meu-redis'].map(n => (d1.containers.find(c => c.nome === n) || {}).estado);
+      reg('Docker', 'Parar em lote para os dois containers', parados.every(e => e === 'exited'), parados.join(','));
+      await pg.check('#docker .dk-chave input'); await pg.waitForTimeout(2500);
+      const vis = await pg.$$eval('#docker tr.dk-linha a.dk-link.nome', e => e.map(x => x.textContent.trim()));
+      reg('Docker', '"Só os que estão rodando" esconde os parados', !vis.includes('meu-apache') && !vis.includes('meu-redis') && vis.includes('meu-site'), vis.join(','));
+      await pg.uncheck('#docker .dk-chave input'); await pg.waitForTimeout(1500);
+      for (const n of ['meu-apache', 'meu-redis']) await pg.check(`#docker input[data-sel="c:${n}"]`);
+      await pg.click('#dk-lote button:has-text("Iniciar")');
+      await pg.waitForFunction(() => /Feito: 2 containers/.test(document.querySelector('#avisos')?.textContent || ''), null, { timeout: 60000 }).catch(() => {});
+      const d2 = await apiGet('/api/docker');
+      const ligados = ['meu-apache', 'meu-redis'].map(n => (d2.containers.find(c => c.nome === n) || {}).estado);
+      reg('Docker', 'Iniciar em lote liga os dois de novo', ligados.every(e => e === 'running'), ligados.join(','));
+      for (const [aba, sel] of [['Imagens', '#docker table.t'], ['Volumes', '#docker'], ['Redes', '#docker table.t'], ['Builds', '#docker']]) {
+        await pg.click(`#app-nav button:has-text("${aba}")`); await pg.waitForSelector(sel, { timeout: 20000 }); await pg.waitForTimeout(800);
+        await pg.screenshot({ path: path.join(OUT, `docker-app-${aba.toLowerCase()}.png`) });
+        if (aba === 'Imagens') {
+          const img = await pg.$$eval('#docker td .etq.ok', e => e.map(x => x.closest('tr').querySelector('.mono').textContent));
+          reg('Docker', 'aba Imagens marca as imagens em uso por containers', img.includes('nginx') && img.includes('redis'), img.join(','));
+        }
+      }
+      reg('Docker', 'tela do Docker sem erros de JavaScript', !erros.length, erros.join(' | '));
+    } finally { await pg.close(); }
+  });
   for (const [nome, d] of [
     ['parar', { acao: 'stop', container: 'meu-site' }], ['iniciar', { acao: 'start', container: 'meu-site' }], ['reiniciar', { acao: 'restart', container: 'meu-site' }],
     ['logs', { acao: 'logs', container: 'meu-site' }], ['detalhes', { acao: 'inspecionar', container: 'meu-site' }],
@@ -448,6 +510,38 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
     reg('Monitoramento', 'desligado de verdade (memória liberada)', (m.servicos || []).every(x => !x.no_ar), resumoMon(m));
     const d = await apiGet('/api/docker');
     reg('Monitoramento', 'dados do Grafana e do Kuma continuam guardados (volumes)', (d.volumes || []).some(v => /grafana-dados/.test(v.nome || v)) && (d.volumes || []).some(v => /kuma-dados/.test(v.nome || v)), JSON.stringify((d.volumes || []).map(v => v.nome || v)).slice(0, 200));
+  });
+  await passo('Monitoramento', 'atalhos do menu', async () => {
+    const { execSync } = require('child_process');
+    const sh = (cmd, env) => { try { return execSync(cmd, { env: { ...process.env, ...(env || {}) }, timeout: 300000 }).toString(); }
+                               catch (e) { return String(e.stdout || '') + String(e.stderr || '') + e.message; } };
+    for (const a of ['grafana', 'uptime-kuma', 'prometheus'])
+      reg('Monitoramento', `atalho ${a} no menu de aplicativos`, fs.existsSync(`/usr/share/applications/${a}-devops-lab.desktop`), '');
+    // como na VM recém-importada: imagens ainda não carregadas no Docker
+    sh('cd /opt/devops-lab/monitoramento && docker compose down && docker compose config --images | xargs docker rmi');
+    fs.mkdirSync('/tmp/ff', { recursive: true });
+    fs.writeFileSync('/tmp/ff/firefox', '#!/bin/sh\necho "ABRIU $*"\n', { mode: 0o755 });
+    const t0 = Date.now();
+    const saida = sh('abrir-monitoramento kuma', { PATH: '/tmp/ff:' + process.env.PATH });
+    reg('Monitoramento', 'atalho "Uptime Kuma" liga o monitoramento desligado (preparando as imagens) e abre o navegador',
+        /ABRIU http:\/\/localhost:3001/.test(saida), `${Math.round((Date.now() - t0) / 1000)} s; ${fim(saida)}`);
+    const s2 = sh('abrir-monitoramento grafana', { PATH: '/tmp/ff:' + process.env.PATH });
+    reg('Monitoramento', 'atalho "Grafana" com o monitoramento já ligado abre na hora', /ABRIU http:\/\/localhost:3000/.test(s2), fim(s2));
+    const s4 = sh('painel-devops docker', { PATH: '/tmp/ff:' + process.env.PATH });
+    reg('Docker', 'atalho "Docker" abre a tela do Docker numa janela própria', /ABRIU --new-window http:\/\/localhost:8090\/\?app=docker#docker/.test(s4), fim(s4));
+    const pg = await ctx.newPage();
+    try {
+      await pg.goto(URL + '#docker'); await pg.waitForTimeout(2500);
+      const ativa = await pg.evaluate(() => document.querySelector('#menu button.ativo')?.dataset.aba);
+      reg('Docker', 'endereço localhost:8090/#docker abre na aba Docker', ativa === 'docker', `aba ativa: ${ativa}`);
+      await pg.evaluate(() => { location.hash = 'monitoramento'; }); await pg.waitForTimeout(1500);
+      const ativa2 = await pg.evaluate(() => document.querySelector('#menu button.ativo')?.dataset.aba);
+      reg('Docker', 'trocar o #aba no endereço troca a aba', ativa2 === 'monitoramento', `aba ativa: ${ativa2}`);
+    } finally { await pg.close(); }
+    const s3 = sh('abrir-monitoramento outro');
+    reg('Monitoramento', 'atalho com nome errado explica o uso', /uso: abrir-monitoramento/.test(s3), fim(s3));
+    await page.evaluate(() => executar({ ferramenta: 'monitoramento', acao: 'desligar' }));
+    await esperarConsole(180000); await fechar();
   });
   await aba('monitoramento'); await print('monitoramento-depois');
 

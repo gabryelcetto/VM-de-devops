@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Prometheus
+GenericName=Coleta de métricas
+Comment=Consultas e alvos que o Prometheus coleta. Liga o monitoramento se estiver desligado.
+Exec=/usr/local/bin/abrir-monitoramento prometheus
+Icon=utilities-system-monitor
+Terminal=false
+Categories=Development;Monitor;
+StartupNotify=false

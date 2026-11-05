@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Uptime Kuma
+GenericName=Serviços no ar
+Comment=Vigia se Jenkins, Painel, Grafana e Prometheus estão no ar (aluno / devops). Liga o monitoramento se estiver desligado.
+Exec=/usr/local/bin/abrir-monitoramento kuma
+Icon=network-server
+Terminal=false
+Categories=Development;Monitor;
+StartupNotify=false

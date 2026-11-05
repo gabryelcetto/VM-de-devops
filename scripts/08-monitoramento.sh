@@ -9,8 +9,22 @@ set -euxo pipefail
 M=/opt/devops-lab/monitoramento
 install -d "$M"
 cp -r /tmp/files/monitoramento/. "$M/"
-rm -f "$M/preparar-kuma.py"
+rm -rf "$M/preparar-kuma.py" "$M/atalhos"
 chmod -R a+rX "$M"
+
+# Atalhos (menu e área de trabalho): abrem o serviço e ligam o monitoramento se estiver desligado
+A=/tmp/files/monitoramento/atalhos
+install -m 0755 "$A/abrir-monitoramento.sh" /usr/local/bin/abrir-monitoramento
+for app in grafana uptime-kuma prometheus; do
+  install -m 0644 "$A/$app-devops-lab.desktop" "/usr/share/applications/$app-devops-lab.desktop"
+done
+HOME_DIR="$(getent passwd "${LAB_USER}" | cut -d: -f6)"
+DESKTOP="$(sudo -u "${LAB_USER}" -H xdg-user-dir DESKTOP 2>/dev/null || true)"
+if [ -z "${DESKTOP}" ] || [ "${DESKTOP}" = "${HOME_DIR}" ]; then DESKTOP="${HOME_DIR}/Área de Trabalho"; fi
+install -d -o "${LAB_USER}" -g "${LAB_USER}" "${DESKTOP}"
+for app in grafana uptime-kuma; do
+  install -m 0755 -o "${LAB_USER}" -g "${LAB_USER}" "/usr/share/applications/$app-devops-lab.desktop" "${DESKTOP}/$app-devops-lab.desktop"
+done
 
 systemctl start docker
 cd "$M"

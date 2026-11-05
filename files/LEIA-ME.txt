@@ -32,8 +32,9 @@ Jenkins
 
 Monitoramento: Grafana, Prometheus e Uptime Kuma
 -------------------------------------------------
- Ficam desligados para não gastar memória. Ligue no
- Painel DevOps, aba Monitoramento. As imagens já vêm na VM
+ Ficam desligados para não gastar memória. Para abrir, use os
+ atalhos "Grafana" e "Uptime Kuma" da área de trabalho (ligam
+ sozinhos) ou o Painel DevOps, aba Monitoramento. As imagens já vêm na VM
  (não precisa de internet); o primeiro "Ligar" leva cerca de
  1 minuto para prepará-las, depois liga em segundos.
  - Grafana:     http://localhost:3000  (aluno / devops)
@@ -58,6 +59,8 @@ Painel DevOps (atalho na Área de Trabalho e no painel)
    - gráficos de memória, processador, builds e commits.
  Endereço: http://localhost:8090 (favorito "Painel DevOps" no Firefox;
  só abre dentro da VM)
+ O atalho "Docker" da Área de Trabalho abre o painel direto na aba
+ Docker (containers, imagens, volumes, redes e Compose).
 
 Comandos rápidos
 ----------------
