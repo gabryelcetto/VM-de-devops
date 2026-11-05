@@ -1597,7 +1597,7 @@ def info_monitoramento():
         for c in json_linhas(rodar(["docker", "compose", "-f", str(MON_COMPOSE), "ps", "-a", "--format", "json"], so_saida=True)[1]):
             estados[c.get("Service", "")] = c.get("State", "")
     servicos = []
-    for sv, no_ar in zip(MON_SERVICOS, sondas):
+    for sv, no_ar in zip(MON_SERVICOS, sondas, strict=True):
         servicos.append({**sv, "estado": estados.get(sv["id"], ""), "no_ar": no_ar,
                          "url": f"http://localhost:{sv['porta']}{sv['abrir']}"})
     return {"instalado": instalado, "docker": docker, "servicos": servicos,
