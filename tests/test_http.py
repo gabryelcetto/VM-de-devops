@@ -66,10 +66,12 @@ def test_post_ok_e_erros(p, servidor, home):
     assert st == 404
 
 
-@pytest.mark.parametrize("corpo,msg", [(b"{quebrado", "JSON válido"), (b"[1, 2]", "objeto JSON"), (b'"texto"', "objeto JSON")])
+@pytest.mark.parametrize("corpo,msg", [(b"{quebrado", "Os dados enviados não são JSON válido."),
+                                       (b"[1, 2]", "Os dados enviados precisam ser um objeto JSON."),
+                                       (b'"texto"', "Os dados enviados precisam ser um objeto JSON.")])
 def test_post_json_invalido_da_400(p, servidor, corpo, msg):
     st, _, r, _ = pedir(servidor, "POST", "/api/arquivo", token=p.TOKEN, corpo=corpo)
-    assert st == 400 and msg in json.loads(r)["erro"]
+    assert st == 400 and json.loads(r) == {"erro": msg}
 
 
 def test_post_tamanho_invalido(p, servidor):

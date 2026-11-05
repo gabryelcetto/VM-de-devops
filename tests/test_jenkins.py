@@ -65,15 +65,20 @@ def test_item_recusado(p, tipo, d, msg):
 
 @pytest.fixture
 def jenkins_falso(p, monkeypatch):
-    enviados = []
+    class Lista(list):
+        pass
+    enviados = Lista()
 
     def req(caminho, dados=None, tipo=None, timeout=20):
         if caminho.endswith("/api/json?tree=credentials[id,displayName,typeName,description]"):
             return 200, '{"credentials": [{"id": "ja-existe", "displayName": "x", "typeName": "y"}]}'
         enviados.append((caminho, dados))
+        tipos.append(tipo)
         return 200, ""
 
+    tipos = []
     monkeypatch.setattr(p.JEN, "req", req)
+    enviados.tipos = tipos
     return enviados
 
 
@@ -283,6 +288,7 @@ def test_credencial_token_xml_exato(p, jenkins_falso):
         ("scope", "GLOBAL"), ("id", "github"), ("description", "Criada pelo Painel DevOps"),
         ("username", "gabryel"), ("password", " ghp_abc ")])
     assert jenkins_falso[-1][0] == "/credentials/store/system/domain/_/createCredentials"
+    assert jenkins_falso.tipos == ["application/xml"]
 
 
 def test_credencial_segredo_xml_exato(p, jenkins_falso):

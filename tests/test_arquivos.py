@@ -71,8 +71,9 @@ def test_projeto_sem_git_nao_roda_git(p, cmds):
 
 
 def test_projeto_recusa_caminho_para_fora(p, home):
-    with pytest.raises(p.Erro, match="Caminho de arquivo inválido"):
+    with pytest.raises(p.Erro) as e:
         p.acao_arquivo({"acao": "projeto", "nome": "app", "arquivos": {"../fora.txt": "x"}})
+    assert str(e.value) == "Caminho de arquivo inválido."
     assert not (home / "projetos" / "fora.txt").exists()
     with pytest.raises(p.Erro, match="Caminho de arquivo inválido"):
         p.acao_arquivo({"acao": "projeto", "nome": "app2", "arquivos": {"/etc/x": "x"}})
@@ -127,12 +128,14 @@ def test_abrir_comandos_exatos(p, home, monkeypatch):
     assert p.acao_abrir({"acao": "vscode", "caminho": "~/projetos/app"}) == "Abrindo no VS Code."
     assert p.acao_abrir({"acao": "vscode"}) == "Abrindo no VS Code."  # sem caminho: ~/projetos
     assert p.acao_abrir({"acao": "terminal", "caminho": "~/projetos/app/a.py"}) == "Abrindo o terminal."
+    assert p.acao_abrir({"acao": "terminal", "caminho": "~/projetos"}) == "Abrindo o terminal."
     assert p.acao_abrir({"acao": "pasta", "caminho": "~/projetos/app"}) == "Abrindo a pasta."
     assert p.acao_abrir({"acao": "pasta", "caminho": "~/projetos/app/a.py"}) == "Abrindo a pasta."
     assert p.acao_abrir({"acao": "novo_arquivo", "caminho": "~/projetos/app", "nome": " b.py "}) == "Abrindo b.py no VS Code."
     app = str(home / "projetos" / "app")
     assert abertos == [["firefox", "http://127.0.0.1:8080/job/x"], ["code", app], ["code", str(home / "projetos")],
-                       ["xfce4-terminal", f"--working-directory={app}"], ["thunar", app], ["thunar", app],
+                       ["xfce4-terminal", f"--working-directory={app}"],
+                       ["xfce4-terminal", f"--working-directory={home / 'projetos'}"], ["thunar", app], ["thunar", app],
                        ["code", app, app + "/b.py"]]
     assert (home / "projetos" / "app" / "b.py").read_text() == ""
 
