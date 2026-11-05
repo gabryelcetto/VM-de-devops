@@ -1,0 +1,21 @@
+# Configuração só dos testes do Painel DevOps (pytest e teste de mutantes com mutmut).
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-p no:cacheprovider"
+
+[tool.mutmut]
+source_paths = ["files/painel/painel.py"]
+pytest_add_cli_args_test_selection = ["tests/"]
+mutate_only_covered_lines = true
+also_copy = ["files/painel/index.html"]
+
+[tool.coverage.run]
+branch = true
+sigterm = true
+source = ["files/painel", "/usr/local/lib/devops-lab/painel"]
+
+[tool.coverage.paths]
+painel = ["files/painel/", "/usr/local/lib/devops-lab/painel/"]
+
+[tool.coverage.report]
+include = ["*painel.py"]

@@ -1,7 +1,10 @@
-output/
+*.ova
+.coverage*
+__pycache__/
+build.log
+htmlcov/
+mutants/
 output-qemu/
+output/
 packer_cache/
 tools/
-build.log
-*.ova
-__pycache__/

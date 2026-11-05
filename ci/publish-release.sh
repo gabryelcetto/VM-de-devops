@@ -5,6 +5,7 @@ set -uo pipefail
 SHA="$1"
 LOG=release.log
 exec > >(tee -a "$LOG") 2>&1
+# shellcheck disable=SC2154  # rc é criado dentro do próprio trap
 trap 'rc=$?; if [ $rc -ne 0 ]; then echo "::error title=release (linha $LINENO, código $rc)::$(tail -n 25 "$LOG" | sed "s/%/%25/g" | awk "{printf \"%s%%0A\", \$0}")"; fi' EXIT
 set -x
 
