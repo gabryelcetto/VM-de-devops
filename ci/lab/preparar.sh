@@ -35,7 +35,7 @@ for _ in $(seq 1 30); do curl -fsS -o /dev/null http://127.0.0.1:9323/metrics &&
 
 # Monitoramento: exatamente o script da VM (baixa as imagens, testa e deixa desligado)
 rm -rf /tmp/files && mkdir -p /tmp/files && cp -r files/monitoramento /tmp/files/
-bash scripts/08-monitoramento.sh
+LAB_USER=aluno bash scripts/08-monitoramento.sh
 
 # Jenkins: exatamente o script da VM. Na VM o grupo docker do Jenkins vale depois do
 # reboot; aqui reiniciamos o serviço para valer na hora.

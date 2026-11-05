@@ -48,6 +48,24 @@
         "Placement": "toolbar"
       },
       {
+        "Title": "Grafana",
+        "URL": "http://localhost:3000",
+        "Placement": "toolbar",
+        "Folder": "Monitoramento"
+      },
+      {
+        "Title": "Uptime Kuma",
+        "URL": "http://localhost:3001",
+        "Placement": "toolbar",
+        "Folder": "Monitoramento"
+      },
+      {
+        "Title": "Prometheus",
+        "URL": "http://localhost:9090",
+        "Placement": "toolbar",
+        "Folder": "Monitoramento"
+      },
+      {
         "Title": "Docker Docs",
         "URL": "https://docs.docker.com/",
         "Placement": "toolbar",

@@ -449,6 +449,27 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
     const d = await apiGet('/api/docker');
     reg('Monitoramento', 'dados do Grafana e do Kuma continuam guardados (volumes)', (d.volumes || []).some(v => /grafana-dados/.test(v.nome || v)) && (d.volumes || []).some(v => /kuma-dados/.test(v.nome || v)), JSON.stringify((d.volumes || []).map(v => v.nome || v)).slice(0, 200));
   });
+  await passo('Monitoramento', 'atalhos do menu', async () => {
+    const { execSync } = require('child_process');
+    const sh = (cmd, env) => { try { return execSync(cmd, { env: { ...process.env, ...(env || {}) }, timeout: 300000 }).toString(); }
+                               catch (e) { return String(e.stdout || '') + String(e.stderr || '') + e.message; } };
+    for (const a of ['grafana', 'uptime-kuma', 'prometheus'])
+      reg('Monitoramento', `atalho ${a} no menu de aplicativos`, fs.existsSync(`/usr/share/applications/${a}-devops-lab.desktop`), '');
+    // como na VM recém-importada: imagens ainda não carregadas no Docker
+    sh('cd /opt/devops-lab/monitoramento && docker compose down && docker compose config --images | xargs docker rmi');
+    fs.mkdirSync('/tmp/ff', { recursive: true });
+    fs.writeFileSync('/tmp/ff/firefox', '#!/bin/sh\necho "ABRIU $1"\n', { mode: 0o755 });
+    const t0 = Date.now();
+    const saida = sh('abrir-monitoramento kuma', { PATH: '/tmp/ff:' + process.env.PATH });
+    reg('Monitoramento', 'atalho "Uptime Kuma" liga o monitoramento desligado (preparando as imagens) e abre o navegador',
+        /ABRIU http:\/\/localhost:3001/.test(saida), `${Math.round((Date.now() - t0) / 1000)} s; ${fim(saida)}`);
+    const s2 = sh('abrir-monitoramento grafana', { PATH: '/tmp/ff:' + process.env.PATH });
+    reg('Monitoramento', 'atalho "Grafana" com o monitoramento já ligado abre na hora', /ABRIU http:\/\/localhost:3000/.test(s2), fim(s2));
+    const s3 = sh('abrir-monitoramento outro');
+    reg('Monitoramento', 'atalho com nome errado explica o uso', /uso: abrir-monitoramento/.test(s3), fim(s3));
+    await page.evaluate(() => executar({ ferramenta: 'monitoramento', acao: 'desligar' }));
+    await esperarConsole(180000); await fechar();
+  });
   await aba('monitoramento'); await print('monitoramento-depois');
 
   // ------------------------------------------------------------------ 6. Terraform
