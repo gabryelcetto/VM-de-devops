@@ -59,6 +59,8 @@ Painel DevOps (atalho na Área de Trabalho e no painel)
    - gráficos de memória, processador, builds e commits.
  Endereço: http://localhost:8090 (favorito "Painel DevOps" no Firefox;
  só abre dentro da VM)
+ O atalho "Docker" da Área de Trabalho abre o painel direto na aba
+ Docker (containers, imagens, volumes, redes e Compose).
 
 Comandos rápidos
 ----------------

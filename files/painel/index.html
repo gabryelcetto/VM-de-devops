@@ -1325,8 +1325,11 @@ async function carregar(forcar){
   catch(e){ $('#atualizado').textContent = 'Erro: ' + e.message; }
   finally{ ocupado = false; if(pendente){ pendente = false; carregar(true); } }
 }
+// endereço com #aba (ex.: localhost:8090/#docker, usado pelo atalho "Docker") abre direto naquela aba
+const abaDoEndereco = () => { const a = location.hash.slice(1); return CARREGAR[a] ? a : null; };
 let inicial = 'inicio'; try{ const a = localStorage.getItem('painel-aba'); if(a && CARREGAR[a]) inicial = a; }catch(e){}
-irPara(inicial);
+irPara(abaDoEndereco() || inicial);
+window.addEventListener('hashchange', () => { const a = abaDoEndereco(); if(a && a !== ABA) irPara(a); });
 atualizarSaude();
 setInterval(() => carregar(), 5000);
 setInterval(atualizarSaude, 8000);

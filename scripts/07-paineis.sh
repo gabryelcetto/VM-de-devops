@@ -12,6 +12,7 @@ install -d /usr/local/lib/devops-lab/painel
 install -m 0644 "$P/painel.py" "$P/index.html" /usr/local/lib/devops-lab/painel/
 install -m 0755 "$P/painel-devops.sh" /usr/local/bin/painel-devops
 install -m 0644 "$P/painel-devops.desktop" /usr/share/applications/
+install -m 0644 "$P/docker-devops-lab.desktop" /usr/share/applications/  # atalho "Docker" = aba Docker do Painel
 install -D -m 0644 "$P/icone-painel.svg" /usr/share/icons/hicolor/scalable/apps/devops-lab-painel.svg
 gtk-update-icon-cache -f -q /usr/share/icons/hicolor || true
 python3 -m py_compile /usr/local/lib/devops-lab/painel/painel.py
@@ -39,6 +40,7 @@ sed -i "s/subject.user == \"aluno\"/subject.user == \"${LAB_USER}\"/" /etc/polki
 DESKTOP="$(sudo -u "${LAB_USER}" -H xdg-user-dir DESKTOP 2>/dev/null || true)"
 if [ -z "${DESKTOP}" ] || [ "${DESKTOP}" = "${HOME_DIR}" ]; then DESKTOP="${HOME_DIR}/Área de Trabalho"; fi
 install -m 0755 /usr/share/applications/painel-devops.desktop "${DESKTOP}/painel-devops.desktop"
+install -m 0755 /usr/share/applications/docker-devops-lab.desktop "${DESKTOP}/docker-devops-lab.desktop"
 for H in /etc/skel "$HOME_DIR"; do
   install -d "$H/.config/xfce4/panel/launcher-15"
   install -m 0644 /usr/share/applications/painel-devops.desktop "$H/.config/xfce4/panel/launcher-15/painel-devops.desktop"

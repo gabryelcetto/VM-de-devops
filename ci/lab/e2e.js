@@ -465,6 +465,17 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
         /ABRIU http:\/\/localhost:3001/.test(saida), `${Math.round((Date.now() - t0) / 1000)} s; ${fim(saida)}`);
     const s2 = sh('abrir-monitoramento grafana', { PATH: '/tmp/ff:' + process.env.PATH });
     reg('Monitoramento', 'atalho "Grafana" com o monitoramento já ligado abre na hora', /ABRIU http:\/\/localhost:3000/.test(s2), fim(s2));
+    const s4 = sh('painel-devops docker', { PATH: '/tmp/ff:' + process.env.PATH });
+    reg('Docker', 'atalho "Docker" abre o Painel direto na aba Docker', /ABRIU http:\/\/localhost:8090\/#docker/.test(s4), fim(s4));
+    const pg = await ctx.newPage();
+    try {
+      await pg.goto(URL + '#docker'); await pg.waitForTimeout(2500);
+      const ativa = await pg.evaluate(() => document.querySelector('#menu button.ativo')?.dataset.aba);
+      reg('Docker', 'endereço localhost:8090/#docker abre na aba Docker', ativa === 'docker', `aba ativa: ${ativa}`);
+      await pg.evaluate(() => { location.hash = 'monitoramento'; }); await pg.waitForTimeout(1500);
+      const ativa2 = await pg.evaluate(() => document.querySelector('#menu button.ativo')?.dataset.aba);
+      reg('Docker', 'trocar o #aba no endereço troca a aba', ativa2 === 'monitoramento', `aba ativa: ${ativa2}`);
+    } finally { await pg.close(); }
     const s3 = sh('abrir-monitoramento outro');
     reg('Monitoramento', 'atalho com nome errado explica o uso', /uso: abrir-monitoramento/.test(s3), fim(s3));
     await page.evaluate(() => executar({ ferramenta: 'monitoramento', acao: 'desligar' }));
