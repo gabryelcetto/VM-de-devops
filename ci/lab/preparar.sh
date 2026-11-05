@@ -51,8 +51,13 @@ install -D -m 0644 files/painel/polkit-devops-lab.rules /etc/polkit-1/rules.d/50
 python3 -m py_compile /usr/local/lib/devops-lab/painel/painel.py
 rm -rf /usr/local/lib/devops-lab/painel/__pycache__
 
-# Liga o Painel como o aluno (porta 8090, a mesma da VM)
-sudo -u aluno -H env XDG_CONFIG_HOME=/home/aluno/.config bash -c 'cd ~ && setsid -f python3 /usr/local/lib/devops-lab/painel/painel.py > /tmp/painel.log 2>&1 < /dev/null'
+# Liga o Painel como o aluno (porta 8090, a mesma da VM), medindo a cobertura de código:
+# ao final do laboratório dá para ver quais linhas e ramos do painel.py os testes usaram.
+pip install -q --break-system-packages coverage
+install -d -m 0777 /tmp/cobertura
+cp pyproject.toml /tmp/cobertura/pyproject.toml
+sudo -u aluno -H env XDG_CONFIG_HOME=/home/aluno/.config COVERAGE_FILE=/tmp/cobertura/.coverage.e2e bash -c \
+  'cd ~ && setsid -f python3 -m coverage run --rcfile=/tmp/cobertura/pyproject.toml /usr/local/lib/devops-lab/painel/painel.py > /tmp/painel.log 2>&1 < /dev/null'
 for _ in $(seq 1 100); do curl -s -o /dev/null http://localhost:8090/saude && break; sleep 0.3; done
 curl -fsS http://localhost:8090/saude
 echo "Laboratório pronto."

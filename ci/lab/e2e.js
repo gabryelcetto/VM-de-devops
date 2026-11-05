@@ -565,6 +565,28 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
     reg('QA', 'página inicial do Lab tem o link do Painel DevOps', pag.includes('http://localhost:8090'), '');
   });
 
+  // ------------------------------------------------------------------ 9. desempenho (o painel responde rápido?)
+  const tempos = [];
+  await passo('Desempenho', 'tempo das abas', async () => {
+    await api('/api/docker', { acao: 'ligar' });
+    for (const ep of ['/api/saude-lab', '/api/resumo', '/api/docker', '/api/jenkins', '/api/git', '/api/vscode', '/api/terraform',
+                      '/api/python', '/api/monitoramento', '/api/sistema', '/api/tarefas', '/api/ferramentas']) {
+      const ms = [];
+      for (let i = 0; i < 3; i++) {
+        ms.push(await page.evaluate(async u => { const t = performance.now(); await get(u); return Math.round(performance.now() - t); }, ep));
+      }
+      ms.sort((a, b) => a - b);
+      tempos.push(`${ep.padEnd(20)} mediana ${String(ms[1]).padStart(5)} ms  (min ${ms[0]}, max ${ms[2]})`);
+      reg('Desempenho', `${ep} responde em menos de 2,5 s`, ms[1] < 2500, `mediana ${ms[1]} ms`);
+    }
+    await aba('inicio');  // mede a abertura pela Visão geral, a aba mais pesada
+    const t0 = Date.now(); await page.reload(); await page.waitForFunction(() => /Atualizado/.test(document.getElementById('atualizado')?.textContent || ''), null, { timeout: 30000 });
+    const abrir = Date.now() - t0;
+    tempos.push(`abrir o painel na Visão geral (até mostrar dados)  ${abrir} ms`);
+    reg('Desempenho', 'o painel abre e mostra os dados em menos de 4 s', abrir < 4000, `${abrir} ms`);
+    fs.writeFileSync(path.join(OUT, 'DESEMPENHO.txt'), tempos.join('\n') + '\n');
+  });
+
   // ------------------------------------------------------------------ relatório
   const txt = [`Laboratório do Painel — ${new Date().toISOString()}`, `Repositório de teste: ${REPO} (${BRANCH})`, `OK: ${oks}   FALHAS: ${falhas}`, '', ...linhas].join('\n');
   fs.writeFileSync(path.join(OUT, 'RELATORIO.txt'), txt + '\n');

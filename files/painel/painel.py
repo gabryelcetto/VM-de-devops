@@ -24,6 +24,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
+from concurrent.futures import ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -41,11 +42,12 @@ try:
 except Exception:
     pass
 
-NOME_OK = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.\-]{0,127}$")
-REF_OK = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_./:@\-]{0,254}$")
-BRANCH_OK = re.compile(r"^(?!-)(?!.*\.\.)[A-Za-z0-9_./\-]{1,100}$")
-PORTAS_OK = re.compile(r"^(\d{1,5}:\d{1,5}(/(tcp|udp))?)$")
-MEM_OK = re.compile(r"^\d{1,6}[bkmgBKMG]?$")
+# \Z (e não $): "$" também aceita um "\n" no fim, e um nome com quebra de linha passaria
+NOME_OK = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.\-]{0,127}\Z")
+REF_OK = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_./:@\-]{0,254}\Z")
+BRANCH_OK = re.compile(r"^(?!-)(?!.*\.\.)[A-Za-z0-9_./\-]{1,100}\Z")
+PORTAS_OK = re.compile(r"^(\d{1,5}:\d{1,5}(/(tcp|udp))?)\Z")
+MEM_OK = re.compile(r"^\d{1,6}[bkmgBKMG]?\Z")
 
 
 class Erro(Exception):
@@ -151,7 +153,8 @@ def lancar(cmd, cwd=None):
 
 
 def dentro_da_home(caminho):
-    p = Path(os.path.expanduser(str(caminho))).resolve()
+    # caminho relativo (ou vazio) conta a partir da pasta pessoal, nunca da pasta onde o painel foi aberto
+    p = (HOME / Path(os.path.expanduser(str(caminho)))).resolve()
     if p != HOME and HOME not in p.parents:
         raise Erro("Só é permitido usar pastas dentro da sua pasta pessoal.")
     return p
@@ -183,7 +186,14 @@ def servico_ativo(nome):
 
 # ---------------------------------------------------------------- Docker
 def docker_ligado():
+    """Docker respondendo. Atenção: falar com o Docker LIGA o Docker (ele liga no primeiro uso);
+    use só onde o aluno quer usar o Docker (aba Docker). Para só mostrar a situação, docker_ativo()."""
     return rodar(["docker", "info", "--format", "{{.ServerVersion}}"], timeout=30)[0] == 0
+
+
+def docker_ativo():
+    """O Docker já está ligado? (não liga o Docker só para perguntar: economiza ~150 MB de memória)"""
+    return servico_ativo("docker") == "active"
 
 
 # imagens "de base": sem comando, o container abre um shell/interpretador e para na hora
@@ -191,9 +201,52 @@ IMAGENS_BASE = {"python", "ubuntu", "debian", "alpine", "busybox", "node", "fedo
                 "archlinux", "golang", "openjdk", "eclipse-temurin", "ruby", "php", "rust", "gcc", "amazonlinux", "oraclelinux"}
 
 
+# "docker stats" demora ~2 s (mede duas vezes para calcular a CPU). Para a aba Docker abrir na hora,
+# o uso de CPU/memória vem da última medição (até 20 s atrás) e uma nova é feita em segundo plano.
+_USO = {"quando": 0.0, "dados": {}, "medindo": False}
+_USO_TRAVA = threading.Lock()
+
+
+def _medir_uso():
+    try:
+        dados = {}
+        for s in json_linhas(rodar(["docker", "stats", "--no-stream", "--no-trunc", "--format", "{{json .}}"], timeout=40)[1]):
+            dados[s.get("ID", "")] = {"cpu": s.get("CPUPerc", ""), "mem": s.get("MemUsage", "")}
+        with _USO_TRAVA:
+            _USO.update(dados=dados, quando=time.time())
+    finally:
+        with _USO_TRAVA:
+            _USO["medindo"] = False
+
+
+def uso_containers():
+    with _USO_TRAVA:
+        dados = _USO["dados"]
+        medir = time.time() - _USO["quando"] > 20 and not _USO["medindo"]
+        if medir:
+            _USO["medindo"] = True
+    if medir:
+        t = threading.Thread(target=_medir_uso, daemon=True)
+        t.start()
+        if not dados:  # primeira vez: espera, para não mostrar a coluna de uso vazia
+            t.join(45)
+            with _USO_TRAVA:
+                dados = _USO["dados"]
+    return dados
+
+
+_FILA = ThreadPoolExecutor(max_workers=6)  # comandos independentes rodam ao mesmo tempo
+
+
 def info_docker():
     if not docker_ligado():
         return {"ligado": False, "servico": servico_ativo("docker")}
+    em_paralelo = {
+        "imagens": _FILA.submit(rodar, ["docker", "images", "--format", "{{json .}}"]),
+        "volumes": _FILA.submit(rodar, ["docker", "volume", "ls", "--format", "{{json .}}"]),
+        "redes": _FILA.submit(rodar, ["docker", "network", "ls", "--format", "{{json .}}"]),
+        "compose": _FILA.submit(rodar, ["docker", "compose", "ls", "-a", "--format", "json"]),
+    }
     cont = json_linhas(rodar(["docker", "ps", "-a", "--no-trunc", "--format", "{{json .}}"])[1])
     ids = [c["ID"] for c in cont]
     limites = {}
@@ -208,10 +261,7 @@ def info_docker():
             rotulos = rotulos or {}
             limites[cid] = {"memoria": int(memoria or 0), "projeto": rotulos.get("com.docker.compose.project", ""),
                             "origem": rotulos.get("criado-por", "")}
-    uso = {}
-    if any(c.get("State") == "running" for c in cont):
-        for s in json_linhas(rodar(["docker", "stats", "--no-stream", "--no-trunc", "--format", "{{json .}}"], timeout=40)[1]):
-            uso[s.get("ID", "")] = {"cpu": s.get("CPUPerc", ""), "mem": s.get("MemUsage", "")}
+    uso = uso_containers() if any(c.get("State") == "running" for c in cont) else {}
     containers = []
     for c in cont:
         cid = c["ID"]
@@ -224,13 +274,13 @@ def info_docker():
         })
     imagens = [{"id": i.get("ID", ""), "nome": f'{i.get("Repository")}:{i.get("Tag")}', "tamanho": i.get("Size", ""),
                 "criada": i.get("CreatedSince", "")}
-               for i in json_linhas(rodar(["docker", "images", "--format", "{{json .}}"])[1])]
+               for i in json_linhas(em_paralelo["imagens"].result()[1])]
     volumes = [{"nome": v.get("Name", ""), "driver": v.get("Driver", "")}
-               for v in json_linhas(rodar(["docker", "volume", "ls", "--format", "{{json .}}"])[1])]
+               for v in json_linhas(em_paralelo["volumes"].result()[1])]
     redes = [{"nome": n.get("Name", ""), "driver": n.get("Driver", ""), "padrao": n.get("Name") in ("bridge", "host", "none")}
-             for n in json_linhas(rodar(["docker", "network", "ls", "--format", "{{json .}}"])[1])]
+             for n in json_linhas(em_paralelo["redes"].result()[1])]
     projetos = []
-    cod, txt = rodar(["docker", "compose", "ls", "-a", "--format", "json"])
+    cod, txt = em_paralelo["compose"].result()
     if cod == 0 and txt.startswith("["):
         for p in json.loads(txt):
             projetos.append({"nome": p.get("Name", ""), "status": p.get("Status", ""), "arquivos": p.get("ConfigFiles", "")})
@@ -362,7 +412,7 @@ def acao_docker(d):
             orig, _, dest = v.partition(":")
             if not dest.startswith("/") or not (NOME_OK.match(orig) or orig.startswith(("/home/", "~/"))):
                 raise Erro(f"Volume inválido: {v} (use nome-do-volume:/caminho ou ~/pasta:/caminho)")
-            if orig.startswith("~/"):
+            if orig.startswith(("~/", "/home/")):
                 orig = str(dentro_da_home(orig))
             cmd += ["-v", f"{orig}:{dest}"]
         comando = d.get("comando", "").strip()
@@ -371,8 +421,8 @@ def acao_docker(d):
                 raise Erro("Nome inválido: use letras, números, - _ .")
             cmd += ["--name", nome]
         for p in [x.strip() for x in d.get("portas", "").replace(";", ",").split(",") if x.strip()]:
-            if not PORTAS_OK.match(p):
-                raise Erro(f"Porta inválida: {p} (use PC:CONTAINER, ex.: 8081:80)")
+            if not PORTAS_OK.match(p) or not all(1 <= int(n) <= 65535 for n in p.split("/")[0].split(":")):
+                raise Erro(f"Porta inválida: {p} (use PC:CONTAINER, ex.: 8081:80; portas vão de 1 a 65535)")
             cmd += ["-p", p]
         mem = d.get("memoria", "").strip()
         if mem:
@@ -404,7 +454,10 @@ def acao_docker(d):
                      "sleep infinity para o container continuar ligado. Use o Terminal dele para trabalhar.")
         if comando:
             import shlex
-            cmd += shlex.split(comando)
+            try:
+                cmd += shlex.split(comando)
+            except ValueError:
+                raise Erro("O comando tem aspas abertas e não fechadas. Confira as aspas do comando.") from None
         cod_run, saida = rodar(cmd, timeout=900)
         if cod_run != 0:
             raise Erro("\n".join(dicas_para(saida)) or saida)
@@ -417,8 +470,8 @@ def acao_docker(d):
             if estado[1:] == ["0"]:
                 return (f"O container {nome or cid} rodou o programa dele e terminou com sucesso (programas de uma vez só, "
                         "como scripts, param quando acabam; servidores continuam ligados). Saída:\n" + logs[-1200:]).strip()
-            raise Erro(f"O container {nome or cid} parou com erro (código {estado[1] if len(estado) > 1 else '?'}) logo depois de ligar. "
-                       f"Veja a saída:\n{logs[-1200:]}\n" + "\n".join(dicas_para(logs))).strip()
+            raise Erro((f"O container {nome or cid} parou com erro (código {estado[1] if len(estado) > 1 else '?'}) logo depois de ligar. "
+                        f"Veja a saída:\n{logs[-1200:]}\n" + "\n".join(dicas_para(logs))).strip())
         return f"Container {nome or cid} criado e rodando.{aviso}"
     if acao in ("compose_up", "compose_down", "compose_ver"):
         arq = arquivo_permitido(d.get("arquivo", ""))
@@ -619,7 +672,7 @@ def _git_scm(pai, url, branch, cred):
     return scm
 
 
-CRON_OK = re.compile(r"^[\w*/,\- #@]{1,100}$")
+CRON_OK = re.compile(r"^[\w*/,\- #@]{1,100}\Z")
 
 
 def _gatilhos(pai, d):
@@ -1075,7 +1128,10 @@ def acao_git(d):
         usuario, token = d.get("usuario", "").strip(), d.get("token", "").strip()
         if not re.fullmatch(r"[A-Za-z0-9\-]{1,39}", usuario) or not re.fullmatch(r"[\w\-]{20,255}", token):
             raise Erro("Informe seu usuário do GitHub e um token válido (ghp_... ou github_pat_...).")
-        horas = max(1, min(int(d.get("horas") or 8), 24))
+        try:
+            horas = max(1, min(int(d.get("horas") or 8), 24))
+        except (TypeError, ValueError):
+            raise Erro("Informe as horas como um número de 1 a 24.") from None
         rodar(["git", "config", "--global", "credential.helper", f"cache --timeout={horas * 3600}"])
         ok_ou_erro(rodar(["git", "credential", "approve"],
                          entrada=f"protocol=https\nhost=github.com\nusername={usuario}\npassword={token}\n\n"))
@@ -1175,7 +1231,8 @@ def acao_git(d):
         existe = b in [x.strip() for x in rodar(g + ["branch", "--format=%(refname:short)"])[1].splitlines()]
         return ok_ou_erro(rodar(g + (["switch", b] if existe else ["switch", "-c", b]))) or f"Agora na branch {b}."
     if acao == "diff":
-        return rodar(g + ["diff", "--stat"])[1] + "\n\n" + rodar(g + ["diff"])[1][:20000] or "(sem diferenças)"
+        resumo_diff, diff = rodar(g + ["diff", "--stat"])[1], rodar(g + ["diff"])[1][:20000]
+        return (resumo_diff + "\n\n" + diff) if (resumo_diff or diff) else "(sem diferenças)"
     raise Erro("Ação de Git desconhecida.")
 
 
@@ -1210,14 +1267,14 @@ def acao_abrir(d):
     acao = d.get("acao")
     if acao == "url":
         url = d.get("url", "")
-        if not re.match(r"^(http://(localhost|127\.0\.0\.1):\d+(/.*)?|https://github\.com/[\w./?=&\-]*)$", url):
+        if not re.match(r"^(http://(localhost|127\.0\.0\.1):\d+(/.*)?|https://github\.com/[\w./?=&\-]*)\Z", url):
             raise Erro("Endereço não permitido.")
         lancar(["firefox", url])
         return "Abrindo no navegador."
     caminho = dentro_da_home(d.get("caminho", str(PROJETOS)))
     if acao == "novo_arquivo":
         nome = d.get("nome", "").strip()
-        if not re.fullmatch(r"[\w.\- ]{1,100}", nome):
+        if not re.fullmatch(r"[\w.\- ]{1,100}", nome) or not nome.strip(". "):
             raise Erro("Nome de arquivo inválido.")
         alvo = caminho / nome
         if not alvo.exists():
@@ -1348,7 +1405,10 @@ def ver_tarefa(q):
     t = TAREFAS.get(q.get("id", [""])[0])
     if not t:
         raise Erro("Tarefa não encontrada.")
-    desde = int(q.get("desde", ["0"])[0])
+    try:
+        desde = max(0, int(q.get("desde", ["0"])[0]))
+    except ValueError:
+        desde = 0
     return {**{k: t[k] for k in ("id", "ferramenta", "titulo", "comando", "fim", "codigo", "inicio", "duracao")},
             "linhas": t["linhas"][desde:], "total": len(t["linhas"])}
 
@@ -1407,6 +1467,8 @@ def acao_executar(d):
             return iniciar_tarefa("git", f"git pull juntando históricos ({repo.name})",
                                   ["git", "pull", "--no-rebase", "--no-edit", "--allow-unrelated-histories", "origin", branch], cwd=str(repo))
     if f == "vscode":
+        if a not in ("instalar", "remover"):
+            raise Erro("Ação do VS Code desconhecida.")
         ext = d.get("extensao", "").strip()
         if not re.fullmatch(r"[\w\-]+\.[\w.\-]+", ext):
             raise Erro("ID de extensão inválido (ex.: ms-python.python).")
@@ -1484,7 +1546,7 @@ def acao_executar(d):
             if not venv_py.exists():
                 raise Erro("Crie o ambiente (.venv) primeiro.")
             return iniciar_tarefa("python", f"pip freeze > requirements.txt ({pasta.name})",
-                                  ["sh", "-c", f'"{py}" -m pip freeze | tee requirements.txt'], cwd=str(pasta))
+                                  ["sh", "-c", '"$1" -m pip freeze | tee requirements.txt', "freeze", py], cwd=str(pasta))
         if a == "piplist":
             return iniciar_tarefa("python", f"pip list ({pasta.name})", [py, "-m", "pip", "list"], cwd=str(pasta))
     raise Erro("Ação desconhecida.")
@@ -1514,6 +1576,9 @@ MON_SERVICOS = [
 ]
 
 
+_SONDAS = ThreadPoolExecutor(max_workers=4)  # testa os 4 serviços ao mesmo tempo
+
+
 def _no_ar(porta, caminho):
     try:
         with urllib.request.urlopen(f"http://127.0.0.1:{porta}{caminho}", timeout=1.5) as r:
@@ -1526,16 +1591,17 @@ def _no_ar(porta, caminho):
 
 def info_monitoramento():
     instalado = MON_COMPOSE.is_file()
+    sondas = _SONDAS.map(lambda sv: _no_ar(sv["porta"], sv["teste"]), MON_SERVICOS)  # já começam a testar
+    docker = servico_ativo("docker")
     estados = {}
-    if instalado and docker_ligado():
+    if instalado and docker == "active":
         for c in json_linhas(rodar(["docker", "compose", "-f", str(MON_COMPOSE), "ps", "-a", "--format", "json"], so_saida=True)[1]):
             estados[c.get("Service", "")] = c.get("State", "")
     servicos = []
-    for sv in MON_SERVICOS:
-        no_ar = _no_ar(sv["porta"], sv["teste"])
+    for sv, no_ar in zip(MON_SERVICOS, sondas, strict=True):
         servicos.append({**sv, "estado": estados.get(sv["id"], ""), "no_ar": no_ar,
                          "url": f"http://localhost:{sv['porta']}{sv['abrir']}"})
-    return {"instalado": instalado, "docker": servico_ativo("docker"), "servicos": servicos,
+    return {"instalado": instalado, "docker": docker, "servicos": servicos,
             "arquivo": str(MON_COMPOSE)}
 
 
@@ -1630,9 +1696,8 @@ def acao_arquivo(d):
 
 
 # ---------------------------------------------------------------- resumo
-def resumo():
-    s = info_sistema()
-    dk = {"ligado": docker_ligado()}
+def _resumo_docker():
+    dk = {"ligado": docker_ativo()}
     if dk["ligado"]:
         cont = json_linhas(rodar(["docker", "ps", "-a", "--format", "{{json .}}"])[1])
         estados = {}
@@ -1640,25 +1705,36 @@ def resumo():
             estados[c.get("State", "?")] = estados.get(c.get("State", "?"), 0) + 1
         dk.update(total=len(cont), rodando=estados.get("running", 0), estados=estados,
                   imagens=len(rodar(["docker", "images", "-q"])[1].split()))
-    j = info_jenkins()
+    return dk
+
+
+def _resumo_git():
+    repos = repos_git()
+    pend = sum(1 for r in repos if rodar(["git", "-C", r, "status", "--porcelain"])[1])
+    return {"repos": len(repos), "com_mudancas": pend, "por_dia": commits_por_dia(repos)}
+
+
+def resumo():
+    # as partes não dependem uma da outra: rodam ao mesmo tempo (a Visão geral abre mais rápido)
+    partes = {"jenkins": _FILA.submit(info_jenkins), "docker": _FILA.submit(_resumo_docker),
+              "git": _FILA.submit(_resumo_git), "monitoramento": _FILA.submit(info_monitoramento)}
+    s = info_sistema()
+    j = partes["jenkins"].result()
+    dk = partes["docker"].result()
     jobs = j.get("jobs", [])
     builds = []
     for x in jobs:
         for b in x.get("historico", []):
             builds.append({"job": x["nome"], **b})
     builds.sort(key=lambda b: b.get("t") or 0)
-    repos = repos_git()
-    pend = 0
-    for r in repos:
-        pend += 1 if rodar(["git", "-C", r, "status", "--porcelain"])[1] else 0
     return {"sistema": s, "docker": dk,
             "jenkins": {"servico": j["servico"], "respondendo": j.get("respondendo"), "jobs": len(jobs),
                         "falhas": sum(1 for x in jobs if x.get("resultado") == "FAILURE"),
                         "sucessos": sum(1 for x in jobs if x.get("resultado") == "SUCCESS")},
             "builds": builds[-30:], "historico": {k: HIST[k] for k in ("t", "cpu", "mem")},
-            "git": {"repos": len(repos), "com_mudancas": pend, "por_dia": commits_por_dia(repos)},
+            "git": partes["git"].result(),
             "vscode": {"recentes": len(vscode_recentes())},
-            "monitoramento": (lambda m: {"ligados": sum(1 for x in m["servicos"] if x["no_ar"]), "total": len(m["servicos"])})(info_monitoramento()),
+            "monitoramento": (lambda m: {"ligados": sum(1 for x in m["servicos"] if x["no_ar"]), "total": len(m["servicos"])})(partes["monitoramento"].result()),
             "terraform": (lambda t: {"projetos": len(t["projetos"]), "recursos": sum(len(p["recursos"]) for p in t["projetos"])})(info_terraform()),
             "python": {"projetos": len(info_python()["projetos"])},
             "tarefas": listar_tarefas()["tarefas"][:12]}
@@ -1753,10 +1829,18 @@ class Handler(BaseHTTPRequestHandler):
         if not f:
             return self.responder(404, {"erro": "não encontrado"})
         try:
-            tam = int(self.headers.get("Content-Length", "0"))
-            if tam > 2_000_000:
-                raise Erro("Dados grandes demais.")
-            dados = json.loads(self.rfile.read(tam) or b"{}")
+            try:
+                tam = int(self.headers.get("Content-Length", "0"))
+            except ValueError:
+                raise Erro("Pedido inválido.") from None
+            if tam < 0 or tam > 2_000_000:
+                raise Erro("Dados grandes demais." if tam > 0 else "Pedido inválido.")
+            try:
+                dados = json.loads(self.rfile.read(tam) or b"{}")
+            except ValueError:
+                raise Erro("Os dados enviados não são JSON válido.") from None
+            if not isinstance(dados, dict):
+                raise Erro("Os dados enviados precisam ser um objeto JSON.")
             self.responder(200, {"ok": True, "resultado": f(dados)})
         except Erro as e:
             self.responder(400, {"erro": str(e)})

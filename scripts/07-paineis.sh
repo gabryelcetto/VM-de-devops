@@ -69,6 +69,7 @@ systemctl start docker
 
 # ---------------------------------------------------------------- teste do Painel DevOps (como o aluno)
 PORTA=8099
+# shellcheck disable=SC2024  # o log em /tmp é do root de propósito (só para o build)
 sudo -u "${LAB_USER}" -H env PAINEL_PORTA=$PORTA python3 /usr/local/lib/devops-lab/painel/painel.py >/tmp/painel-teste.log 2>&1 &
 PID=$!
 for _ in $(seq 1 50); do curl -s -o /dev/null http://localhost:$PORTA/saude && break; sleep 0.2; done

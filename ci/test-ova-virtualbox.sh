@@ -126,6 +126,7 @@ chk  "Docker guarda as imagens no overlay2 (sem cópia dupla do containerd)" "do
 chk  "Monitoramento vem desligado (não gasta memória no boot)" "docker ps --filter label=com.docker.compose.project=monitoramento --format '{{.Names}}' | wc -l" "^0$"
 chk  "Firefox com página inicial e favoritos do Lab" "python3 -m json.tool /etc/firefox/policies/policies.json | grep -E 'inicio.html|localhost:8080'" "inicio.html"
 chk  "VS Code em português, sem chaveiro e sem aceleração de GPU" "cat ~/.vscode/argv.json" "pt-br"
+nchk "Sem peso morto no .ova (cache de .vsix e Copilot embutido, que fica desligado)" "ls -d ~/.config/Code/CachedExtensionVSIXs /usr/share/code/resources/app/extensions/copilot 2>/dev/null" "CachedExtensionVSIXs|copilot"
 
 # ---------------------------------------------------------------- ferramentas e Jenkins
 R="$(grun /usr/local/bin/verificar-lab)"; echo "$R" > "$OUT/verificar-lab-1.txt"

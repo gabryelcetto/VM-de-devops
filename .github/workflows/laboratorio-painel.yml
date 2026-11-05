@@ -24,6 +24,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Análise estática e testes de unidade do Painel (com cobertura)
+        run: |
+          pip install -q --break-system-packages pytest coverage ruff shellcheck-py
+          mkdir -p resultado
+          COVERAGE_FILE=/tmp/cobertura-unidade bash ci/qa/verificar.sh | tee resultado/TESTES-UNIDADE.txt
+
       - name: Montar a cópia da VM (Jenkins, Docker, Painel)
         run: sudo bash ci/lab/preparar.sh
 
@@ -41,6 +47,21 @@ jobs:
           LAB_REPO: https://github.com/${{ github.repository }}.git
           LAB_BRANCH: ${{ github.ref_name }}
         run: node e2e.js "$GITHUB_WORKSPACE/resultado"
+
+      - name: Cobertura de código (testes de unidade + laboratório)
+        if: always()
+        run: |
+          mkdir -p resultado
+          sudo pkill -TERM -f 'coverage run .*painel.py' || true
+          for _ in $(seq 1 30); do ls /tmp/cobertura/.coverage.e2e >/dev/null 2>&1 && ! pgrep -f 'coverage run .*painel.py' >/dev/null && break; sleep 1; done
+          sudo cp /tmp/cobertura/.coverage.e2e /tmp/cobertura-e2e 2>/dev/null && sudo chown "$USER" /tmp/cobertura-e2e || true
+          {
+            echo "== Só os testes de unidade (tests/)"; COVERAGE_FILE=/tmp/cobertura-unidade python3 -m coverage report || true
+            echo; echo "== Só o laboratório (o Painel usado num navegador)"; COVERAGE_FILE=/tmp/cobertura-e2e python3 -m coverage report || true
+            echo; echo "== Juntos (linhas e ramos do painel.py usados por algum teste)"
+            python3 -m coverage combine --keep --data-file=/tmp/cobertura-total /tmp/cobertura-unidade /tmp/cobertura-e2e >/dev/null 2>&1 || true
+            COVERAGE_FILE=/tmp/cobertura-total python3 -m coverage report -m || true
+          } | tee resultado/COBERTURA.txt
 
       - name: Juntar logs
         if: always()
@@ -72,3 +93,26 @@ jobs:
           head -n 3 /tmp/resultado/RELATORIO.txt || true
           msg=$(grep -E '^\[FALHA\]' /tmp/resultado/RELATORIO.txt | head -n 80 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
           [ -n "$msg" ] && echo "::warning title=falhas no laboratório::${msg}" || echo "Nenhuma falha."
+
+      - name: Falhar se o laboratório achou falhas
+        run: |
+          grep -q 'FALHAS: 0$' /tmp/resultado/RELATORIO.txt || { echo "::error::O laboratório achou falhas (veja a branch lab-results)"; exit 1; }
+
+  mutantes:
+    name: Teste de mutantes do Painel
+    runs-on: ubuntu-24.04
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rodar o mutmut nas funções que validam e montam comandos
+        run: |
+          pip install -q --break-system-packages mutmut pytest
+          rc=0; bash ci/qa/mutantes.sh resultado-mutantes || rc=$?
+          cat resultado-mutantes/MUTANTES.txt >> "$GITHUB_STEP_SUMMARY" || true
+          exit $rc
+      - name: Guardar o relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutantes
+          path: resultado-mutantes/
