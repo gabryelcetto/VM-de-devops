@@ -14,7 +14,8 @@ CASOS = {
     "pipeline_scm": {"repo": "https://github.com/gabryel/app.git", "branch": "dev", "jenkinsfile": "ci/Jenkinsfile",
                      "credencial": "github", "cron_scm": "H/5 * * * *"},
     "freestyle": {"comandos": "echo ok", "cron": "@daily", "cron_scm": "H/15 * * * *"},
-    "freestyle-git": {"repo": "git@github.com:gabryel/app.git", "credencial": "ssh"},
+    "freestyle-git": {"repo": "git@github.com:gabryel/app.git", "credencial": "ssh", "branch": "dev"},
+    "pipeline_scm-padrao": {"repo": "https://github.com/gabryel/app.git"},
     "multibranch": {"repo": "https://github.com/gabryel/app.git", "credencial": "github", "jenkinsfile": "Jenkinsfile.ci"},
     "pasta": {"descricao": "Projetos da aula"},
 }

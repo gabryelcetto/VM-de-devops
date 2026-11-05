@@ -126,6 +126,20 @@ def test_tabela_de_erros(p, ambiente):
         assert str(e.value) == texto, pedido
 
 
+def test_ligar_monitoramento_e_apagar_completo(p, ambiente, tarefas):
+    h, mon = ambiente
+    p.acao_executar({"ferramenta": "monitoramento", "acao": "ligar"})
+    assert (tarefas[-1]["ferramenta"], tarefas[-1]["titulo"], tarefas[-1]["cwd"]) == ("monitoramento", "ligar o monitoramento", str(mon.parent))
+    pasta = h / "projetos" / "tudo"
+    pasta.mkdir()
+    (pasta / "main.tf").write_text("")
+    (pasta / "terraform.tfstate").write_text('{"resources": [{"mode": "managed"}]}')
+    (pasta / "compose.yml").write_text("services: {}\n")
+    p.acao_executar({"ferramenta": "projeto", "acao": "apagar", "pasta": "projetos/tudo"})
+    assert tarefas[-1]["titulo"] == "apagar projeto tudo (destroy + compose down)"
+    assert "docker compose -f compose.yml down -v --remove-orphans" in tarefas[-1]["cmd"][2]
+
+
 def test_monitoramento_nao_instalado_texto(p, tmp_path, monkeypatch):
     monkeypatch.setattr(p, "MON_COMPOSE", tmp_path / "nao-existe.yml")
     with pytest.raises(p.Erro) as e:
