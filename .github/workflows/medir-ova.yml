@@ -1,0 +1,44 @@
+name: Medir o .ova (temporário)
+on:
+  push:
+    branches: [medir-ova]
+jobs:
+  medir:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Espaço
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL; df -h /
+      - name: Baixar e montar o .ova publicado
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          sudo apt-get install -y -qq qemu-utils zstd >/dev/null
+          gh release download -R ${{ github.repository }} --pattern 'DevOps-Lab.ova' -D /mnt/ova
+          cd /mnt/ova && tar xf DevOps-Lab.ova && ls -la
+          sudo qemu-img convert -O raw *.vmdk /mnt/disco.raw && rm -f *.vmdk
+          L=$(sudo losetup -fP --show /mnt/disco.raw); echo "L=$L" >> $GITHUB_ENV
+          sudo mkdir -p /vm && sudo mount -o ro ${L}p2 /vm && df -h /vm
+      - name: Custo de cada pasta no download (gzip -6 ~ compressão do .ova)
+        run: |
+          cd /vm
+          custo() { printf '%8s MB disco %8s MB no .ova  %s\n' "$(sudo du -smx "$1" 2>/dev/null | cut -f1)" "$(sudo tar -C / -cf - "${1#/}" 2>/dev/null | gzip -6 | wc -c | awk '{printf "%.0f", $1/1e6}')" "$1"; }
+          echo "== nível 1"; for d in /vm/*; do [ -d "$d" ] && [ ! -L "$d" ] && custo "$d"; done | sort -k4 -n -r
+          echo "== maiores pastas (nível 2-4)"
+          sudo du -mx --max-depth=4 /vm/usr /vm/var /vm/opt /vm/home /vm/root 2>/dev/null | sort -n -r | awk '$1>=40' | head -45 | while read n d; do custo "$d"; done
+      - name: Detalhes
+        run: |
+          cd /vm
+          echo "== extensões do VS Code"; sudo du -sm home/*/.vscode/extensions/* 2>/dev/null | sort -n -r
+          echo "== VS Code (app)"; sudo du -sm usr/share/code/* usr/share/code/resources/app/* usr/share/code/resources/app/extensions 2>/dev/null | sort -n -r | head -20
+          echo "== extensões embutidas do VS Code (maiores)"; sudo du -sm usr/share/code/resources/app/extensions/* 2>/dev/null | sort -n -r | head -25
+          echo "== plugins do Jenkins"; sudo du -sm var/lib/jenkins/plugins/*.jpi var/lib/jenkins/plugins/*.hpi 2>/dev/null | sort -n -r | head -30; ls var/lib/jenkins/plugins/*.jpi 2>/dev/null | wc -l
+          echo "== jenkins"; sudo du -sm var/lib/jenkins/* var/cache/jenkins/* usr/share/java/* 2>/dev/null | sort -n -r | head -15
+          echo "== docker"; sudo du -sm var/lib/docker/* 2>/dev/null | sort -n -r
+          echo "== firefox"; sudo du -sm usr/lib/firefox/* 2>/dev/null | sort -n -r | head -10
+          echo "== firmware/módulos/kernel"; sudo du -sm usr/lib/firmware usr/lib/modules/* boot 2>/dev/null
+          echo "== pacotes (MB)"; sudo chroot /vm dpkg-query -Wf '${Installed-Size}\t${Package}\n' 2>/dev/null | sort -n | tail -n 60 | awk '{printf "%8.1f  %s\n", $1/1024, $2}'
+          echo "== snap"; sudo du -sm var/lib/snapd 2>/dev/null; ls var/lib/snapd/snaps 2>/dev/null
+          echo "== caches"; sudo du -sm var/cache/* home/*/.cache/* root/.cache 2>/dev/null | sort -n -r | head -15
+          echo "== python pycache"; sudo find usr/lib/python3* -name __pycache__ -type d -exec du -sm {} + 2>/dev/null | awk '{s+=$1} END {print s " MB"}'
+          echo "== serviços habilitados"; ls etc/systemd/system/*.wants/ 2>/dev/null
+          echo "== autostart"; ls etc/xdg/autostart home/*/.config/autostart 2>/dev/null
