@@ -2,6 +2,9 @@
 .coverage*
 __pycache__/
 build.log
+ci/lab/node_modules/
+ci/lab/package-lock.json
+ci/lab/package.json
 htmlcov/
 mutants/
 output-qemu/

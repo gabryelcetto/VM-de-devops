@@ -105,6 +105,52 @@ table.t tr.clic{cursor:pointer}
 .cel-nome .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:420px}
 .desativado td{opacity:.6}
 
+/* ---------- Docker (no estilo do aplicativo Docker Desktop) ---------- */
+#app-lado, .dk-barra{display:none}
+body.modo-app{--acento:#1d63ed;--acento-esc:#1551c4;--acento-claro:#e8effd}
+body.modo-app > aside:not(#app-lado){display:none}
+body.modo-app #app-lado{display:flex;flex-direction:column;width:212px;flex:none;background:var(--sup);border-right:1px solid var(--borda);height:100vh;overflow:auto}
+#app-lado .marca b{color:var(--texto)} #app-lado .marca span{color:var(--fraco)}
+#app-nav{display:flex;flex-direction:column;gap:2px;padding:6px 10px}
+#app-nav button{display:flex;align-items:center;gap:11px;background:none;border:0;padding:8px 12px;border-radius:6px;cursor:pointer;color:var(--texto);text-align:left}
+#app-nav button svg{width:18px;height:18px;flex:none;opacity:.75}
+#app-nav button:hover{background:var(--sup2)}
+#app-nav button.ativo{background:var(--acento-claro);color:var(--acento-esc);font-weight:500}
+#app-nav button.ativo svg{opacity:1}
+#app-nav button.ativo::before{display:none}
+#app-nav .cont{margin-left:auto;font-size:12px;color:var(--fraco)}
+body.modo-app .dk-barra{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:center;padding:7px 20px;border-top:1px solid var(--borda);background:var(--sup);font-size:12.5px;color:var(--fraco);position:sticky;bottom:0}
+.dk-barra a{margin-left:auto}
+.dk-cartoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:16px}
+.dk-cartao{background:var(--sup);border:1px solid var(--borda);border-radius:var(--raio);padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.dk-cartao b{font-size:24px;font-weight:500;line-height:1.25}
+.dk-cartao .r{color:var(--fraco);font-size:12.5px}
+td.dk-sel{width:1%;padding-right:0}
+td.dk-sel input{width:16px;height:16px;margin:0;cursor:pointer}
+.dk-link{color:var(--info);text-decoration:none;display:inline-flex;align-items:center;gap:3px;cursor:pointer}
+.dk-link:hover{text-decoration:underline}
+.dk-link svg{width:13px;height:13px;flex:none}
+a.dk-link.nome{font-weight:500}
+tr.dk-grupo td{background:var(--sup2)}
+tr.dk-filho td:nth-child(2){padding-left:50px}
+tr.dk-oculto{display:none !important}
+.dk-seta{width:24px;height:24px;padding:3px}
+.dk-seta svg{transition:transform .15s}
+.dk-seta.aberto svg{transform:rotate(90deg)}
+.dk-chave{display:inline-flex;align-items:center;gap:6px;color:var(--fraco);cursor:pointer;white-space:nowrap}
+.dk-lote{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
+.dk-lote:empty{display:none}
+.dk-volta{margin-bottom:10px;font-size:13px}
+.dk-volta svg{width:15px;height:15px}
+.dk-det-cab{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.dk-det-cab h2{margin:0;font-size:18px}
+.dk-det-cab .acoes{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.dk-det-abas{padding:0;margin:14px 0}
+.dk-saida{max-height:62vh}
+.dk-exec{display:flex;gap:8px;margin:12px 0}
+.dk-exec input{flex:1}
+@media (prefers-reduced-motion:reduce){.dk-seta svg{transition:none}}
+
 /* ---------- estados ---------- */
 .st{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
 .st::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--fraco2);flex:none}
@@ -254,6 +300,14 @@ svg.graf text{fill:var(--fraco);font-size:11px;font-family:inherit}
   </div>
 </aside>
 
+<aside id="app-lado" aria-label="Docker">
+  <div class="marca">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#1d63ed"/><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><rect x="7" y="13" width="6" height="6"/><rect x="13" y="13" width="6" height="6"/><rect x="19" y="13" width="6" height="6"/><rect x="13" y="7" width="6" height="6"/><path d="M5 22h22"/></g></svg>
+    <div><b>Docker</b><span>DevOps-Lab</span></div>
+  </div>
+  <nav id="app-nav"></nav>
+</aside>
+
 <div id="conteudo">
   <header class="cab-pag"><div><h1 id="titulo">Visão geral</h1><p id="descricao"></p></div><div class="acoes" id="acoes-topo"></div></header>
   <div id="ajuda"></div>
@@ -270,6 +324,7 @@ svg.graf text{fill:var(--fraco);font-size:11px;font-family:inherit}
     <section id="atividades"></section>
     <section id="sistema"></section>
   </main>
+  <footer class="dk-barra" id="dk-barra" aria-live="polite"></footer>
 </div>
 
 <div id="modal" role="dialog" aria-modal="true"><div class="caixa">
@@ -307,6 +362,7 @@ const I = {
   ajuda:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17v.5"/>', ok:'<path d="M5 12l5 5 9-10"/>',
   energia:'<path d="M12 3v9M6.3 6.3a8 8 0 1 0 11.4 0"/>', compose:'<rect x="3" y="4" width="8" height="7" rx="1"/><rect x="13" y="4" width="8" height="7" rx="1"/><rect x="8" y="13" width="8" height="7" rx="1"/>',
   imagem:'<path d="M12 3l9 5v8l-9 5-9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/>', rede:'<circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4M12 11.5l-6 5M12 11.5l6 5"/>',
+  seta:'<path d="M9 6l6 6-6 6"/>', voltar:'<path d="M15 6l-6 6 6 6"/>',
   disco:'<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>', limpar:'<path d="M4 20l7-7M14 4l6 6-8 8-6-6z"/>',
 };
 const ico = n => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n] || ''}</svg>`;
@@ -488,7 +544,7 @@ function graficoBuilds(el, builds){
 /* ================= navegação ================= */
 const PAGINAS = {
   inicio:['Visão geral','O que está rodando no laboratório e o que você criou em cada ferramenta.'],
-  docker:['Docker','Containers, projetos Compose, imagens, volumes e redes.'],
+  docker:['Docker','Containers, imagens, volumes, redes e projetos Compose, como no aplicativo do Docker.'],
   jenkins:['Jenkins','Pipelines e outros jobs: criar, construir e acompanhar ao vivo.'],
   git:['Git','Seus repositórios e o acesso ao GitHub.'],
   vscode:['VS Code','Abra seus projetos no editor e gerencie as extensões.'],
@@ -499,7 +555,7 @@ const PAGINAS = {
   sistema:['Sistema','Memória, processador, serviços e programas em execução.'],
 };
 const SUBABAS = {
-  docker:[['containers','Containers'],['compose','Compose'],['imagens','Imagens'],['armazenamento','Volumes e redes']],
+  docker:[['containers','Containers'],['imagens','Imagens'],['volumes','Volumes'],['redes','Redes'],['compose','Projetos Compose'],['builds','Builds']],
   jenkins:[['itens','Itens'],['credenciais','Credenciais']],
   git:[['repos','Repositórios'],['acesso','Acesso ao GitHub']],
   vscode:[['projetos','Projetos'],['extensoes','Extensões']],
@@ -508,7 +564,7 @@ const SUB = {}; try{ Object.assign(SUB, JSON.parse(localStorage.getItem('painel-
 const sub = aba => SUB[aba] || (SUBABAS[aba] ? SUBABAS[aba][0][0] : '');
 const AJUDA = {
   inicio:['Clique num indicador para ir à ferramenta.','Os botões "Novo…" de cada aba criam algo a partir de um modelo pronto.','Tudo o que você roda aparece em Atividade recente; clique para ver a saída.'],
-  docker:['Novo container: escolha um modelo (site, banco de dados…), ajuste porta e memória e clique em Criar e iniciar.','Com o container rodando, clique na porta (ex.: :8081) para abrir o site no navegador.','Um container fica ligado enquanto o programa principal dele estiver rodando. Imagens de base (python, ubuntu, alpine) precisam de um comando que não termine, como sleep infinity.','Compose sobe vários containers juntos a partir de um docker-compose.yml.','Containers rodados com --rm (comum em testes de pipeline) são apagados quando terminam e por isso não aparecem aqui. Para ficar ligado, use docker run -d sem --rm.'],
+  docker:['Novo container: escolha um modelo (site, banco de dados…), ajuste porta e memória e clique em Criar e iniciar.','Clique no nome do container para ver os logs, a configuração (inspect), rodar comandos e ver o uso de CPU e memória.','Com o container rodando, clique na porta (ex.: 8081:80) para abrir o site no navegador.','Projetos Compose aparecem agrupados: a setinha mostra ou esconde os containers do projeto.','Marque as caixinhas para iniciar, parar ou apagar vários de uma vez.','Um container fica ligado enquanto o programa principal dele estiver rodando. Imagens de base (python, ubuntu, alpine) precisam de um comando que não termine, como sleep infinity.','Containers rodados com --rm (comum em testes de pipeline) são apagados quando terminam e por isso não aparecem aqui.'],
   jenkins:['Novo item: Pipeline (script), Pipeline do Git (Jenkinsfile do repositório), Freestyle (comandos), Multibranch ou Pasta.','Repositório privado? Cadastre antes uma credencial (token ou chave SSH) na aba Credenciais.','Os quadradinhos são os últimos builds: verde = sucesso, vermelho = falha. Clique para ver o console.','No menu ⋯ de cada job: editar, gatilhos (rodar sozinho), copiar, desativar e apagar.'],
   git:['Antes do primeiro commit, configure seu nome e e-mail em Acesso ao GitHub.','Para falar com o GitHub use a chave SSH (gerar, copiar, colar no GitHub e testar) ou guarde um token para endereços https.','No dia a dia: altere arquivos, clique em Commit e depois em Push.'],
   vscode:['Abrir no VS Code edita o projeto inteiro.','Novo arquivo cria o arquivo e já abre no editor.'],
@@ -523,9 +579,9 @@ function botoesTopo(aba){
   const s = sub(aba), N = (t, js) => BT(t, js, {pri:1, icone:'novo'}), S = (t, js, i) => BT(t, js, {icone:i});
   const tabela = {
     inicio: () => N('Novo container', "irPara('docker');novoContainer()") + S('Novo pipeline', "irPara('jenkins');novoItemJenkins()", 'novo'),
-    docker: () => ({containers: N('Novo container', 'novoContainer()'), compose: N('Novo projeto Compose', 'novoCompose()'),
-      imagens: S('Baixar imagem', 'baixarImagem()', 'baixar') + N('Construir imagem', 'novaImagem()'),
-      armazenamento: S('Novo volume', 'novoVolume()', 'disco') + S('Nova rede', 'novaRede()', 'rede') + S('Limpar o que não está em uso', "if(confirm('Apagar containers parados, redes e imagens sem uso?')) acao('/api/docker',{acao:'limpar'},this,'Limpeza do Docker')", 'limpar')})[s],
+    docker: () => ({containers: S('Novo projeto Compose', 'novoCompose()', 'compose') + N('Novo container', 'novoContainer()'), compose: N('Novo projeto Compose', 'novoCompose()'),
+      imagens: S('Limpar o que não está em uso', "if(confirm('Apagar containers parados, redes e imagens sem uso?')) acao('/api/docker',{acao:'limpar'},this,'Limpeza do Docker')", 'limpar') + S('Baixar imagem', 'baixarImagem()', 'baixar') + N('Construir imagem', 'novaImagem()'),
+      volumes: N('Novo volume', 'novoVolume()'), redes: N('Nova rede', 'novaRede()'), builds: N('Construir imagem', 'novaImagem()')})[s] || '',
     jenkins: () => (s === 'credenciais' ? N('Nova credencial', 'credenciais()') : N('Novo item', 'novoItemJenkins()')) + S('Abrir o Jenkins', "abrirUrl('http://localhost:8080')", 'abrir'),
     git: () => s === 'acesso' ? '' : S('Clonar do GitHub', 'clonarRepo()', 'baixar') + N('Novo repositório', 'novoRepo()'),
     vscode: () => N('Abrir ~/projetos no VS Code', "abrir('vscode','~/projetos')"),
@@ -546,10 +602,15 @@ function desenharAjuda(){
 }
 function desenharSubAbas(){
   const s = SUBABAS[ABA]; const c = DADOS.contagem?.[ABA] || {};
+  if(MODO_APP && ABA === 'docker'){  // no modo aplicativo as sub-abas viram o menu lateral, como no app do Docker
+    $('#app-nav').innerHTML = s.map(([id, rot]) => `<button class="${sub(ABA) === id ? 'ativo' : ''}" onclick="irSub('${id}')">${ico(ICONE_SUB[id])}<span>${esc(rot)}</span>${c[id] !== undefined ? `<span class="cont">${c[id]}</span>` : ''}</button>`).join('');
+    $('#sub-abas').innerHTML = ''; const at = s.find(x => x[0] === sub(ABA)); $('#titulo').textContent = at ? at[1] : 'Docker';
+    return;
+  }
   $('#sub-abas').innerHTML = s ? `<div class="abas">${s.map(([id, rot]) => `<button class="${sub(ABA) === id ? 'ativo' : ''}" onclick="irSub('${id}')">${esc(rot)}${c[id] !== undefined ? `<span class="cont">${c[id]}</span>` : ''}</button>`).join('')}</div>` : '';
 }
 function contar(aba, obj){ DADOS.contagem = DADOS.contagem || {}; const ant = JSON.stringify(DADOS.contagem[aba] || {}); DADOS.contagem[aba] = obj; if(ABA === aba && ant !== JSON.stringify(obj)) desenharSubAbas(); }
-function irSub(id){ SUB[ABA] = id; try{ localStorage.setItem('painel-sub', JSON.stringify(SUB)); }catch(e){} desenharSubAbas(); $('#acoes-topo').innerHTML = botoesTopo(ABA); $('#' + ABA).innerHTML = ''; carregar(true); }
+function irSub(id){ if(ABA === 'docker'){ DK.det = null; DK.sel.clear(); } SUB[ABA] = id; try{ localStorage.setItem('painel-sub', JSON.stringify(SUB)); }catch(e){} desenharSubAbas(); $('#acoes-topo').innerHTML = botoesTopo(ABA); $('#' + ABA).innerHTML = ''; carregar(true); }
 function irPara(aba){
   ABA = aba; fecharMenu();
   document.querySelectorAll('#menu button').forEach(x => x.classList.toggle('ativo', x.dataset.aba === aba));
@@ -573,7 +634,7 @@ async function atualizarSaude(){
     d.className = 'st ' + (s.docker === 'active' ? 'ok' : ''); $('#sd-docker-t').textContent = s.docker === 'active' ? 'ligado' : 'liga ao usar';
     j.className = 'st ' + (s.jenkins_respondendo ? 'ok' : s.jenkins === 'active' ? 'aviso anim' : 'erro');
     $('#sd-jenkins-t').textContent = s.jenkins_respondendo ? 'ligado' : s.jenkins === 'active' ? 'ligando' : 'desligado';
-    const uso = s.mem_total - s.mem_disponivel, pc = Math.round(uso * 100 / s.mem_total);
+    const uso = s.mem_total - s.mem_disponivel, pc = Math.round(uso * 100 / s.mem_total); DADOS.memTotal = s.mem_total;
     $('#sd-mem').textContent = `${mb(uso)} de ${mb(s.mem_total)}`;
     $('#sd-mem-b').className = 'medidor' + (pc > 85 ? ' alto' : ''); $('#sd-mem-b i').style.width = pc + '%';
     $('#n-atividades').textContent = s.tarefas_rodando ? s.tarefas_rodando + ' rodando' : '';
@@ -716,42 +777,253 @@ function novaImagem(){
 }
 const portasDe = p => { const s = new Set(); return [...(p||'').matchAll(/:(\d+)->/g)].map(m => m[1]).filter(x => !s.has(x) && s.add(x)); };
 const memTxt = c => { const m = (c.uso_memoria||'').split('/')[0].trim(); return (m || '—') + (c.limite_memoria ? ' de ' + mb(c.limite_memoria/1048576) : ''); };
+/* ---- aba Docker no estilo do aplicativo Docker Desktop: containers (com os projetos Compose
+   agrupados), imagens, volumes, redes e builds; seleção em lote e página de detalhes ---- */
+const DK = {det:null, detAba:'logs', soRodando:false, fechados:new Set(), sel:new Set()};
+try{ DK.soRodando = localStorage.getItem('dk-so-rodando') === '1'; }catch(e){}
+const pctNum = s => parseFloat(String(s || '').replace(',', '.')) || 0;
+/* "10.5MiB / 256MiB" -> 10.5 (MB) */
+const memMiB = s => { const m = String(s || '').split('/')[0].trim().match(/([\d.]+)\s*([KMGT]?i?B)/i); if(!m) return 0;
+  const n = parseFloat(m[1]), u = m[2].toUpperCase()[0]; return u === 'G' ? n * 1024 : u === 'T' ? n * 1048576 : u === 'K' ? n / 1024 : u === 'B' ? n / 1048576 : n; };
+/* tamanho de imagem do docker ("63.2MB", "1.46GB", "13.3kB") -> MB */
+const tamMB = s => { const m = String(s || '').match(/([\d.]+)\s*([kKMGT]?B)/); if(!m) return 0;
+  const n = parseFloat(m[1]), u = m[2].toUpperCase()[0]; return u === 'G' ? n * 1000 : u === 'T' ? n * 1e6 : u === 'K' ? n / 1000 : u === 'B' ? n / 1e6 : n; };
+const pct = n => n.toFixed(n >= 10 ? 0 : 1).replace('.', ',') + '%';
+/* "0.0.0.0:8081->80/tcp, [::]:8081->80/tcp" -> [["8081","80"]] */
+const portasPares = p => { const vistos = new Set(); return [...String(p || '').matchAll(/:(\d+)->(\d+)/g)].map(m => [m[1], m[2]]).filter(([h, c]) => !vistos.has(h + ':' + c) && vistos.add(h + ':' + c)); };
+const linkPorta = ([h, c]) => `<a class="dk-link" href="#docker" title="Abrir http://localhost:${h} no navegador" onclick="event.preventDefault();abrirUrl('http://localhost:${h}')">${h}:${c}${ico('abrir')}</a>`;
+const pontoContainer = c => c.estado === 'running' ? 'ok' : c.estado === 'restarting' ? 'aviso anim' : c.estado === 'paused' ? 'aviso' : (c.estado === 'exited' && !/Exited \(0\)/.test(c.status || '')) ? 'erro' : '';
+/* "nginx:alpine" -> ["nginx", "alpine"]; "localhost:5000/app" -> ["localhost:5000/app", "latest"] */
+function repoTag(nome){ const i = nome.lastIndexOf(':'); return i > nome.lastIndexOf('/') ? [nome.slice(0, i), nome.slice(i + 1)] : [nome, 'latest']; }
+
 async function carregarDocker(){
   const d = await get('/api/docker'); const el = $('#docker');
-  if(!d.ligado){ el.innerHTML = `<div class="faixa-aviso info">O Docker está desligado. Ele liga sozinho no primeiro uso.${BT('Ligar agora', "acao('/api/docker',{acao:'ligar'},this)", {pri:1, icone:'energia'})}</div>`; return; }
+  if(!d.ligado){ DK.det = null; atualizarBarraDocker(null); el.innerHTML = `<div class="faixa-aviso info">O Docker está desligado. Ele liga sozinho no primeiro uso.${BT('Ligar agora', "acao('/api/docker',{acao:'ligar'},this)", {pri:1, icone:'energia'})}</div>`; return; }
   DADOS.docker = d;
-  const s = sub('docker');
+  let s = sub('docker'); if(!RENDER_DOCKER[s]) s = 'containers';
   let composes = [], rodando = {};
   if(s === 'compose'){
     const arqs = await get('/api/compose-arquivos');
     d.projetos.forEach(p => (p.arquivos||'').split(',').forEach(a => { if(a) rodando[a] = p.status; }));
     composes = [...new Set([...arqs.arquivos, ...Object.keys(rodando)])];
   }
-  contar('docker', {containers:d.containers.length, compose: s === 'compose' ? new Set([...composes.filter(a => !/^\/var\/lib\/jenkins\//.test(a)), ...d.projetos.map(p => p.nome)]).size : (DADOS.contagem?.docker?.compose ?? d.projetos.length),
-    imagens:d.imagens.length, armazenamento:d.volumes.length + d.redes.filter(r => !r.padrao).length});
+  contar('docker', {containers:d.containers.length, imagens:d.imagens.length, volumes:d.volumes.length, redes:d.redes.filter(r => !r.padrao).length,
+    compose: s === 'compose' ? new Set([...composes.filter(a => !/^\/var\/lib\/jenkins\//.test(a)), ...d.projetos.map(p => p.nome)]).size : (DADOS.contagem?.docker?.compose ?? d.projetos.length),
+    builds:d.dockerfiles.length});
   $('#n-docker').textContent = d.containers.filter(c => c.estado === 'running').length || '';
-  el.innerHTML = {containers:htmlContainers, compose:htmlCompose, imagens:htmlImagens, armazenamento:htmlArmazenamento}[s](d, composes, rodando);
-  aplicarFiltro();
+  atualizarBarraDocker(d);
+  if(s === 'containers' && DK.det){
+    const c = d.containers.find(x => x.nome === DK.det);
+    if(c){ detalheContainer(c); return; }
+    toast(`O container ${DK.det} não existe mais.`); DK.det = null;
+  }
+  el.innerHTML = RENDER_DOCKER[s](d, composes, rodando);
+  aplicarFiltro(); marcarSelecao();
+}
+
+/* ---------- Containers ---------- */
+function cartoesUso(d){
+  const rod = d.containers.filter(c => c.estado === 'running');
+  const cpu = rod.reduce((t, c) => t + pctNum(c.cpu), 0), mem = rod.reduce((t, c) => t + memMiB(c.uso_memoria), 0);
+  const nucleos = navigator.hardwareConcurrency || 1, total = DADOS.memTotal || 0;
+  return `<div class="dk-cartoes">
+    <div class="dk-cartao"><span class="r">Uso de CPU dos containers</span><b>${pct(cpu)}</b><span class="r">de ${nucleos * 100}% (${nucleos} ${nucleos > 1 ? 'núcleos' : 'núcleo'}, cada um vale 100%)</span><div class="medidor"><i style="width:${Math.min(100, cpu / nucleos)}%"></i></div></div>
+    <div class="dk-cartao"><span class="r">Uso de memória dos containers</span><b>${mb(mem)}</b><span class="r">${total ? 'de ' + mb(total) + ' da VM' : 'memória em uso'}</span><div class="medidor${total && mem / total > .85 ? ' alto' : ''}"><i style="width:${total ? Math.min(100, 100 * mem / total) : 0}%"></i></div></div>
+  </div>`;
+}
+function acoesContainer(c){
+  const run = c.estado === 'running', n = J(c.nome), portas = portasPares(c.portas);
+  return (run ? BT('Parar', `dk("stop",${n},this)`, {icone:'parar', so_icone:1, titulo:'Parar'}) : BT('Iniciar', `dk("start",${n},this)`, {icone:'play', so_icone:1, titulo:'Iniciar'}))
+    + M([run && portas.length && {t:'Abrir no navegador (:' + portas[0][0] + ')', i:'abrir', js:`abrirUrl("http://localhost:${portas[0][0]}")`},
+         {t:'Ver detalhes e logs', i:'logs', js:`abrirDetalhe(${n})`},
+         run && {t:'Abrir o terminal', i:'terminal', js:`dk("terminal",${n},this)`}, run && {t:'Rodar um comando', i:'terminal', js:`dkExec(${n})`},
+         run && {t:'Reiniciar', i:'reiniciar', js:`dk("restart",${n},this)`}])
+    + BT('Apagar', `if(confirm("Apagar o container " + ${n} + "?")) dk("rm",${n},this)`, {icone:'lixo', so_icone:1, perigo:1, titulo:'Apagar'});
+}
+function linhaContainer(c, grupo){
+  const n = J(c.nome), run = c.estado === 'running', portas = portasPares(c.portas);
+  const oculto = grupo && DK.fechados.has(grupo) ? ' dk-oculto' : '';
+  return `<tr class="dk-linha${grupo ? ' dk-filho' : ''}${oculto}"${grupo ? ` data-grupo="${esc(grupo)}"` : ''}>
+    <td class="dk-sel"><input type="checkbox" aria-label="Selecionar ${esc(c.nome)}" data-sel="c:${esc(c.nome)}" onclick="selecionar(this)"></td>
+    <td><div class="cel-nome"><span class="st ${pontoContainer(c)}" title="${esc(statusPt(c))}"></span><div>
+      <a class="dk-link nome" href="#docker" onclick="event.preventDefault();abrirDetalhe(${esc(n)})">${esc(grupo && c.nome.startsWith(grupo + '-') ? c.nome.slice(grupo.length + 1) : c.nome)}</a>
+      <div class="sub mono">${esc(c.id)}</div>${!grupo && c.origem === 'jenkins' ? etq('acento', 'Criado pelo Jenkins') : ''}</div></div></td>
+    <td><a class="dk-link mono" href="#docker" title="Ver as imagens" onclick="event.preventDefault();irSub('imagens')">${esc(c.imagem)}</a></td>
+    <td>${run && portas.length ? portas.map(linkPorta).join(' ') : '<span class="fraco">—</span>'}</td>
+    <td>${run ? esc(c.cpu || '—') : '<span class="fraco">—</span>'}${run && c.uso_memoria ? `<div class="sub">${esc(memTxt(c))}</div>` : ''}</td>
+    <td class="sub">${esc(statusPt(c))}</td>
+    <td class="acoes">${acoesContainer(c)}</td></tr>`;
+}
+function linhaGrupo(nome, filhos){
+  const rod = filhos.filter(c => c.estado === 'running').length, aberto = !DK.fechados.has(nome), n = J(nome);
+  const jk = filhos.some(c => c.origem === 'jenkins'), cpu = filhos.reduce((t, c) => t + pctNum(c.cpu), 0);
+  const portas = filhos.filter(c => c.estado === 'running').flatMap(c => portasPares(c.portas));
+  return `<tr class="dk-grupo">
+    <td class="dk-sel"><input type="checkbox" aria-label="Selecionar o projeto ${esc(nome)}" data-sel-grupo="${esc(nome)}" onclick="selecionarGrupo(this)"></td>
+    <td><div class="cel-nome"><button class="b leve icone dk-seta${aberto ? ' aberto' : ''}" title="${aberto ? 'Esconder' : 'Mostrar'} os containers do projeto" onclick="alternarGrupo(${esc(n)})">${ico('seta')}</button>
+      <span class="st ${rod === filhos.length ? 'ok' : rod ? 'aviso' : ''}"></span><div><b>${esc(nome)}</b> ${etq('info', 'Compose')}${jk ? ' ' + etq('acento', 'Criado pelo Jenkins') : ''}
+      <div class="sub">${rod} de ${filhos.length} ${filhos.length > 1 ? 'containers rodando' : 'container rodando'}</div></div></div></td>
+    <td></td><td>${portas.length ? portas.map(linkPorta).join(' ') : '<span class="fraco">—</span>'}</td>
+    <td>${rod ? pct(cpu) : '<span class="fraco">—</span>'}</td><td></td>
+    <td class="acoes">${rod ? BT('Parar o projeto', `grupoAcao(${n},"stop",this)`, {icone:'parar', so_icone:1}) : BT('Iniciar o projeto', `grupoAcao(${n},"start",this)`, {icone:'play', so_icone:1})}${M([
+      {t:'Logs do projeto', i:'logs', js:`executar({ferramenta:"docker",acao:"compose_logs_projeto",projeto:${n}},this)`},
+      rod && {t:'Reiniciar o projeto', i:'reiniciar', js:`grupoAcao(${n},"restart",this)`}])}${BT('Apagar o projeto (compose down)', `if(confirm("Apagar os containers do projeto " + ${n} + "? (docker compose down)")) executar({ferramenta:"docker",acao:"compose_down_projeto",projeto:${n}},this)`, {icone:'lixo', so_icone:1, perigo:1})}</td></tr>`;
 }
 function htmlContainers(d){
-  if(!d.containers.length) return vazio('Nenhum container ainda', 'Crie um a partir de um modelo: site, banco de dados, Python…', BT('Novo container', 'novoContainer()', {pri:1, icone:'novo'}));
+  if(!d.containers.length) return cartoesUso(d) + vazio('Nenhum container ainda', 'Crie um a partir de um modelo: site, banco de dados, Python…', BT('Novo container', 'novoContainer()', {pri:1, icone:'novo'}));
+  const lista = DK.soRodando ? d.containers.filter(c => c.estado === 'running') : d.containers;
+  const grupos = {}, soltos = [];
+  lista.forEach(c => c.projeto ? (grupos[c.projeto] = grupos[c.projeto] || []).push(c) : soltos.push(c));
+  const linhas = [...Object.keys(grupos).sort().flatMap(g => [linhaGrupo(g, grupos[g]), ...grupos[g].map(c => linhaContainer(c, g))]), ...soltos.map(c => linhaContainer(c))];
   const rod = d.containers.filter(c => c.estado === 'running').length;
-  return `<div class="ferramentas">${busca('docker', 'Buscar container')}<span class="sub">${rod} rodando de ${d.containers.length}</span></div>` + tabela(['Nome', 'Estado', 'Imagem', 'Portas', 'Uso', ''], d.containers.map(c => {
-    const run = c.estado === 'running', n = J(c.nome);
-    const estado = run ? st('ok', 'Rodando') : c.estado === 'exited' ? st(/Exited \(0\)/.test(c.status) ? '' : 'erro', 'Parado') : c.estado === 'restarting' ? st('aviso', 'Reiniciando', 1) : c.estado === 'created' ? st('', 'Criado') : st('aviso', c.estado);
-    const portas = portasDe(c.portas);
-    return `<tr><td><div class="nome">${esc(c.nome)}</div><div class="sub">${esc(statusPt(c))}</div></td>
-      <td>${estado}${c.projeto ? '<div>' + etq('info', 'Compose: ' + c.projeto) + '</div>' : ''}${c.origem === 'jenkins' ? '<div>' + etq('acento', 'Criado pelo Jenkins') + '</div>' : ''}</td>
-      <td class="mono">${esc(c.imagem)}</td>
-      <td>${run && portas.length ? portas.map(p => BT(':' + p, `abrirUrl("http://localhost:${p}")`, {icone:'abrir', titulo:'Abrir no navegador'})).join(' ') : '<span class="fraco">—</span>'}</td>
-      <td>${run ? `${esc(c.cpu || '—')} CPU<div class="sub">${memTxt(c)}</div>` : c.limite_memoria ? `<span class="sub">limite de ${mb(c.limite_memoria/1048576)}</span>` : '<span class="fraco">—</span>'}</td>
-      <td class="acoes">${run ? BT('Parar', `dk("stop",${n},this)`, {icone:'parar'}) + BT('Terminal', `dk("terminal",${n},this)`, {icone:'terminal', so_icone:1, titulo:'Abrir o terminal do container'})
-        : BT('Iniciar', `dk("start",${n},this)`, {icone:'play', pri:1})}${BT('Logs', `acao("/api/docker",{acao:"logs",container:${n}},this,"Logs de " + ${n})`, {icone:'logs', so_icone:1})}${M([
-        run && {t:'Reiniciar', i:'reiniciar', js:`dk("restart",${n},this)`}, run && {t:'Rodar um comando', i:'terminal', js:`dkExec(${n})`},
-        {t:'Detalhes (inspect)', i:'info', js:`acao("/api/docker",{acao:"inspecionar",container:${n}},this,"Detalhes de " + ${n})`}, '-',
-        {t:'Apagar container', i:'lixo', p:1, js:`if(confirm("Apagar o container " + ${n} + "?")) dk("rm",${n},this)`}])}</td></tr>`;
-  }));
+  return cartoesUso(d) + `<div class="ferramentas">${busca('docker', 'Buscar')}<label class="dk-chave"><input type="checkbox" ${DK.soRodando ? 'checked' : ''} onchange="soRodando(this.checked)">Só os que estão rodando</label>
+    <span class="dk-lote" id="dk-lote"></span><span class="sub">${rod} rodando de ${d.containers.length}</span></div>`
+    + (linhas.length ? tabela(['', 'Nome', 'Imagem', 'Porta(s)', 'CPU (%)', 'Situação', 'Ações'], linhas) : vazio('Nenhum container rodando', 'Desmarque "Só os que estão rodando" para ver os parados.'));
 }
+function soRodando(v){ DK.soRodando = v; try{ localStorage.setItem('dk-so-rodando', v ? '1' : '0'); }catch(e){} carregar(true); }
+function alternarGrupo(nome){
+  DK.fechados.has(nome) ? DK.fechados.delete(nome) : DK.fechados.add(nome);
+  document.querySelectorAll('#docker tr.dk-filho').forEach(tr => { if(tr.dataset.grupo === nome) tr.classList.toggle('dk-oculto', DK.fechados.has(nome)); });
+  document.querySelectorAll('#docker tr.dk-grupo').forEach(tr => { const s = tr.querySelector('[data-sel-grupo]'); if(s && s.dataset.selGrupo === nome) tr.querySelector('.dk-seta').classList.toggle('aberto', !DK.fechados.has(nome)); });
+}
+async function grupoAcao(nome, a, btn){
+  const filhos = (DADOS.docker?.containers || []).filter(c => c.projeto === nome && (a === 'start' ? c.estado !== 'running' : c.estado === 'running'));
+  if(btn) btn.disabled = true;
+  try{ for(const c of filhos) await post('/api/docker', {acao:a, container:c.nome}); toast({start:'Projeto iniciado.', stop:'Projeto parado.', restart:'Projeto reiniciado.'}[a]); }
+  catch(e){ toast(e.message, true); }
+  finally{ if(btn) btn.disabled = false; carregar(true); }
+}
+
+/* ---------- seleção e ações em lote ---------- */
+function selecionar(cb){ cb.checked ? DK.sel.add(cb.dataset.sel) : DK.sel.delete(cb.dataset.sel); marcarSelecao(); }
+function selecionarGrupo(cb){
+  (DADOS.docker?.containers || []).filter(c => c.projeto === cb.dataset.selGrupo).forEach(c => cb.checked ? DK.sel.add('c:' + c.nome) : DK.sel.delete('c:' + c.nome));
+  marcarSelecao();
+}
+function marcarSelecao(){
+  document.querySelectorAll('#docker [data-sel]').forEach(cb => { cb.checked = DK.sel.has(cb.dataset.sel); });
+  document.querySelectorAll('#docker [data-sel-grupo]').forEach(cb => {
+    const f = (DADOS.docker?.containers || []).filter(c => c.projeto === cb.dataset.selGrupo), m = f.filter(c => DK.sel.has('c:' + c.nome)).length;
+    cb.checked = f.length > 0 && m === f.length; cb.indeterminate = m > 0 && m < f.length;
+  });
+  const lote = $('#dk-lote'); if(!lote) return;
+  const s = sub('docker'), chave = {containers:'c', imagens:'img', volumes:'vol'}[s], n = [...DK.sel].filter(k => k.startsWith(chave + ':')).length;
+  lote.innerHTML = !n ? '' : `<b>${n} ${n > 1 ? 'selecionados' : 'selecionado'}</b>` + (s === 'containers'
+    ? BT('Iniciar', `emLote("start","c",this)`, {icone:'play'}) + BT('Parar', `emLote("stop","c",this)`, {icone:'parar'}) + BT('Apagar', `emLote("rm","c",this)`, {icone:'lixo', perigo:1})
+    : BT('Apagar', `emLote("${s === 'imagens' ? 'rmi' : 'volume_rm'}","${chave}",this)`, {icone:'lixo', perigo:1}))
+    + BT('Limpar seleção', 'DK.sel.clear();marcarSelecao()', {so_icone:0});
+}
+async function emLote(a, chave, btn){
+  const itens = [...DK.sel].filter(k => k.startsWith(chave + ':')).map(k => k.slice(chave.length + 1));
+  const oque = {c:'containers', img:'imagens', vol:'volumes'}[chave];
+  if(['rm', 'rmi', 'volume_rm'].includes(a) && !confirm(`Apagar ${itens.length} ${oque}?` + (chave === 'vol' ? ' Os dados guardados neles serão perdidos.' : ''))) return;
+  if(btn) btn.disabled = true;
+  const erros = [];
+  for(const x of itens){
+    try{ await post('/api/docker', {acao:a, ...(chave === 'c' ? {container:x} : chave === 'img' ? {imagem:x} : {nome:x})}); DK.sel.delete(chave + ':' + x); }
+    catch(e){ erros.push(e.message); }
+  }
+  toast(erros.length ? `${itens.length - erros.length} de ${itens.length} feitos. ${erros[0]}` : `Feito: ${itens.length} ${oque}.`, erros.length > 0);
+  carregar(true);
+}
+
+/* ---------- detalhes de um container (como no app: Logs, Inspecionar, Executar, Estatísticas) ---------- */
+function abrirDetalhe(nome){ DK.det = nome; DK.detAba = 'logs'; if(sub('docker') !== 'containers'){ SUB.docker = 'containers'; desenharSubAbas(); } $('#docker').innerHTML = ''; carregar(true); }
+function fecharDetalhe(){ DK.det = null; $('#docker').innerHTML = ''; carregar(true); }
+function detalheContainer(c){
+  const run = c.estado === 'running', n = J(c.nome), portas = portasPares(c.portas);
+  const topo = `<a class="dk-link dk-volta" href="#docker" onclick="event.preventDefault();fecharDetalhe()">${ico('voltar')}Containers</a>
+    <div class="dk-det-cab"><div class="cel-nome"><span class="st ${pontoContainer(c)}"></span><div><h2>${esc(c.nome)}</h2>
+      <div class="sub"><span class="mono">${esc(c.id)}</span>, imagem <span class="mono">${esc(c.imagem)}</span>${portas.length ? ', portas ' + portas.map(linkPorta).join(' ') : ''}</div>
+      <div class="sub">${esc(statusPt(c))}${c.projeto ? ', projeto Compose ' + esc(c.projeto) : ''}</div></div></div>
+    <div class="acoes">${run ? BT('Parar', `dk("stop",${n},this)`, {icone:'parar'}) + BT('Reiniciar', `dk("restart",${n},this)`, {icone:'reiniciar'}) + BT('Terminal', `dk("terminal",${n},this)`, {icone:'terminal'})
+      : BT('Iniciar', `dk("start",${n},this)`, {icone:'play', pri:1})}${BT('Apagar', `if(confirm("Apagar o container " + ${n} + "?")){ dk("rm",${n},this); fecharDetalhe(); }`, {icone:'lixo', perigo:1})}</div></div>`;
+  const el = $('#docker'), det = $('#dk-det');
+  if(!det || det.dataset.nome !== c.nome){
+    el.innerHTML = `<div id="dk-det" data-nome="${esc(c.nome)}"><div id="dk-det-topo"></div>
+      <div class="abas dk-det-abas">${[['logs', 'Logs'], ['inspecionar', 'Inspecionar'], ['executar', 'Executar'], ['estatisticas', 'Estatísticas']].map(([id, r]) => `<button data-dkaba="${id}" onclick="abaDetalhe('${id}')">${r}</button>`).join('')}</div>
+      <div id="dk-det-corpo"></div></div>`;
+    $('#dk-det-topo').innerHTML = topo; abaDetalhe(DK.detAba);
+  } else {
+    $('#dk-det-topo').innerHTML = topo;
+    if(DK.detAba === 'estatisticas') desenharEstatisticas(c);
+  }
+}
+async function abaDetalhe(id){
+  DK.detAba = id; const nome = DK.det, corpo = $('#dk-det-corpo'); if(!corpo) return;
+  document.querySelectorAll('[data-dkaba]').forEach(b => b.classList.toggle('ativo', b.dataset.dkaba === id));
+  if(id === 'logs' || id === 'inspecionar'){
+    corpo.innerHTML = `<div class="ferramentas">${BT('Atualizar', `abaDetalhe('${id}')`, {icone:'reiniciar'})}<span class="sub">${id === 'logs' ? 'últimas 300 linhas, com data e hora' : 'configuração completa do container (docker inspect)'}</span></div><pre class="saida dk-saida">Carregando…</pre>`;
+    let t;
+    try{ t = await post('/api/docker', {acao:id, container:nome}); if(id === 'inspecionar'){ try{ t = JSON.stringify(JSON.parse(t), null, 2); }catch(e){} } }
+    catch(e){ t = e.message; }
+    const pre = $('#dk-det-corpo pre'); if(pre && DK.det === nome && DK.detAba === id){ pre.textContent = t; if(id === 'logs') pre.scrollTop = pre.scrollHeight; }
+  } else if(id === 'executar'){
+    corpo.innerHTML = `<div class="chips">${['ls -la', 'cat /etc/os-release', 'env', 'ps aux', 'df -h', 'whoami'].map(x => `<button class="b peq" onclick='$("#dk-cmd").value=${A(x)};rodarNoContainer()'>${esc(x)}</button>`).join('')}</div>
+      <form class="dk-exec" onsubmit="event.preventDefault();rodarNoContainer()"><input id="dk-cmd" class="mono" placeholder="comando para rodar dentro do container" value="ls -la"><button class="b pri" type="submit">${ico('play')}Rodar</button></form>
+      <pre class="saida dk-saida" id="dk-exec-saida">A saída aparece aqui. Para um terminal interativo, use o botão Terminal.</pre>`;
+  } else desenharEstatisticas((DADOS.docker?.containers || []).find(x => x.nome === nome));
+}
+async function rodarNoContainer(){
+  const out = $('#dk-exec-saida'); out.textContent = 'Rodando…';
+  try{ out.textContent = await post('/api/docker', {acao:'exec', container:DK.det, comando:$('#dk-cmd').value}); }catch(e){ out.textContent = e.message; }
+}
+function desenharEstatisticas(c){
+  const corpo = $('#dk-det-corpo'); if(!corpo || !c) return;
+  const run = c.estado === 'running', mem = memMiB(c.uso_memoria), lim = c.limite_memoria ? c.limite_memoria / 1048576 : 0;
+  corpo.innerHTML = !run ? vazio('Container parado', 'As estatísticas aparecem quando o container está rodando.') : `<div class="dk-cartoes">
+    <div class="dk-cartao"><span class="r">CPU</span><b>${esc(c.cpu || '—')}</b><span class="r">100% = um núcleo inteiro</span><div class="medidor"><i style="width:${Math.min(100, pctNum(c.cpu))}%"></i></div></div>
+    <div class="dk-cartao"><span class="r">Memória</span><b>${mb(mem)}</b><span class="r">${lim ? 'limite de ' + mb(lim) + ' (definido ao criar)' : 'sem limite: pode usar a memória da VM toda'}</span><div class="medidor${lim && mem / lim > .85 ? ' alto' : ''}"><i style="width:${lim ? Math.min(100, 100 * mem / lim) : 0}%"></i></div></div>
+  </div><p class="sub">Atualiza sozinho a cada poucos segundos.</p>`;
+}
+
+/* ---------- Imagens, Volumes, Redes, Builds ---------- */
+function htmlImagens(d){
+  if(!d.imagens.length) return vazio('Nenhuma imagem baixada', 'Baixe uma imagem do Docker Hub ou construa a sua com um Dockerfile.', BT('Baixar imagem', 'baixarImagem()', {icone:'baixar'}));
+  const usadas = new Set(d.containers.flatMap(c => [c.imagem, c.imagem.includes(':') ? c.imagem : c.imagem + ':latest']));
+  const total = d.imagens.reduce((t, i) => t + tamMB(i.tamanho), 0);
+  return `<div class="ferramentas">${busca('docker', 'Buscar imagem')}<span class="dk-lote" id="dk-lote"></span><span class="sub">${d.imagens.length} ${d.imagens.length > 1 ? 'imagens' : 'imagem'}, ${total >= 1000 ? (total / 1000).toFixed(2).replace('.', ',') + ' GB' : Math.round(total) + ' MB'} no disco</span></div>`
+    + tabela(['', 'Nome', 'Tag', 'ID', 'Criada', 'Tamanho', 'Ações'], d.imagens.map(i => {
+      const semNome = /<none>/.test(i.nome), [repo, tag] = semNome ? ['', ''] : repoTag(i.nome), emUso = usadas.has(i.nome);
+      return `<tr><td class="dk-sel"><input type="checkbox" aria-label="Selecionar ${esc(i.nome)}" data-sel="img:${esc(i.id)}" onclick="selecionar(this)"></td>
+        <td>${semNome ? '<span class="fraco">(sem nome: sobra de um build antigo)</span>' : `<span class="mono nome">${esc(repo)}</span>`}${emUso ? ' ' + etq('ok', 'Em uso') : ''}</td>
+        <td class="mono">${esc(tag)}</td><td class="mono sub">${esc(String(i.id).replace(/^sha256:/, '').slice(0, 12))}</td>
+        <td class="sub">${esc(agoPt(i.criada))}</td><td>${esc(i.tamanho)}</td>
+        <td class="acoes">${semNome ? '' : BT('Rodar', `novoContainer(${J(i.nome)})`, {icone:'play', so_icone:1, titulo:'Criar um container com esta imagem'})}${BT('Apagar', `if(confirm("Apagar a imagem " + ${J(semNome ? i.id : i.nome)} + "?")) acao("/api/docker",{acao:"rmi",imagem:${J(i.id)}},this)`, {icone:'lixo', so_icone:1, perigo:1, titulo:'Apagar'})}</td></tr>`;
+    }));
+}
+function htmlVolumes(d){
+  if(!d.volumes.length) return vazio('Nenhum volume', 'Volumes guardam dados mesmo quando o container é apagado.', BT('Novo volume', 'novoVolume()', {icone:'novo'}));
+  return `<div class="ferramentas">${busca('docker', 'Buscar volume')}<span class="dk-lote" id="dk-lote"></span><span class="sub">volumes guardam dados mesmo quando o container é apagado</span></div>`
+    + tabela(['', 'Nome', 'Driver', 'Ações'], d.volumes.map(v => `<tr><td class="dk-sel"><input type="checkbox" aria-label="Selecionar ${esc(v.nome)}" data-sel="vol:${esc(v.nome)}" onclick="selecionar(this)"></td>
+      <td class="mono" title="${esc(v.nome)}">${esc(v.nome.length > 40 ? v.nome.slice(0, 16) + '…' + v.nome.slice(-10) : v.nome)}</td><td class="sub">${esc(v.driver)}</td>
+      <td class="acoes">${BT('Apagar', `if(confirm("Apagar o volume " + ${J(v.nome)} + "? Os dados dele serão perdidos.")) acao("/api/docker",{acao:"volume_rm",nome:${J(v.nome)}},this)`, {icone:'lixo', so_icone:1, perigo:1, titulo:'Apagar'})}</td></tr>`));
+}
+function htmlRedes(d){
+  return `<div class="ferramentas">${busca('docker', 'Buscar rede')}<span class="sub">containers na mesma rede se encontram pelo nome</span></div>`
+    + tabela(['Nome', 'Driver', 'Ações'], d.redes.map(r => `<tr><td class="mono">${esc(r.nome)}${r.padrao ? ' ' + etq('', 'padrão do Docker') : ''}</td><td class="sub">${esc(r.driver)}</td>
+      <td class="acoes">${r.padrao ? '' : BT('Apagar', `if(confirm("Apagar a rede " + ${J(r.nome)} + "?")) acao("/api/docker",{acao:"rede_rm",nome:${J(r.nome)}},this)`, {icone:'lixo', so_icone:1, perigo:1, titulo:'Apagar'})}</td></tr>`));
+}
+function htmlBuilds(d){
+  if(!d.dockerfiles.length) return vazio('Nenhum Dockerfile nos seus projetos', 'Crie uma imagem sua a partir de um modelo: site estático ou app Python.', BT('Construir imagem', 'novaImagem()', {pri:1, icone:'novo'}));
+  return tabela(['Projeto com Dockerfile', 'Ações'], d.dockerfiles.map(p => `<tr><td><div class="nome">${esc(base(p))}</div><div class="sub mono">${esc(curto(p))}</div></td>
+    <td class="acoes">${BT('Construir imagem', `executar({ferramenta:"docker",acao:"build",pasta:${J(p)}},this)`, {icone:'imagem', pri:1})}${M([{t:'Editar Dockerfile', i:'editar', js:`editarArquivo(${J(p + '/Dockerfile')})`}, {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${J(p)})`}])}</td></tr>`));
+}
+
+const RENDER_DOCKER = {containers:htmlContainers, imagens:htmlImagens, volumes:htmlVolumes, redes:htmlRedes, compose:(d, a, r) => htmlCompose(d, a, r), builds:htmlBuilds};
+
+/* ---------- modo aplicativo (atalho "Docker"): menu lateral próprio e barra do Docker embaixo ---------- */
+const MODO_APP = new URLSearchParams(location.search).get('app') === 'docker';
+const ICONE_SUB = {containers:'compose', imagens:'imagem', volumes:'disco', redes:'rede', compose:'pasta', builds:'codigo'};
+function atualizarBarraDocker(d){
+  const b = $('#dk-barra'); if(!b) return;
+  if(!d){ b.innerHTML = `<span class="st">Docker desligado (liga ao usar)</span>`; return; }
+  const rod = d.containers.filter(c => c.estado === 'running');
+  b.innerHTML = `<span class="st ok">Docker rodando</span><span>${rod.length} de ${d.containers.length} containers rodando</span>
+    <span>CPU ${pct(rod.reduce((t, c) => t + pctNum(c.cpu), 0))}</span><span>Memória ${mb(rod.reduce((t, c) => t + memMiB(c.uso_memoria), 0))}</span>
+    <a class="dk-link" href="/" title="Abrir o Painel DevOps completo">Painel DevOps${ico('abrir')}</a>`;
+}
+
 const estadoCompose = t => { const m = (t || '').match(/(\w+)\((\d+)\)/g) || []; return m.map(x => { const [, e, n] = x.match(/(\w+)\((\d+)\)/); return e === 'running' ? st('ok', `Rodando (${n})`) : st('', `Parado (${n})`); }).join(' ') || st('', 'Parado'); };
 function htmlCompose(d, composes, rodando){
   const daCasa = new Set(composes.filter(a => !/^\/var\/lib\/jenkins\//.test(a)));
@@ -766,22 +1038,6 @@ function htmlCompose(d, composes, rodando){
     <td>${jk ? etq('acento', 'Criado pelo Jenkins') : `<span class="mono sub">${esc(curto(p.arquivos))}</span>`}</td>
     <td class="acoes">${BT('Derrubar', `executar({ferramenta:"docker",acao:"compose_down_projeto",projeto:${n}},this)`, {icone:'parar'})}${BT('Logs', `executar({ferramenta:"docker",acao:"compose_logs_projeto",projeto:${n}},this)`, {icone:'logs', so_icone:1})}</td></tr>`; });
   return tabela(['Projeto', 'Estado', 'Arquivo', ''], [...linhasCasa, ...linhasFora]);
-}
-function htmlImagens(d){
-  const imgs = d.imagens.length ? tabela(['Imagem', 'Tamanho', 'Criada', ''], d.imagens.map(i => { const semNome = /<none>/.test(i.nome); return `<tr><td class="mono">${semNome ? '<span class="fraco">(sem nome: sobra de um build antigo)</span>' : esc(i.nome)}</td><td>${esc(i.tamanho)}</td><td class="sub">${esc(agoPt(i.criada))}</td>
-      <td class="acoes">${semNome ? '' : BT('Criar container', `novoContainer(${J(i.nome)})`, {icone:'play'})}${M([{t:'Apagar imagem', i:'lixo', p:1, js:`if(confirm("Apagar a imagem " + ${J(semNome ? i.id : i.nome)} + "?")) acao("/api/docker",{acao:"rmi",imagem:${J(i.id)}},this)`}])}</td></tr>`; }))
-    : vazio('Nenhuma imagem baixada', 'Baixe uma imagem do Docker Hub ou construa a sua com um Dockerfile.', BT('Baixar imagem', 'baixarImagem()', {icone:'baixar'}));
-  const dfs = d.dockerfiles.length ? `<h2>Dockerfiles nos seus projetos</h2>` + tabela(['Pasta', ''], d.dockerfiles.map(p => `<tr><td><div class="nome">${esc(base(p))}</div><div class="sub mono">${esc(curto(p))}</div></td>
-      <td class="acoes">${BT('Construir imagem', `executar({ferramenta:"docker",acao:"build",pasta:${J(p)}},this)`, {icone:'imagem', pri:1})}${M([{t:'Editar Dockerfile', i:'editar', js:`editarArquivo(${J(p + '/Dockerfile')})`}, {t:'Abrir no VS Code', i:'codigo', js:`abrir("vscode",${J(p)})`}])}</td></tr>`)) : '';
-  return imgs + dfs;
-}
-function htmlArmazenamento(d){
-  const vols = d.volumes.length ? tabela(['Nome', 'Driver', ''], d.volumes.map(v => `<tr><td class="mono" title="${esc(v.nome)}">${esc(v.nome.length > 34 ? v.nome.slice(0, 14) + '…' + v.nome.slice(-8) : v.nome)}</td><td class="sub">${esc(v.driver)}</td>
-      <td class="acoes">${BT('Apagar', `if(confirm("Apagar o volume " + ${J(v.nome)} + "? Os dados dele serão perdidos.")) acao("/api/docker",{acao:"volume_rm",nome:${J(v.nome)}},this)`, {icone:'lixo', so_icone:1, perigo:1})}</td></tr>`))
-    : vazio('Nenhum volume', 'Volumes guardam dados mesmo quando o container é apagado.', BT('Novo volume', 'novoVolume()', {icone:'novo'}));
-  const redes = tabela(['Nome', 'Driver', ''], d.redes.map(r => `<tr><td class="mono">${esc(r.nome)}${r.padrao ? ' ' + etq('', 'padrão do Docker') : ''}</td><td class="sub">${esc(r.driver)}</td>
-      <td class="acoes">${r.padrao ? '' : BT('Apagar', `if(confirm("Apagar a rede " + ${J(r.nome)} + "?")) acao("/api/docker",{acao:"rede_rm",nome:${J(r.nome)}},this)`, {icone:'lixo', so_icone:1, perigo:1})}</td></tr>`));
-  return `<div class="duas"><div><h2>Volumes <span class="sub">${d.volumes.length}</span></h2>${vols}</div><div><h2>Redes <span class="sub">containers na mesma rede se acham pelo nome</span></h2>${redes}</div></div>`;
 }
 function dk(a, nome, btn){ acao('/api/docker', {acao:a, container:nome}, btn); }
 function dkExec(nome){
@@ -1328,8 +1584,9 @@ async function carregar(forcar){
 // endereço com #aba (ex.: localhost:8090/#docker, usado pelo atalho "Docker") abre direto naquela aba
 const abaDoEndereco = () => { const a = location.hash.slice(1); return CARREGAR[a] ? a : null; };
 let inicial = 'inicio'; try{ const a = localStorage.getItem('painel-aba'); if(a && CARREGAR[a]) inicial = a; }catch(e){}
-irPara(abaDoEndereco() || inicial);
-window.addEventListener('hashchange', () => { const a = abaDoEndereco(); if(a && a !== ABA) irPara(a); });
+if(MODO_APP){ document.body.classList.add('modo-app'); document.title = 'Docker (DevOps-Lab)'; irPara('docker'); }
+else irPara(abaDoEndereco() || inicial);
+window.addEventListener('hashchange', () => { const a = abaDoEndereco(); if(!MODO_APP && a && a !== ABA) irPara(a); });
 atualizarSaude();
 setInterval(() => carregar(), 5000);
 setInterval(atualizarSaude, 8000);
