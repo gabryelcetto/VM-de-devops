@@ -22,11 +22,15 @@ find /usr/share/locale -mindepth 1 -maxdepth 1 -type d ! -name 'pt' ! -name 'pt_
 rm -rf /usr/share/info/* /usr/share/gtk-doc/* /usr/share/help/*
 # VS Code: só as traduções da interface em português e inglês (as outras ~40 não são usadas)
 find /usr/share/code/locales -name '*.pak' ! -name 'pt-BR.pak' ! -name 'en-US.pak' -delete 2>/dev/null || true
+# VS Code: o Copilot embutido (173 MB) fica desligado ("chat.disableAIFeatures"); quem quiser instala
+# "GitHub Copilot Chat" pela aba Extensões. Os .vsix baixados ao instalar as extensões são só cache.
+rm -rf /usr/share/code/resources/app/extensions/copilot
+rm -rf "/home/${LAB_USER}/.config/Code/CachedExtensionVSIXs" "/home/${LAB_USER}/.config/Code/logs"
 
 # Jenkins: tira cache do instalador de plugins e as cópias "descompactadas" dos plugins
-# (o Jenkins recria no primeiro boot; economiza ~100 MB no .ova)
+# e o jenkins.war aberto (o Jenkins recria tudo no primeiro boot; economiza ~150 MB no .ova)
 systemctl stop jenkins || true
-rm -rf /var/lib/jenkins/.cache /var/lib/jenkins/logs/* /var/lib/jenkins/war
+rm -rf /var/lib/jenkins/.cache /var/lib/jenkins/logs/* /var/lib/jenkins/war /var/cache/jenkins/war
 find /var/lib/jenkins/plugins -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
 
 journalctl --rotate || true

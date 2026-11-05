@@ -12,14 +12,19 @@ from pathlib import Path
 
 import pytest
 
-_HOME = Path(tempfile.mkdtemp(prefix="painel-home-")).resolve()
+# a mesma HOME em todas as rodadas do mesmo processo (o teste de mutantes roda o pytest várias vezes)
+_HOME = Path(os.environ.setdefault("PAINEL_TESTE_HOME", tempfile.mkdtemp(prefix="painel-home-"))).resolve()
+_HOME.mkdir(parents=True, exist_ok=True)
 os.environ["HOME"] = str(_HOME)
 os.environ["PAINEL_PORTA"] = "18090"
 os.environ["GIT_CONFIG_GLOBAL"] = str(_HOME / ".gitconfig")
 os.environ["GIT_TERMINAL_PROMPT"] = "0"
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "files" / "painel"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-import painel  # noqa: E402
+# importado pelo caminho completo (files/painel/painel.py): é o nome que o teste de mutantes espera
+import files.painel.painel as painel  # noqa: E402
+
+sys.modules.setdefault("painel", painel)
 
 
 @pytest.fixture
