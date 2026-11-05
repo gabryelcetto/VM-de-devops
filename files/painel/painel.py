@@ -185,7 +185,14 @@ def servico_ativo(nome):
 
 # ---------------------------------------------------------------- Docker
 def docker_ligado():
+    """Docker respondendo. Atenção: falar com o Docker LIGA o Docker (ele liga no primeiro uso);
+    use só onde o aluno quer usar o Docker (aba Docker). Para só mostrar a situação, docker_ativo()."""
     return rodar(["docker", "info", "--format", "{{.ServerVersion}}"], timeout=30)[0] == 0
+
+
+def docker_ativo():
+    """O Docker já está ligado? (não liga o Docker só para perguntar: economiza ~150 MB de memória)"""
+    return servico_ativo("docker") == "active"
 
 
 # imagens "de base": sem comando, o container abre um shell/interpretador e para na hora
@@ -1568,6 +1575,9 @@ MON_SERVICOS = [
 ]
 
 
+_SONDAS = ThreadPoolExecutor(max_workers=4)  # testa os 4 serviços ao mesmo tempo
+
+
 def _no_ar(porta, caminho):
     try:
         with urllib.request.urlopen(f"http://127.0.0.1:{porta}{caminho}", timeout=1.5) as r:
@@ -1580,16 +1590,17 @@ def _no_ar(porta, caminho):
 
 def info_monitoramento():
     instalado = MON_COMPOSE.is_file()
+    sondas = _SONDAS.map(lambda sv: _no_ar(sv["porta"], sv["teste"]), MON_SERVICOS)  # já começam a testar
+    docker = servico_ativo("docker")
     estados = {}
-    if instalado and docker_ligado():
+    if instalado and docker == "active":
         for c in json_linhas(rodar(["docker", "compose", "-f", str(MON_COMPOSE), "ps", "-a", "--format", "json"], so_saida=True)[1]):
             estados[c.get("Service", "")] = c.get("State", "")
     servicos = []
-    for sv in MON_SERVICOS:
-        no_ar = _no_ar(sv["porta"], sv["teste"])
+    for sv, no_ar in zip(MON_SERVICOS, sondas):
         servicos.append({**sv, "estado": estados.get(sv["id"], ""), "no_ar": no_ar,
                          "url": f"http://localhost:{sv['porta']}{sv['abrir']}"})
-    return {"instalado": instalado, "docker": servico_ativo("docker"), "servicos": servicos,
+    return {"instalado": instalado, "docker": docker, "servicos": servicos,
             "arquivo": str(MON_COMPOSE)}
 
 
@@ -1684,9 +1695,8 @@ def acao_arquivo(d):
 
 
 # ---------------------------------------------------------------- resumo
-def resumo():
-    s = info_sistema()
-    dk = {"ligado": docker_ligado()}
+def _resumo_docker():
+    dk = {"ligado": docker_ativo()}
     if dk["ligado"]:
         cont = json_linhas(rodar(["docker", "ps", "-a", "--format", "{{json .}}"])[1])
         estados = {}
@@ -1694,25 +1704,36 @@ def resumo():
             estados[c.get("State", "?")] = estados.get(c.get("State", "?"), 0) + 1
         dk.update(total=len(cont), rodando=estados.get("running", 0), estados=estados,
                   imagens=len(rodar(["docker", "images", "-q"])[1].split()))
-    j = info_jenkins()
+    return dk
+
+
+def _resumo_git():
+    repos = repos_git()
+    pend = sum(1 for r in repos if rodar(["git", "-C", r, "status", "--porcelain"])[1])
+    return {"repos": len(repos), "com_mudancas": pend, "por_dia": commits_por_dia(repos)}
+
+
+def resumo():
+    # as partes não dependem uma da outra: rodam ao mesmo tempo (a Visão geral abre mais rápido)
+    partes = {"jenkins": _FILA.submit(info_jenkins), "docker": _FILA.submit(_resumo_docker),
+              "git": _FILA.submit(_resumo_git), "monitoramento": _FILA.submit(info_monitoramento)}
+    s = info_sistema()
+    j = partes["jenkins"].result()
+    dk = partes["docker"].result()
     jobs = j.get("jobs", [])
     builds = []
     for x in jobs:
         for b in x.get("historico", []):
             builds.append({"job": x["nome"], **b})
     builds.sort(key=lambda b: b.get("t") or 0)
-    repos = repos_git()
-    pend = 0
-    for r in repos:
-        pend += 1 if rodar(["git", "-C", r, "status", "--porcelain"])[1] else 0
     return {"sistema": s, "docker": dk,
             "jenkins": {"servico": j["servico"], "respondendo": j.get("respondendo"), "jobs": len(jobs),
                         "falhas": sum(1 for x in jobs if x.get("resultado") == "FAILURE"),
                         "sucessos": sum(1 for x in jobs if x.get("resultado") == "SUCCESS")},
             "builds": builds[-30:], "historico": {k: HIST[k] for k in ("t", "cpu", "mem")},
-            "git": {"repos": len(repos), "com_mudancas": pend, "por_dia": commits_por_dia(repos)},
+            "git": partes["git"].result(),
             "vscode": {"recentes": len(vscode_recentes())},
-            "monitoramento": (lambda m: {"ligados": sum(1 for x in m["servicos"] if x["no_ar"]), "total": len(m["servicos"])})(info_monitoramento()),
+            "monitoramento": (lambda m: {"ligados": sum(1 for x in m["servicos"] if x["no_ar"]), "total": len(m["servicos"])})(partes["monitoramento"].result()),
             "terraform": (lambda t: {"projetos": len(t["projetos"]), "recursos": sum(len(p["recursos"]) for p in t["projetos"])})(info_terraform()),
             "python": {"projetos": len(info_python()["projetos"])},
             "tarefas": listar_tarefas()["tarefas"][:12]}

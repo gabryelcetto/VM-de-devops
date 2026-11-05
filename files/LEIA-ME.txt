@@ -33,7 +33,9 @@ Jenkins
 Monitoramento: Grafana, Prometheus e Uptime Kuma
 -------------------------------------------------
  Ficam desligados para não gastar memória. Ligue no
- Painel DevOps, aba Monitoramento (as imagens já vêm baixadas).
+ Painel DevOps, aba Monitoramento. As imagens já vêm na VM
+ (não precisa de internet); o primeiro "Ligar" leva cerca de
+ 1 minuto para prepará-las, depois liga em segundos.
  - Grafana:     http://localhost:3000  (aluno / devops)
                 já vem com o painel "Esta VM" (CPU, memória,
                 disco, rede e containers).

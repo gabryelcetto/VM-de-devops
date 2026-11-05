@@ -100,3 +100,21 @@ jobs:
       - name: Falhar se o laboratório achou falhas
         run: |
           grep -q 'FALHAS: 0$' /tmp/resultado/RELATORIO.txt || { echo "::error::O laboratório achou falhas (veja a branch lab-results)"; exit 1; }
+
+  mutantes:
+    name: Teste de mutantes do Painel
+    runs-on: ubuntu-24.04
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rodar o mutmut nas funções que validam e montam comandos
+        run: |
+          pip install -q --break-system-packages mutmut pytest
+          bash ci/qa/mutantes.sh resultado-mutantes
+          cat resultado-mutantes/MUTANTES.txt >> "$GITHUB_STEP_SUMMARY"
+      - name: Guardar o relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutantes
+          path: resultado-mutantes/

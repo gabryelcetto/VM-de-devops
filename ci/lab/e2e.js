@@ -579,9 +579,10 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
       tempos.push(`${ep.padEnd(20)} mediana ${String(ms[1]).padStart(5)} ms  (min ${ms[0]}, max ${ms[2]})`);
       reg('Desempenho', `${ep} responde em menos de 2,5 s`, ms[1] < 2500, `mediana ${ms[1]} ms`);
     }
+    await aba('inicio');  // mede a abertura pela Visão geral, a aba mais pesada
     const t0 = Date.now(); await page.reload(); await page.waitForFunction(() => /Atualizado/.test(document.getElementById('atualizado')?.textContent || ''), null, { timeout: 30000 });
     const abrir = Date.now() - t0;
-    tempos.push(`abrir o painel (até mostrar dados)  ${abrir} ms`);
+    tempos.push(`abrir o painel na Visão geral (até mostrar dados)  ${abrir} ms`);
     reg('Desempenho', 'o painel abre e mostra os dados em menos de 4 s', abrir < 4000, `${abrir} ms`);
     fs.writeFileSync(path.join(OUT, 'DESEMPENHO.txt'), tempos.join('\n') + '\n');
   });

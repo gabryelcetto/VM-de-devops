@@ -209,3 +209,41 @@ def test_parar_tarefa(p):
         time.sleep(0.05)
     assert t["fim"] and t["codigo"] == -15
     assert p.parar_tarefa({"id": r["tarefa"]}) == "A tarefa já terminou."
+
+
+def test_info_monitoramento_nao_liga_o_docker(p, cmds, tmp_path, monkeypatch):
+    comp = tmp_path / "docker-compose.yml"
+    comp.write_text("services: {}\n")
+    monkeypatch.setattr(p, "MON_COMPOSE", comp)
+    monkeypatch.setattr(p, "_no_ar", lambda porta, caminho: porta == 3000)
+    cmds.responder(lambda c: c[:2] == ["systemctl", "is-active"], 3, "inactive")
+    m = p.info_monitoramento()
+    assert m["instalado"] and m["docker"] == "inactive"
+    assert [x["no_ar"] for x in m["servicos"]] == [True, False, False, False]
+    assert m["servicos"][0]["url"] == "http://localhost:3000/"
+    assert not any(c[0] == "docker" for c in cmds.lista)  # só perguntou ao systemd
+
+
+def test_info_monitoramento_ligado(p, cmds, tmp_path, monkeypatch):
+    comp = tmp_path / "docker-compose.yml"
+    comp.write_text("services: {}\n")
+    monkeypatch.setattr(p, "MON_COMPOSE", comp)
+    monkeypatch.setattr(p, "_no_ar", lambda porta, caminho: True)
+    cmds.responder(lambda c: c[:2] == ["systemctl", "is-active"], 0, "active")
+    cmds.responder(lambda c: c[:2] == ["docker", "compose"], 0, '{"Service": "grafana", "State": "running"}\n{"Service": "uptime-kuma", "State": "exited"}')
+    m = p.info_monitoramento()
+    assert {x["id"]: x["estado"] for x in m["servicos"]} == {"grafana": "running", "uptime-kuma": "exited", "prometheus": "", "node-exporter": ""}
+
+
+def test_resumo_junta_as_partes_sem_ligar_o_docker(p, cmds, monkeypatch, home):
+    monkeypatch.setattr(p, "info_jenkins", lambda: {"servico": "active", "respondendo": True, "jobs": [
+        {"nome": "a", "resultado": "SUCCESS", "historico": [{"t": 2}]}, {"nome": "b", "resultado": "FAILURE", "historico": [{"t": 1}]}]})
+    monkeypatch.setattr(p, "info_sistema", lambda: {"cpu": 1})
+    monkeypatch.setattr(p, "info_monitoramento", lambda: {"servicos": [{"no_ar": True}, {"no_ar": False}]})
+    cmds.responder(lambda c: c[:2] == ["systemctl", "is-active"], 3, "inactive")
+    r = p.resumo()
+    assert r["docker"] == {"ligado": False}
+    assert r["jenkins"] == {"servico": "active", "respondendo": True, "jobs": 2, "falhas": 1, "sucessos": 1}
+    assert [b["job"] for b in r["builds"]] == ["b", "a"]
+    assert r["monitoramento"] == {"ligados": 1, "total": 2}
+    assert not any(c[0] == "docker" for c in cmds.lista)
