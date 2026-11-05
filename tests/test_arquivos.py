@@ -147,3 +147,11 @@ def test_abrir_mensagens_exatas(p):
         with pytest.raises(p.Erro) as e:
             p.acao_abrir(d)
         assert str(e.value) == msg
+
+
+def test_caminho_relativo_conta_da_home(p, home, monkeypatch):
+    monkeypatch.chdir("/tmp")
+    assert p.dentro_da_home("projetos/app") == home / "projetos" / "app"
+    assert p.dentro_da_home("") == home
+    with pytest.raises(p.Erro):
+        p.dentro_da_home("../../etc")

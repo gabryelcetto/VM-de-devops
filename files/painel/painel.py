@@ -153,7 +153,8 @@ def lancar(cmd, cwd=None):
 
 
 def dentro_da_home(caminho):
-    p = Path(os.path.expanduser(str(caminho))).resolve()
+    # caminho relativo (ou vazio) conta a partir da pasta pessoal, nunca da pasta onde o painel foi aberto
+    p = (HOME / Path(os.path.expanduser(str(caminho)))).resolve()
     if p != HOME and HOME not in p.parents:
         raise Erro("Só é permitido usar pastas dentro da sua pasta pessoal.")
     return p
