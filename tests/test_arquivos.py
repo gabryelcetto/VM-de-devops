@@ -116,3 +116,31 @@ def test_abrir_novo_arquivo(p, home, monkeypatch):
     for ruim in ("../x", "a/b", "", "..", "."):
         with pytest.raises(p.Erro, match="inválido"):
             p.acao_abrir({"acao": "novo_arquivo", "caminho": "~/projetos", "nome": ruim})
+
+
+def test_abrir_comandos_exatos(p, home, monkeypatch):
+    abertos = []
+    monkeypatch.setattr(p, "lancar", lambda cmd, cwd=None: abertos.append(cmd))
+    (home / "projetos" / "app").mkdir()
+    (home / "projetos" / "app" / "a.py").write_text("")
+    assert p.acao_abrir({"acao": "url", "url": "http://127.0.0.1:8080/job/x"}) == "Abrindo no navegador."
+    assert p.acao_abrir({"acao": "vscode", "caminho": "~/projetos/app"}) == "Abrindo no VS Code."
+    assert p.acao_abrir({"acao": "vscode"}) == "Abrindo no VS Code."  # sem caminho: ~/projetos
+    assert p.acao_abrir({"acao": "terminal", "caminho": "~/projetos/app/a.py"}) == "Abrindo o terminal."
+    assert p.acao_abrir({"acao": "pasta", "caminho": "~/projetos/app"}) == "Abrindo a pasta."
+    assert p.acao_abrir({"acao": "pasta", "caminho": "~/projetos/app/a.py"}) == "Abrindo a pasta."
+    assert p.acao_abrir({"acao": "novo_arquivo", "caminho": "~/projetos/app", "nome": " b.py "}) == "Abrindo b.py no VS Code."
+    app = str(home / "projetos" / "app")
+    assert abertos == [["firefox", "http://127.0.0.1:8080/job/x"], ["code", app], ["code", str(home / "projetos")],
+                       ["xfce4-terminal", f"--working-directory={app}"], ["thunar", app], ["thunar", app],
+                       ["code", app, app + "/b.py"]]
+    assert (home / "projetos" / "app" / "b.py").read_text() == ""
+
+
+def test_abrir_mensagens_exatas(p):
+    for d, msg in (({"acao": "url", "url": "http://x.com"}, "Endereço não permitido."), ({"acao": "url"}, "Endereço não permitido."),
+                   ({"acao": "novo_arquivo", "nome": "a/b"}, "Nome de arquivo inválido."), ({"acao": "novo_arquivo"}, "Nome de arquivo inválido."),
+                   ({"acao": "explodir"}, "Ação desconhecida.")):
+        with pytest.raises(p.Erro) as e:
+            p.acao_abrir(d)
+        assert str(e.value) == msg

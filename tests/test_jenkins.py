@@ -268,3 +268,64 @@ def test_jenkins_job_invalido_e_acao_desconhecida(p, jk):
         p.acao_jenkins({"acao": "construir", "job": "../x"})
     with pytest.raises(p.Erro, match="desconhecida"):
         p.acao_jenkins({"acao": "explodir", "job": "app"})
+
+
+# ---- textos e XML exatos (para o teste de mutantes: qualquer mudança no texto ou no XML é percebida)
+def _filhos(xml_bytes):
+    r = ET.fromstring(xml_bytes)
+    return r.tag, [(e.tag, e.text) for e in r]
+
+
+def test_credencial_token_xml_exato(p, jenkins_falso):
+    r = p.criar_credencial({"tipo": "usuario", "id": " github ", "usuario": "gabryel", "senha": " ghp_abc "})
+    assert r == "Credencial 'github' criada. Use o ID 'github' nos jobs."
+    assert _filhos(jenkins_falso[-1][1]) == ("com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl", [
+        ("scope", "GLOBAL"), ("id", "github"), ("description", "Criada pelo Painel DevOps"),
+        ("username", "gabryel"), ("password", " ghp_abc ")])
+    assert jenkins_falso[-1][0] == "/credentials/store/system/domain/_/createCredentials"
+
+
+def test_credencial_segredo_xml_exato(p, jenkins_falso):
+    p.criar_credencial({"tipo": "segredo", "id": "chave-api", "segredo": "s3gr3do", "descricao": "API do curso"})
+    assert _filhos(jenkins_falso[-1][1]) == ("org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl", [
+        ("scope", "GLOBAL"), ("id", "chave-api"), ("description", "API do curso"), ("secret", "s3gr3do")])
+
+
+def test_credencial_ssh_colada_xml_exato(p, jenkins_falso):
+    chave = "-----BEGIN OPENSSH PRIVATE KEY-----\nxyz\n-----END OPENSSH PRIVATE KEY-----\n"
+    p.criar_credencial({"tipo": "ssh", "id": "deploy", "chave": chave, "usuario": "deployer"})
+    r = ET.fromstring(jenkins_falso[-1][1])
+    assert r.tag == "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey"
+    assert [(e.tag, e.text) for e in r][:4] == [("scope", "GLOBAL"), ("id", "deploy"), ("description", "Criada pelo Painel DevOps"), ("username", "deployer")]
+    fonte = r.find("privateKeySource")
+    assert fonte.get("class") == "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey$DirectEntryPrivateKeySource"
+    assert fonte.find("privateKey").text == chave
+
+
+@pytest.mark.parametrize("d,msg", [
+    ({"tipo": "usuario", "id": ""}, "ID inválido: use letras, números, - _ . (ex.: github)"),
+    ({"tipo": "usuario", "id": "x", "usuario": "a"}, "Preencha o usuário do GitHub e o token. Sem eles a credencial não funciona."),
+    ({"tipo": "usuario", "id": "x", "senha": "ghp_a"}, "Preencha o usuário do GitHub e o token. Sem eles a credencial não funciona."),
+    ({"tipo": "usuario", "id": "x", "usuario": "a", "senha": "senha"},
+     "Isso não parece um token do GitHub (eles começam com ghp_ ou github_pat_). O GitHub não aceita a senha da conta: "
+     "crie um token em github.com/settings/personal-access-tokens."),
+    ({"tipo": "segredo", "id": "x"}, "Preencha o segredo."),
+    ({"tipo": "ssh", "id": "x"}, "Cole a chave PRIVADA (começa com -----BEGIN OPENSSH PRIVATE KEY-----)."),
+    ({"tipo": "ssh", "id": "x", "usar_minha_chave": True}, "Você ainda não tem chave SSH. Gere uma na aba Git."),
+    ({"tipo": "x", "id": "x"}, "Tipo de credencial desconhecido."),
+    ({"tipo": "segredo", "id": "ja-existe", "segredo": "s"}, "Já existe uma credencial com o ID ja-existe. Use outro ID ou apague a antiga."),
+])
+def test_credencial_mensagens_exatas(p, jenkins_falso, d, msg):
+    with pytest.raises(p.Erro) as e:
+        p.criar_credencial(d)
+    assert str(e.value) == msg
+
+
+def test_texto_erro_tira_todo_o_menu(p):
+    html = ("<html><head><style>x{}</style></head><body><nav>Skip to content</nav>"
+            "<header>Dashboard Search Sign in log out</header><script>var a=1</script>"
+            "Jenkins - Jenkins <h2>Oops!</h2> <p>Falhou &amp; parou</p> Skip to content Sign in log out REST API Dashboard Search"
+            "<footer>REST API Jenkins 2.500.1</footer> Jenkins 2.480</body></html>")
+    assert p._texto_erro(html) == "Oops! Falhou & parou"
+    assert p._texto_erro("Jenkins Jenkins - Jenkins Erro real") == "Erro real"
+    assert p._texto_erro("sign in dashboard") == "sign in dashboard"  # só remove com a grafia do Jenkins
