@@ -228,3 +228,12 @@ VM-de-devops/
 ├── ci/                       # testes da VM, laboratório, QA e publicação
 └── .devcontainer/            # ambiente do GitHub Codespaces
 ```
+
+
+
+
+## Licença
+
+Os scripts e arquivos deste projeto estão sob a [licença MIT](LICENSE).
+Os programas instalados dentro da VM (Ubuntu, VS Code, Docker, Jenkins, Grafana, Uptime Kuma etc.)
+continuam com as licenças de cada um.
