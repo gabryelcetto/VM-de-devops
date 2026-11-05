@@ -13,6 +13,7 @@ jobs:
         env: { GH_TOKEN: "${{ github.token }}" }
         run: |
           sudo apt-get install -y -qq qemu-utils zstd >/dev/null
+          sudo mkdir -p /mnt/ova && sudo chown "$USER" /mnt/ova /mnt
           gh release download -R ${{ github.repository }} --pattern 'DevOps-Lab.ova' -D /mnt/ova
           cd /mnt/ova && tar xf DevOps-Lab.ova && ls -la
           sudo qemu-img convert -O raw *.vmdk /mnt/disco.raw && rm -f *.vmdk
