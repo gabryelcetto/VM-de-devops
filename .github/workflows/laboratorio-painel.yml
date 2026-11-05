@@ -107,8 +107,9 @@ jobs:
       - name: Rodar o mutmut nas funções que validam e montam comandos
         run: |
           pip install -q --break-system-packages mutmut pytest
-          bash ci/qa/mutantes.sh resultado-mutantes
-          cat resultado-mutantes/MUTANTES.txt >> "$GITHUB_STEP_SUMMARY"
+          rc=0; bash ci/qa/mutantes.sh resultado-mutantes || rc=$?
+          cat resultado-mutantes/MUTANTES.txt >> "$GITHUB_STEP_SUMMARY" || true
+          exit $rc
       - name: Guardar o relatório
         if: always()
         uses: actions/upload-artifact@v4

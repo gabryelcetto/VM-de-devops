@@ -13,9 +13,11 @@ ALVOS=(x_dentro_da_home x_arquivo_permitido x_acao_arquivo x_acao_abrir x__url_g
        "xǁHandlerǁhost_ok" "xǁHandlerǁdo_POST" x_ver_tarefa x_dicas_para x_ok_ou_erro x_json_linhas
        x__gatilhos x__texto_erro x_criar_credencial x_xml_item x_acao_docker x_acao_git x_acao_executar x_acao_jenkins)
 rm -rf mutants
-timeout 5400 mutmut run --max-children "$(nproc)" "${ALVOS[@]/#/$P.}"  # mutmut aceita padrões com *
+PADROES=()
+for a in "${ALVOS[@]}"; do PADROES+=("$P.$a*"); done  # mutmut aceita padrões com *
+timeout 5400 mutmut run --max-children "$(nproc)" "${PADROES[@]}" || { echo "ERRO: o mutmut não terminou"; exit 1; }
 mutmut results --all true > "$OUT/mutantes-todos.txt" 2>/dev/null || mutmut results > "$OUT/mutantes-todos.txt"
-python3 - "$OUT" <<'PY'
+python3 - "$OUT" "${MINIMO:-85}" <<'PY'
 import collections, re, sys
 out = sys.argv[1]
 linhas = open(f"{out}/mutantes-todos.txt").read().splitlines()
@@ -37,4 +39,7 @@ nota = 100 * mortos / max(1, mortos + vivos)
 rel += ["", f"TOTAL: {mortos} mortos, {vivos} sobreviventes, {tot['not checked']} não rodados -> nota {nota:.1f}%"]
 open(f"{out}/MUTANTES.txt", "w").write("\n".join(rel) + "\n")
 print("\n".join(rel))
+minimo = float(sys.argv[2])
+if mortos + vivos == 0 or nota < minimo:
+    sys.exit(f"Nota {nota:.1f}% abaixo do mínimo de {minimo}%: há defeitos que os testes não percebem.")
 PY
