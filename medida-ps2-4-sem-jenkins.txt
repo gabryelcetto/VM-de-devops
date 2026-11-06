@@ -1,0 +1,25 @@
+CPU ocupada (média dos 2 núcleos): 2.6%
+trocas de contexto/s: 271
+--- processos (% de 1 núcleo)
+   0.6%  9613  bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida-4-sem-jenkins.tx
+   0.2%  938  VBoxClient /usr/bin/VBoxClient --seamless
+   0.2%  833  Xorg /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/light
+   0.1%  715  VBoxService /usr/sbin/VBoxService
+   0.1%  1061  python3 python3 /usr/local/lib/devops-lab/painel/painel.py
+   0.1%  1015  xfsettingsd xfsettingsd
+   0.1%  1011  VBoxClient /usr/bin/VBoxClient --vmsvga
+   0.0%  9  kworker/0:1-events
+   0.0%  994  xfwm4 xfwm4
+   0.0%  644  earlyoom /usr/bin/earlyoom -m 4 -s 10 -r 0 --prefer (^|/)(Isolated.We
+   0.0%  642  dbus-daemon @dbus-daemon --system --address=systemd: --nofork --nopidfil
+   0.0%  24  ksoftirqd/1
+   0.0%  18  migration/0
+   0.0%  17  rcu_preempt
+   0.0%  1053  xfce4-notifyd /usr/lib/x86_64-linux-gnu/xfce4/notifyd/xfce4-notifyd
+--- interrupções/s
+   1119  LOC   Local timer interrupts
+     62  CAL   Function call interrupts
+     28  RES   Rescheduling interrupts
+      2  20   IO-APIC 20-fasteoi vboxguest
+      0  TLB   TLB shootdowns
+      0  21   IO-APIC 21-fasteoi ahci[0000:00:0d.0]

@@ -1,0 +1,22 @@
+cpus=2 graphicscontroller="vboxsvga" hidpointing="ps2mouse" usb="off" 
+[boot1] login em 12s | janela preta por 10s | tela no fim: 14247 cores
+abrir terminal: 1183 ms | abrir Thunar: 1316 ms
+[0-como-vem] VirtualBox no computador: 15% de 1 núcleo | dentro da VM: CPU ocupada (média dos 2 núcleos): 3.5% trocas de contexto/s: 419 
+         0.9% 1668 java /usr/bin/java -Djava.awt.headless=true -Djenkins.install.run; 0.7% 1879 bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida-0-como-vem.txt; 0.6% 833 Xorg /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/light; 0.5% 946 VBoxClient /usr/bin/VBoxClient --draganddrop;
+        irq/s: 1215=LOC 70=CAL 28=RES 2=21 
+[1-sem-arrastar-soltar] VirtualBox no computador: 14% de 1 núcleo | dentro da VM: CPU ocupada (média dos 2 núcleos): 2.9% trocas de contexto/s: 333 
+         0.8% 1668 java /usr/bin/java -Djava.awt.headless=true -Djenkins.install.run; 0.5% 3716 bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida-1-sem-arrastar-s; 0.3% 833 Xorg /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/light; 0.2% 938 VBoxClient /usr/bin/VBoxClient --seamless;
+        irq/s: 1162=LOC 65=CAL 29=RES 2=20 
+[2-vblank-off] VirtualBox no computador: 13% de 1 núcleo | dentro da VM: CPU ocupada (média dos 2 núcleos): 2.8% trocas de contexto/s: 335 
+         0.6% 5970 bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida-2-vblank-off.txt; 0.6% 1668 java /usr/bin/java -Djava.awt.headless=true -Djenkins.install.run; 0.2% 833 Xorg /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/light; 0.1% 938 VBoxClient /usr/bin/VBoxClient --seamless;
+        irq/s: 1163=LOC 66=CAL 28=RES 2=20 
+[3-sem-compositor] VirtualBox no computador: 12% de 1 núcleo | dentro da VM: CPU ocupada (média dos 2 núcleos): 2.8% trocas de contexto/s: 332 
+         0.7% 1668 java /usr/bin/java -Djava.awt.headless=true -Djenkins.install.run; 0.6% 7798 bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida-3-sem-compositor; 0.2% 833 Xorg /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/light; 0.1% 938 VBoxClient /usr/bin/VBoxClient --seamless;
+        irq/s: 1156=LOC 66=CAL 28=RES 2=20 
+[4-sem-jenkins] VirtualBox no computador: 13% de 1 núcleo | dentro da VM: CPU ocupada (média dos 2 núcleos): 2.6% trocas de contexto/s: 271 
+         0.6% 9613 bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida-4-sem-jenkins.tx; 0.2% 938 VBoxClient /usr/bin/VBoxClient --seamless; 0.2% 833 Xorg /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/light; 0.1% 715 VBoxService /usr/sbin/VBoxService;
+        irq/s: 1119=LOC 62=CAL 28=RES 2=20 
+[5-sem-clipboard-seamless] VirtualBox no computador: 12% de 1 núcleo | dentro da VM: CPU ocupada (média dos 2 núcleos): 2.6% trocas de contexto/s: 260 
+         0.6% 11380 bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida-5-sem-clipboard-; 0.2% 938 VBoxClient /usr/bin/VBoxClient --seamless; 0.2% 833 Xorg /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/light; 0.1% 715 VBoxService /usr/sbin/VBoxService;
+        irq/s: 1117=LOC 58=CAL 28=RES 2=20 
+abrir terminal (no fim): 1219 ms | abrir Thunar: 312 ms
