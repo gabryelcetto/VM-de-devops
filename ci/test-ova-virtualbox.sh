@@ -335,11 +335,19 @@ fi
 # 2º boot: PC lento (CPU limitada, como o VirtualBox com Hyper-V) E a outra controladora
 # (VBoxSVGA, se o aluno trocar nas configurações): a imagem tem que aparecer do mesmo jeito.
 VBoxManage modifyvm "$VM" --cpu-execution-cap 35 --graphicscontroller vboxsvga
+# as propriedades do 1º boot ficam guardadas: apaga para esperar o login de verdade
+VBoxManage guestproperty unset "$VM" /VirtualBox/GuestInfo/OS/LoggedInUsers >/dev/null 2>&1 || true
+VBoxManage guestproperty unset "$VM" /VirtualBox/GuestInfo/Net/0/V4/IP >/dev/null 2>&1 || true
 VBoxManage startvm "$VM" --type "$TIPO"
 if wait_desktop "boot2-cpu35-vboxsvga" 1200; then
-  sleep 30
-  CORES="$(print_vbox janela-virtualbox-2-vboxsvga)"
-  if [ "${CORES:-0}" -gt 100 ]; then ok "PC lento + VBoxSVGA: janela do VirtualBox mostra a área de trabalho ($CORES cores)"; else bad "PC lento + VBoxSVGA: janela do VirtualBox preta ($CORES cores)"; fi
+  # com a CPU limitada a tela leva um pouco mais para aparecer: espera até 2 min
+  T=0; CORES=0
+  while [ "$T" -lt 120 ]; do
+    CORES="$(print_vbox janela-virtualbox-2-vboxsvga)"
+    [ "${CORES:-0}" -gt 100 ] && break
+    sleep 5; T=$((T+5))
+  done
+  if [ "${CORES:-0}" -gt 100 ]; then ok "PC lento + VBoxSVGA: janela do VirtualBox mostra a área de trabalho ($CORES cores, ${T}s depois do login)"; else bad "PC lento + VBoxSVGA: janela do VirtualBox preta 2 min depois do login ($CORES cores)"; fi
   log "PC lento + VBoxSVGA - resolução: $(gsh "$XENV xrandr 2>/dev/null | sed -n 's/.*current \\([0-9]* x [0-9]*\\).*/\\1/p'")"
   CORES="$(print_tela tela-3-pc-lento)"
   if [ "${CORES:-0}" -gt 100 ]; then ok "PC lento: tela desenhada ($CORES cores)"; else bad "PC lento: tela vazia/preta ($CORES cores)"; fi
