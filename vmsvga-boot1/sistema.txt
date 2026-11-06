@@ -1,0 +1,521 @@
+===== boot (systemd-analyze)
+Startup finished in 3.158s (kernel) + 3.328s (userspace) = 6.486s 
+graphical.target reached after 3.302s in userspace.
+9.110s jenkins.service
+4.640s devops-lab-apt-update.service
+1.959s console-setup.service
+1.489s NetworkManager.service
+1.402s regen-ssh-host-keys.service
+1.297s dev-sda2.device
+1.054s virtualbox-guest-utils.service
+ 827ms apparmor.service
+ 772ms grub-common.service
+ 678ms systemd-logind.service
+ 609ms udisks2.service
+ 380ms systemd-udev-trigger.service
+ 289ms keyboard-setup.service
+ 262ms dbus.service
+ 241ms systemd-resolved.service
+The time when unit became active or started is printed after the "@" character.
+The time the unit took to start is printed after the "+" character.
+
+graphical.target @3.302s
+└─lightdm.service @3.242s +59ms
+  └─systemd-user-sessions.service @3.232s +6ms
+    └─network.target @3.221s
+      └─NetworkManager.service @1.731s +1.489s
+        └─dbus.service @1.460s +262ms
+          └─basic.target @1.441s
+            └─paths.target @1.438s
+              └─systemd-ask-password-console.path @737ms
+                └─-.mount @253ms
+                  └─-.slice @253ms
+===== serviços com falha
+===== erros do boot (journal -p err)
+nov 06 14:16:45 devops-lab VBoxService[760]: pam_loginuid(login:session): Error writing /proc/self/loginuid: Operation not permitted
+nov 06 14:16:45 devops-lab VBoxService[760]: pam_loginuid(login:session): set_loginuid failed
+nov 06 14:16:47 devops-lab VBoxService[760]: PAM unable to dlopen(pam_lastlog.so): /usr/lib/security/pam_lastlog.so: cannot open shared object file: No such file or directory
+nov 06 14:16:47 devops-lab VBoxService[760]: PAM adding faulty module: pam_lastlog.so
+nov 06 14:16:47 devops-lab VBoxService[760]: pam_loginuid(login:session): Error writing /proc/self/loginuid: Operation not permitted
+nov 06 14:16:47 devops-lab VBoxService[760]: pam_loginuid(login:session): set_loginuid failed
+nov 06 14:16:49 devops-lab VBoxService[760]: PAM unable to dlopen(pam_lastlog.so): /usr/lib/security/pam_lastlog.so: cannot open shared object file: No such file or directory
+nov 06 14:16:49 devops-lab VBoxService[760]: PAM adding faulty module: pam_lastlog.so
+nov 06 14:16:49 devops-lab VBoxService[760]: pam_loginuid(login:session): Error writing /proc/self/loginuid: Operation not permitted
+nov 06 14:16:49 devops-lab VBoxService[760]: pam_loginuid(login:session): set_loginuid failed
+nov 06 14:16:49 devops-lab VBoxService[760]: PAM unable to dlopen(pam_lastlog.so): /usr/lib/security/pam_lastlog.so: cannot open shared object file: No such file or directory
+nov 06 14:16:49 devops-lab VBoxService[760]: PAM adding faulty module: pam_lastlog.so
+nov 06 14:16:50 devops-lab VBoxService[760]: pam_loginuid(login:session): Error writing /proc/self/loginuid: Operation not permitted
+nov 06 14:16:50 devops-lab VBoxService[760]: pam_loginuid(login:session): set_loginuid failed
+nov 06 14:16:50 devops-lab VBoxService[760]: PAM unable to dlopen(pam_lastlog.so): /usr/lib/security/pam_lastlog.so: cannot open shared object file: No such file or directory
+nov 06 14:16:50 devops-lab VBoxService[760]: PAM adding faulty module: pam_lastlog.so
+nov 06 14:16:50 devops-lab VBoxService[760]: pam_loginuid(login:session): Error writing /proc/self/loginuid: Operation not permitted
+nov 06 14:16:50 devops-lab VBoxService[760]: pam_loginuid(login:session): set_loginuid failed
+nov 06 14:16:50 devops-lab VBoxService[760]: PAM unable to dlopen(pam_lastlog.so): /usr/lib/security/pam_lastlog.so: cannot open shared object file: No such file or directory
+nov 06 14:16:50 devops-lab VBoxService[760]: PAM adding faulty module: pam_lastlog.so
+nov 06 14:16:50 devops-lab VBoxService[760]: pam_loginuid(login:session): Error writing /proc/self/loginuid: Operation not permitted
+nov 06 14:16:50 devops-lab VBoxService[760]: pam_loginuid(login:session): set_loginuid failed
+nov 06 14:16:50 devops-lab kernel: UBSAN: array-index-out-of-bounds in /build/linux-Vq2nTS/linux-6.8.0/drivers/virt/vboxguest/vboxguest_utils.c:367:20
+nov 06 14:16:50 devops-lab kernel: index 1 is out of range for type '__u64 [1]'
+nov 06 14:16:50 devops-lab kernel: CPU: 0 PID: 2338 Comm: VBoxService Not tainted 6.8.0-149-generic #149-Ubuntu
+nov 06 14:16:50 devops-lab kernel: Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+nov 06 14:16:50 devops-lab kernel: Call Trace:
+nov 06 14:16:50 devops-lab kernel:  <TASK>
+nov 06 14:16:50 devops-lab kernel:  dump_stack_lvl+0x76/0xa0
+nov 06 14:16:50 devops-lab kernel:  dump_stack+0x10/0x20
+nov 06 14:16:50 devops-lab kernel:  __ubsan_handle_out_of_bounds+0xc6/0x110
+nov 06 14:16:50 devops-lab kernel:  hgcm_call_init_linaddr.part.0+0x1b0/0x1d0 [vboxguest]
+nov 06 14:16:50 devops-lab kernel:  vbg_hgcm_call+0x1f8/0x3d0 [vboxguest]
+nov 06 14:16:50 devops-lab kernel:  ? __pfx_child_wait_callback+0x10/0x10
+nov 06 14:16:50 devops-lab kernel:  vbg_ioctl_hgcm_call+0x129/0x270 [vboxguest]
+nov 06 14:16:50 devops-lab kernel:  vbg_core_ioctl+0x5a0/0x6f0 [vboxguest]
+nov 06 14:16:50 devops-lab kernel:  ? srso_alias_return_thunk+0x5/0xfbef5
+nov 06 14:16:50 devops-lab kernel:  ? __check_object_size.part.0+0x72/0x150
+nov 06 14:16:50 devops-lab kernel:  vbg_misc_device_ioctl+0x18e/0x2c0 [vboxguest]
+nov 06 14:16:50 devops-lab kernel:  ? do_syscall_64+0x30/0x180
+nov 06 14:16:50 devops-lab kernel:  __x64_sys_ioctl+0xa3/0xf0
+nov 06 14:16:50 devops-lab kernel:  x64_sys_call+0x12a3/0x25a0
+nov 06 14:16:50 devops-lab kernel:  do_syscall_64+0x87/0x180
+nov 06 14:16:50 devops-lab kernel:  ? srso_alias_return_thunk+0x5/0xfbef5
+nov 06 14:16:50 devops-lab kernel:  ? arch_exit_to_user_mode_prepare.isra.0+0x1a/0xe0
+nov 06 14:16:50 devops-lab kernel:  ? srso_alias_return_thunk+0x5/0xfbef5
+nov 06 14:16:50 devops-lab kernel:  ? syscall_exit_to_user_mode+0x43/0x1e0
+nov 06 14:16:50 devops-lab kernel:  ? srso_alias_return_thunk+0x5/0xfbef5
+nov 06 14:16:50 devops-lab kernel:  ? do_syscall_64+0x94/0x180
+nov 06 14:16:50 devops-lab kernel:  ? srso_alias_return_thunk+0x5/0xfbef5
+nov 06 14:16:50 devops-lab kernel:  entry_SYSCALL_64_after_hwframe+0x78/0x80
+nov 06 14:16:50 devops-lab kernel: RIP: 0033:0x77a1ed3250bd
+nov 06 14:16:50 devops-lab kernel: Code: 04 25 28 00 00 00 48 89 45 c8 31 c0 48 8d 45 10 c7 45 b0 10 00 00 00 48 89 45 b8 48 8d 45 d0 48 89 45 c0 b8 10 00 00 00 0f 05 <89> c2 3d 00 f0 ff ff 77 1a 48 8b 45 c8 64 48 2b 04 25 28 00 00 00
+nov 06 14:16:50 devops-lab kernel: RSP: 002b:000077a1ed1feb40 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+nov 06 14:16:50 devops-lab kernel: RAX: ffffffffffffffda RBX: 000077a1ed1febc0 RCX: 000077a1ed3250bd
+nov 06 14:16:50 devops-lab kernel: RDX: 000077a1ed1febc0 RSI: 00000000c0785607 RDI: 0000000000000003
+nov 06 14:16:50 devops-lab kernel: RBP: 000077a1ed1feb90 R08: 000077a1e0011c30 R09: 0000000000001214
+nov 06 14:16:50 devops-lab kernel: R10: 0000000000000001 R11: 0000000000000246 R12: 0000000000000000
+nov 06 14:16:50 devops-lab kernel: R13: 0000000000000001 R14: 000077a1e0011c30 R15: 00007ffed05c2100
+nov 06 14:16:50 devops-lab kernel:  </TASK>
+nov 06 14:17:02 devops-lab VBoxService[760]: PAM unable to dlopen(pam_lastlog.so): /usr/lib/security/pam_lastlog.so: cannot open shared object file: No such file or directory
+nov 06 14:17:02 devops-lab VBoxService[760]: PAM adding faulty module: pam_lastlog.so
+nov 06 14:17:02 devops-lab VBoxService[760]: pam_loginuid(login:session): Error writing /proc/self/loginuid: Operation not permitted
+nov 06 14:17:02 devops-lab VBoxService[760]: pam_loginuid(login:session): set_loginuid failed
+nov 06 14:17:15 devops-lab VBoxService[760]: PAM unable to dlopen(pam_lastlog.so): /usr/lib/security/pam_lastlog.so: cannot open shared object file: No such file or directory
+nov 06 14:17:15 devops-lab VBoxService[760]: PAM adding faulty module: pam_lastlog.so
+nov 06 14:17:15 devops-lab VBoxService[760]: pam_loginuid(login:session): Error writing /proc/self/loginuid: Operation not permitted
+nov 06 14:17:15 devops-lab VBoxService[760]: pam_loginuid(login:session): set_loginuid failed
+nov 06 14:17:15 devops-lab VBoxService[760]: PAM unable to dlopen(pam_lastlog.so): /usr/lib/security/pam_lastlog.so: cannot open shared object file: No such file or directory
+nov 06 14:17:15 devops-lab VBoxService[760]: PAM adding faulty module: pam_lastlog.so
+nov 06 14:17:15 devops-lab VBoxService[760]: pam_loginuid(login:session): Error writing /proc/self/loginuid: Operation not permitted
+nov 06 14:17:15 devops-lab VBoxService[760]: pam_loginuid(login:session): set_loginuid failed
+nov 06 14:17:20 devops-lab VBoxService[760]: PAM unable to dlopen(pam_lastlog.so): /usr/lib/security/pam_lastlog.so: cannot open shared object file: No such file or directory
+nov 06 14:17:20 devops-lab VBoxService[760]: PAM adding faulty module: pam_lastlog.so
+nov 06 14:17:20 devops-lab VBoxService[760]: pam_loginuid(login:session): Error writing /proc/self/loginuid: Operation not permitted
+nov 06 14:17:20 devops-lab VBoxService[760]: pam_loginuid(login:session): set_loginuid failed
+nov 06 14:17:20 devops-lab VBoxService[760]: PAM unable to dlopen(pam_lastlog.so): /usr/lib/security/pam_lastlog.so: cannot open shared object file: No such file or directory
+nov 06 14:17:20 devops-lab VBoxService[760]: PAM adding faulty module: pam_lastlog.so
+nov 06 14:17:20 devops-lab VBoxService[760]: pam_loginuid(login:session): Error writing /proc/self/loginuid: Operation not permitted
+nov 06 14:17:20 devops-lab VBoxService[760]: pam_loginuid(login:session): set_loginuid failed
+===== avisos do kernel
+[    0.000000] [Firmware Bug]: TSC doesn't count with P0 frequency!
+[    0.099452] Speculative Return Stack Overflow: IBPB-extending microcode not applied!
+[    0.099453] Speculative Return Stack Overflow: WARNING: See https://kernel.org/doc/html/latest/admin-guide/hw-vuln/srso.html for mitigation options.
+[    0.594508] device-mapper: core: CONFIG_IMA_DISABLE_HTABLE is disabled. Duplicate IMA measurements will not be recorded in the IMA log.
+[    0.594671] amd_pstate: the _CPC object is not present in SBIOS or ACPI disabled
+[    1.274998] ata1.00: Read log 0x00 page 0x00 failed, Emask 0x1
+[    1.275001] ata1.00: Security Log not supported
+[    1.275501] ata1.00: Security Log not supported
+[    3.450503] systemd[1]: basic.target: Found ordering cycle on sockets.target/start
+[    3.450513] systemd[1]: basic.target: Found dependency on ssh.socket/start
+[    3.450516] systemd[1]: basic.target: Found dependency on regen-ssh-host-keys.service/start
+[    3.450519] systemd[1]: basic.target: Found dependency on basic.target/start
+[    3.450522] systemd[1]: basic.target: Job sockets.target/start deleted to break ordering cycle starting with basic.target/start
+[    5.384317] vmwgfx 0000:00:02.0: [drm] *ERROR* vmwgfx seems to be running on an unsupported hypervisor.
+[    5.384319] vmwgfx 0000:00:02.0: [drm] *ERROR* This configuration is likely broken.
+[    5.384321] vmwgfx 0000:00:02.0: [drm] *ERROR* Please switch to a supported graphics device to avoid problems.
+[  111.760980] hrtimer: interrupt took 10715059 ns
+[  198.423536] ------------[ cut here ]------------
+[  198.423540] UBSAN: array-index-out-of-bounds in /build/linux-Vq2nTS/linux-6.8.0/drivers/virt/vboxguest/vboxguest_utils.c:367:20
+[  198.423543] index 1 is out of range for type '__u64 [1]'
+[  198.423546] CPU: 0 PID: 2338 Comm: VBoxService Not tainted 6.8.0-149-generic #149-Ubuntu
+[  198.423549] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[  198.423551] Call Trace:
+[  198.423553]  <TASK>
+[  198.423557]  dump_stack_lvl+0x76/0xa0
+[  198.423593]  dump_stack+0x10/0x20
+[  198.423595]  __ubsan_handle_out_of_bounds+0xc6/0x110
+[  198.423617]  hgcm_call_init_linaddr.part.0+0x1b0/0x1d0 [vboxguest]
+[  198.423640]  vbg_hgcm_call+0x1f8/0x3d0 [vboxguest]
+[  198.423644]  ? __pfx_child_wait_callback+0x10/0x10
+[  198.423650]  vbg_ioctl_hgcm_call+0x129/0x270 [vboxguest]
+[  198.423654]  vbg_core_ioctl+0x5a0/0x6f0 [vboxguest]
+[  198.423657]  ? srso_alias_return_thunk+0x5/0xfbef5
+[  198.423661]  ? __check_object_size.part.0+0x72/0x150
+[  198.423666]  vbg_misc_device_ioctl+0x18e/0x2c0 [vboxguest]
+[  198.423669]  ? do_syscall_64+0x30/0x180
+[  198.423674]  __x64_sys_ioctl+0xa3/0xf0
+[  198.423678]  x64_sys_call+0x12a3/0x25a0
+[  198.423699]  do_syscall_64+0x87/0x180
+[  198.423701]  ? srso_alias_return_thunk+0x5/0xfbef5
+[  198.423703]  ? arch_exit_to_user_mode_prepare.isra.0+0x1a/0xe0
+[  198.423708]  ? srso_alias_return_thunk+0x5/0xfbef5
+[  198.423710]  ? syscall_exit_to_user_mode+0x43/0x1e0
+[  198.423713]  ? srso_alias_return_thunk+0x5/0xfbef5
+[  198.423715]  ? do_syscall_64+0x94/0x180
+[  198.423717]  ? srso_alias_return_thunk+0x5/0xfbef5
+[  198.423719]  entry_SYSCALL_64_after_hwframe+0x78/0x80
+[  198.423723] RIP: 0033:0x77a1ed3250bd
+[  198.423730] Code: 04 25 28 00 00 00 48 89 45 c8 31 c0 48 8d 45 10 c7 45 b0 10 00 00 00 48 89 45 b8 48 8d 45 d0 48 89 45 c0 b8 10 00 00 00 0f 05 <89> c2 3d 00 f0 ff ff 77 1a 48 8b 45 c8 64 48 2b 04 25 28 00 00 00
+[  198.423733] RSP: 002b:000077a1ed1feb40 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+[  198.423736] RAX: ffffffffffffffda RBX: 000077a1ed1febc0 RCX: 000077a1ed3250bd
+[  198.423738] RDX: 000077a1ed1febc0 RSI: 00000000c0785607 RDI: 0000000000000003
+[  198.423739] RBP: 000077a1ed1feb90 R08: 000077a1e0011c30 R09: 0000000000001214
+[  198.423768] R10: 0000000000000001 R11: 0000000000000246 R12: 0000000000000000
+[  198.423769] R13: 0000000000000001 R14: 000077a1e0011c30 R15: 00007ffed05c2100
+[  198.423774]  </TASK>
+[  198.423775] ---[ end trace ]---
+===== vídeo no kernel
+[    0.007881] RAMDISK: [mem 0x354fb000-0x36a74fff]
+[    0.507462] input: Power Button as /devices/LNXSYSTM:00/LNXPWRBN:00/input/input0
+[    0.507768] input: Sleep Button as /devices/LNXSYSTM:00/LNXSLPBN:00/input/input1
+[    0.525400] ACPI: bus type drm_connector registered
+[    0.591864] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input2
+[    1.177492] input: ImExPS/2 Generic Explorer Mouse as /devices/platform/i8042/serio1/input/input4
+[    1.296853] input: VirtualBox USB Tablet as /devices/pci0000:00/0000:00:06.0/usb1/1-1/1-1:1.0/0003:80EE:0021.0001/input/input5
+[    1.298636] hid-generic 0003:80EE:0021.0001: input,hidraw0: USB HID v1.10 Mouse [VirtualBox USB Tablet] on usb-0000:00:06.0-1/input0
+[    3.519439] systemd[1]: Starting modprobe@drm.service - Load Kernel Module drm...
+[    3.624780] systemd[1]: modprobe@drm.service: Deactivated successfully.
+[    3.627366] systemd[1]: Finished modprobe@drm.service - Load Kernel Module drm.
+[    4.823604] vboxguest: host-version: 7.2.22r175245 0x8000000f
+[    4.833561] input: VirtualBox mouse integration as /devices/pci0000:00/0000:00:04.0/input/input6
+[    4.954098] input: Video Bus as /devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A03:00/LNXVIDEO:00/input/input7
+[    5.035166] vmwgfx 0000:00:02.0: vgaarb: deactivate vga console
+[    5.384155] vmwgfx 0000:00:02.0: [drm] FIFO at 0x00000000f0000000 size is 2048 kiB
+[    5.384171] vmwgfx 0000:00:02.0: [drm] VRAM at 0x00000000e0000000 size is 131072 kiB
+[    5.384262] vmwgfx 0000:00:02.0: [drm] Running on SVGA version 2.
+[    5.384283] vmwgfx 0000:00:02.0: [drm] Capabilities: rect copy, cursor, cursor bypass, cursor bypass 2, alpha cursor, extended fifo, pitchlock, irq mask, gmr, traces, gmr2, screen object 2, command buffers, command buffers 2, gbobject, cap2 register, 
+[    5.384315] vmwgfx 0000:00:02.0: [drm] Capabilities2: cursor mob, 
+[    5.384317] vmwgfx 0000:00:02.0: [drm] *ERROR* vmwgfx seems to be running on an unsupported hypervisor.
+[    5.384319] vmwgfx 0000:00:02.0: [drm] *ERROR* This configuration is likely broken.
+[    5.384321] vmwgfx 0000:00:02.0: [drm] *ERROR* Please switch to a supported graphics device to avoid problems.
+[    5.384322] vmwgfx 0000:00:02.0: [drm] DMA map mode: Caching DMA mappings.
+[    5.384681] vmwgfx 0000:00:02.0: [drm] Legacy memory limits: VRAM = 131072 kB, FIFO = 2048 kB, surface = 393216 kB
+[    5.384684] vmwgfx 0000:00:02.0: [drm] MOB limits: max mob size = 1048576 kB, max mob pages = 262144
+[    5.384686] vmwgfx 0000:00:02.0: [drm] Max GMR ids is 8192
+[    5.384688] vmwgfx 0000:00:02.0: [drm] Max number of GMR pages is 1048576
+[    5.384690] vmwgfx 0000:00:02.0: [drm] Maximum display memory size is 131072 kiB
+[    5.478792] vmwgfx 0000:00:02.0: [drm] Screen Target display unit initialized
+[    5.496899] vmwgfx 0000:00:02.0: [drm] Fifo max 0x00200000 min 0x00001000 cap 0x00000355
+[    5.513584] vmwgfx 0000:00:02.0: [drm] Using command buffers with DMA pool.
+[    5.513607] vmwgfx 0000:00:02.0: [drm] Available shader model: Legacy.
+[    5.516727] [drm] Initialized vmwgfx 2.20.0 20211206 for 0000:00:02.0 on minor 0
+[    5.525297] fbcon: vmwgfxdrmfb (fb0) is primary device
+[    5.564480] vmwgfx 0000:00:02.0: [drm] fb0: vmwgfxdrmfb frame buffer device
+[    5.765524] 17:13:37.670225 main     VMSVGA DRM resizing client not started, rc=VERR_FILE_NOT_FOUND
+[  198.423540] UBSAN: array-index-out-of-bounds in /build/linux-Vq2nTS/linux-6.8.0/drivers/virt/vboxguest/vboxguest_utils.c:367:20
+[  198.423617]  hgcm_call_init_linaddr.part.0+0x1b0/0x1d0 [vboxguest]
+[  198.423640]  vbg_hgcm_call+0x1f8/0x3d0 [vboxguest]
+[  198.423650]  vbg_ioctl_hgcm_call+0x129/0x270 [vboxguest]
+[  198.423654]  vbg_core_ioctl+0x5a0/0x6f0 [vboxguest]
+[  198.423666]  vbg_misc_device_ioctl+0x18e/0x2c0 [vboxguest]
+vboxsf                 45056  0
+vmwgfx                450560  1
+drm_ttm_helper         12288  1 vmwgfx
+ttm                   110592  2 vmwgfx,drm_ttm_helper
+vboxguest              57344  7 vboxsf
+total 0
+drwxr-xr-x  2 root root         80 nov  6 14:13 by-path
+crw-rw----+ 1 root video  226,   0 nov  6 14:13 card0
+crw-rw----+ 1 root render 226, 128 nov  6 14:13 renderD128
+===== Xorg (EE/WW)
+	(WW) warning, (EE) error, (NI) not implemented, (??) unknown.
+[     6.483] (WW) The directory "/usr/share/fonts/X11/misc" does not exist.
+[     6.483] (WW) The directory "/usr/share/fonts/X11/cyrillic" does not exist.
+[     6.483] (WW) The directory "/usr/share/fonts/X11/100dpi/" does not exist.
+[     6.483] (WW) The directory "/usr/share/fonts/X11/75dpi/" does not exist.
+[     6.483] (WW) The directory "/usr/share/fonts/X11/Type1" does not exist.
+[     6.483] (WW) The directory "/usr/share/fonts/X11/100dpi" does not exist.
+[     6.483] (WW) The directory "/usr/share/fonts/X11/75dpi" does not exist.
+[     6.481] (==) Using config directory: "/etc/X11/xorg.conf.d"
+[     6.481] (==) Using system config directory "/usr/share/X11/xorg.conf.d"
+[     6.481] (==) No Layout section.  Using the first Screen section.
+[     6.481] (==) No screen section available. Using defaults.
+	Using the first device section listed.
+	Using a default monitor configuration.
+[     6.504] (II) LoadModule: "modesetting"
+[     6.505] (II) Loading /usr/lib/xorg/modules/drivers/modesetting_drv.so
+[     6.506] (II) Module modesetting: vendor="X.Org Foundation"
+[     6.506] (II) modesetting: Driver for Modesetting Kernel Drivers: kms
+[     6.509] (II) modeset(0): using drv /dev/dri/card0
+[     6.509] (II) modeset(0): Creating default Display subsection in Screen section
+[     6.509] (==) modeset(0): Depth 24, (==) framebuffer bpp 32
+[     6.509] (==) modeset(0): RGB weight 888
+[     6.509] (==) modeset(0): Default visual is TrueColor
+[     6.821] (II) modeset(0): Refusing to try glamor on llvmpipe
+[     6.824] (II) modeset(0): glamor initialization failed
+[     6.824] (II) modeset(0): ShadowFB: preferred NO, enabled NO
+[     6.825] (II) modeset(0): Output Virtual-1 has no monitor section
+[     6.825] (II) modeset(0): Output Virtual-2 has no monitor section
+[     6.825] (II) modeset(0): Output Virtual-3 has no monitor section
+[     6.825] (II) modeset(0): Output Virtual-4 has no monitor section
+[     6.825] (II) modeset(0): Output Virtual-5 has no monitor section
+[     6.826] (II) modeset(0): Output Virtual-6 has no monitor section
+[     6.826] (II) modeset(0): Output Virtual-7 has no monitor section
+[     6.826] (II) modeset(0): Output Virtual-8 has no monitor section
+[     6.827] (II) modeset(0): EDID for output Virtual-1
+[     6.827] (II) modeset(0): Printing probed modes for output Virtual-1
+[     6.827] (II) modeset(0): Modeline "1280x800"x60.0   81.51  1280 1330 1380 1430  800 850 900 950 -hsync +vsync (57.0 kHz eP)
+[     6.827] (II) modeset(0): Modeline "4096x2160"x60.0  556.74  4096 4104 4136 4176  2160 2208 2216 2222 +hsync -vsync (133.3 kHz e)
+===== Xorg anterior (Xorg.0.log.old)
+===== LightDM
+[+0.00s] DEBUG: Logging to /var/log/lightdm/lightdm.log
+[+0.00s] DEBUG: Starting Light Display Manager 1.30.0, UID=0 PID=820
+[+0.00s] DEBUG: Loading configuration dirs from /usr/share/lightdm/lightdm.conf.d
+[+0.00s] DEBUG: Loading configuration from /usr/share/lightdm/lightdm.conf.d/50-disable-guest.conf
+[+0.00s] DEBUG: Loading configuration from /usr/share/lightdm/lightdm.conf.d/50-disable-log-backup.conf
+[+0.00s] DEBUG: Loading configuration from /usr/share/lightdm/lightdm.conf.d/50-greeter-wrapper.conf
+[+0.00s] DEBUG: Loading configuration from /usr/share/lightdm/lightdm.conf.d/50-guest-wrapper.conf
+[+0.00s] DEBUG: Loading configuration from /usr/share/lightdm/lightdm.conf.d/50-xserver-command.conf
+[+0.00s] DEBUG: Loading configuration from /usr/share/lightdm/lightdm.conf.d/60-lightdm-gtk-greeter.conf
+[+0.00s] DEBUG: Loading configuration dirs from /usr/local/share/lightdm/lightdm.conf.d
+[+0.00s] DEBUG: Loading configuration dirs from /etc/xdg/lightdm/lightdm.conf.d
+[+0.00s] DEBUG: Loading configuration from /etc/lightdm/lightdm.conf.d/50-devops-lab.conf
+[+0.00s] DEBUG: Loading configuration from /etc/lightdm/lightdm.conf
+[+0.00s] DEBUG: Registered seat module local
+[+0.00s] DEBUG: Registered seat module xremote
+[+0.00s] DEBUG: Using D-Bus name org.freedesktop.DisplayManager
+[+0.00s] DEBUG: Using cross-namespace EXTERNAL authentication (this will deadlock if server is GDBus < 2.73.3)
+[+0.00s] DEBUG: _g_io_module_get_default: Found default implementation local (GLocalVfs) for ‘gio-vfs’
+[+0.00s] DEBUG: Monitoring logind for seats
+[+0.00s] DEBUG: New seat added from logind: seat0
+[+0.00s] DEBUG: Seat seat0: Loading properties from config section Seat:*
+[+0.00s] DEBUG: Seat seat0 has property CanMultiSession=no
+[+0.00s] DEBUG: Seat seat0: Starting
+[+0.00s] DEBUG: Seat seat0: Creating user session
+[+0.01s] WARNING: Error getting user list from org.freedesktop.Accounts: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.Accounts was not provided by any .service files
+[+0.01s] DEBUG: Loading user config from /etc/lightdm/users.conf
+[+0.01s] DEBUG: User aluno added
+[+0.01s] DEBUG: Seat seat0: Creating display server of type x
+[+0.01s] DEBUG: Using VT 7
+[+0.01s] DEBUG: Seat seat0: Starting local X display on VT 7
+[+0.01s] DEBUG: XServer 0: Logging to /var/log/lightdm/x-0.log
+[+0.01s] DEBUG: XServer 0: Writing X server authority to /var/run/lightdm/root/:0
+[+0.01s] DEBUG: XServer 0: Launching X Server
+[+0.01s] DEBUG: Launching process 830: /usr/bin/X -core :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 -novtswitch
+[+0.01s] DEBUG: XServer 0: Waiting for ready signal from X server :0
+[+0.01s] DEBUG: Acquired bus name org.freedesktop.DisplayManager
+[+0.01s] DEBUG: Registering seat with bus path /org/freedesktop/DisplayManager/Seat0
+[+0.77s] DEBUG: Got signal 10 from process 830
+[+0.77s] DEBUG: XServer 0: Got signal from X server :0
+[+0.77s] DEBUG: XServer 0: Connecting to XServer :0
+[+0.79s] DEBUG: Seat seat0: Display server ready, starting session authentication
+[+0.79s] DEBUG: Session pid=849: Started with service 'lightdm-autologin', username 'aluno'
+[+0.81s] DEBUG: Session pid=849: Authentication complete with return value 0: Success
+[+0.81s] DEBUG: Seat seat0: Session authenticated, running command
+[+0.81s] DEBUG: Registering session with bus path /org/freedesktop/DisplayManager/Session0
+[+0.81s] DEBUG: Session pid=849: Running command /usr/sbin/lightdm-session startxfce4
+[+0.81s] DEBUG: Creating shared data directory /var/lib/lightdm-data/aluno
+[+0.81s] DEBUG: Session pid=849: Logging to .xsession-errors
+[+1.07s] DEBUG: Activating VT 7
+[+1.07s] DEBUG: Activating login1 session c1
+[+1.08s] DEBUG: Seat seat0 changes active session to c1
+[+1.08s] DEBUG: Session c1 is already active
+Current Operating System: Linux devops-lab 6.8.0-149-generic #149-Ubuntu SMP PREEMPT_DYNAMIC Fri Oct 23 13:21:10 UTC 2026 x86_64
+	(WW) warning, (EE) error, (NI) not implemented, (??) unknown.
+===== sessão (xsession-errors)
+dbus-update-activation-environment: setting XDG_CURRENT_DESKTOP=XFCE
+/etc/X11/Xsession.d/30x11-common_xresources: linha 16: has_option: comando não encontrado
+dbus-update-activation-environment: setting XDG_DATA_DIRS=/usr/share/xfce4:/usr/local/share/:/usr/share/
+/etc/X11/Xsession.d/75dbus_dbus-launch: linha 9: has_option: comando não encontrado
+/etc/X11/Xsession.d/90x11-common_ssh-agent: linha 9: has_option: comando não encontrado
+dbus-update-activation-environment: setting SHELL=/bin/bash
+dbus-update-activation-environment: setting XDG_CONFIG_DIRS=/etc/xdg/xdg-xfce:/etc/xdg
+dbus-update-activation-environment: setting DESKTOP_SESSION=xfce
+dbus-update-activation-environment: setting PWD=/home/aluno
+dbus-update-activation-environment: setting XDG_SESSION_DESKTOP=xfce
+dbus-update-activation-environment: setting LOGNAME=aluno
+dbus-update-activation-environment: setting XDG_SESSION_TYPE=x11
+dbus-update-activation-environment: setting GPG_AGENT_INFO=/run/user/1000/gnupg/S.gpg-agent:0:1
+dbus-update-activation-environment: setting XAUTHORITY=/home/aluno/.Xauthority
+dbus-update-activation-environment: setting XDG_GREETER_DATA_DIR=/var/lib/lightdm-data/aluno
+dbus-update-activation-environment: setting HOME=/home/aluno
+dbus-update-activation-environment: setting LANG=pt_BR.UTF-8
+dbus-update-activation-environment: setting XDG_CURRENT_DESKTOP=XFCE
+dbus-update-activation-environment: setting XDG_SESSION_CLASS=user
+dbus-update-activation-environment: setting USER=aluno
+dbus-update-activation-environment: setting DISPLAY=:0
+dbus-update-activation-environment: setting SHLVL=0
+dbus-update-activation-environment: setting XDG_RUNTIME_DIR=/run/user/1000
+dbus-update-activation-environment: setting XDG_DATA_DIRS=/usr/share/xfce4:/usr/local/share/:/usr/share/
+dbus-update-activation-environment: setting PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+dbus-update-activation-environment: setting GDMSESSION=xfce
+dbus-update-activation-environment: setting DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+dbus-update-activation-environment: setting _=/usr/bin/dbus-update-activation-environment
+
+(xfce4-session:869): dbind-WARNING **: 14:13:39.889: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+/usr/bin/iceauth:  creating new authority file /run/user/1000/ICEauthority
+gpg-agent: Um gpg-agent já está em execução - não será iniciado outro.
+
+(xfwm4:990): dbind-WARNING **: 14:13:40.008: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+(xfsettingsd:1012): dbind-WARNING **: 14:13:40.745: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+(xfce4-panel:1022): dbind-WARNING **: 14:13:41.020: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+(Thunar:1027): dbind-WARNING **: 14:13:41.096: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+(xfdesktop:1034): dbind-WARNING **: 14:13:41.225: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+(wrapper-2.0:1038): dbind-WARNING **: 14:13:41.352: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+** (xfdesktop:1034): WARNING **: 14:13:41.506: Thumbnailer failed calling GetFlavors
+
+(polkit-gnome-authentication-agent-1:1050): dbind-WARNING **: 14:13:41.690: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+(nm-applet:1043): dbind-WARNING **: 14:13:41.706: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+(polkit-gnome-authentication-agent-1:1050): GLib-CRITICAL **: 14:13:41.725: g_variant_new_string: assertion 'string != NULL' failed
+
+(polkit-gnome-authentication-agent-1:1050): polkit-gnome-1-WARNING **: 14:13:41.727: Failed to register client: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.gnome.SessionManager was not provided by any .service files
+
+(xfsettingsd:1057): dbind-WARNING **: 14:13:41.730: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+(wrapper-2.0:1189): dbind-WARNING **: 14:13:42.191: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+(wrapper-2.0:1200): dbind-WARNING **: 14:13:42.307: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+===== VBoxClient
+918 /usr/bin/VBoxClient --clipboard
+919 /usr/bin/VBoxClient --clipboard
+933 /usr/bin/VBoxClient --seamless
+934 /usr/bin/VBoxClient --seamless
+941 /usr/bin/VBoxClient --draganddrop
+942 /usr/bin/VBoxClient --draganddrop
+1006 /usr/bin/VBoxClient --vmsvga
+1007 /usr/bin/VBoxClient --vmsvga
+Unit vboxadd-service.service could not be found.
+● virtualbox-guest-utils.service - Virtualbox guest utils
+     Loaded: loaded (/usr/lib/systemd/system/virtualbox-guest-utils.service; enabled; preset: enabled)
+     Active: active (exited) since Fri 2026-11-06 14:13:37 -03; 3min 44s ago
+        CPU: 213ms
+
+nov 06 14:13:37 devops-lab virtualbox-guest-utils[749]: 17:13:37.652534 main     Package type: LINUX_64BITS_GENERIC (OSE)
+nov 06 14:13:37 devops-lab virtualbox-guest-utils[749]: 17:13:37.670225 main     VMSVGA DRM resizing client not started, rc=VERR_FILE_NOT_FOUND
+nov 06 14:13:37 devops-lab virtualbox-guest-utils[749]: 17:13:37.671454 main     7.0.16_Ubuntu r162802 started. Verbose level = 0
+nov 06 14:13:37 devops-lab systemd[1]: Started virtualbox-guest-utils.service - Virtualbox guest utils.
+nov 06 14:13:37 devops-lab virtualbox-guest-utils[624]:    ...done.
+nov 06 14:16:17 devops-lab VBoxService[760]: PAM unable to dlopen(pam_lastlog.so): /usr/lib/security/pam_lastlog.so: cannot open shared object file: No such file or directory
+nov 06 14:16:17 devops-lab VBoxService[760]: PAM adding faulty module: pam_lastlog.so
+nov 06 14:16:17 devops-lab VBoxService[760]: pam_loginuid(login:session): Error writing /proc/self/loginuid: Operation not permitted
+nov 06 14:16:17 devops-lab VBoxService[760]: pam_loginuid(login:session): set_loginuid failed
+nov 06 14:16:17 devops-lab VBoxService[760]: pam_unix(login:session): session opened for user aluno(uid=1000) by (uid=0)
+===== tela: proteção de tela / DPMS
+Screen Saver:
+  prefer blanking:  yes    allow exposures:  yes
+  timeout:  0    cycle:  600
+Colors:
+  default colormap:  0x20    BlackPixel:  0x0    WhitePixel:  0xffffff
+Font Path:
+  built-ins
+DPMS (Display Power Management Signaling):
+  DPMS is Disabled
+===== memória
+               total       usada       livre    compart.  buff/cache  disponível
+Mem.:           3915         836        2247           9        1064        3079
+Swap:           2047           0        2047
+ 14:17:22 up 3 min,  2 users,  load average: 1,23, 0,67, 0,29
+===== fluidez: CPU com a VM parada (top, 2 amostras de 5 s)
+top - 14:17:27 up 3 min,  2 users,  load average: 1,21, 0,67, 0,29
+Tarefas: 133 total,   1 em exec., 132 dormindo,   0 parado,   0 zumbi
+%CPU(s): 10,2 us, 26,3 sy,  1,4 ni, 60,2 id,  0,0 wa,  0,0 hi,  1,8 si,  0,0 st 
+MB mem :   3915,9 total,   2247,3 free,    836,4 used,   1064,5 buff/cache     
+MB swap:   2048,0 total,   2048,0 free,      0,0 used.   3079,5 avail mem 
+
+    PID USUARIO   PR  NI    VIRT    RES    SHR S  %CPU  %MEM    TEMPO+ COMANDO
+   2518 aluno     20   0  146992   3012   2776 S  42,3   0,1   0:02.24 VBoxService
+    760 root      20   0  360984   5984   4768 S   7,0   0,1   0:02.34 VBoxService
+    942 aluno     20   0  216128   3312   2864 S   5,6   0,1   0:02.64 VBoxClient
+    919 aluno     20   0  215512   4100   3568 S   4,4   0,1   0:01.71 VBoxClient
+   1220 jenkins   25   5 3200096 296092  27236 S   2,6   7,4   0:12.73 java
+    830 root      20   0  720728 125632  82792 S   0,6   3,1   0:01.56 Xorg
+   2525 aluno     20   0   13340   6772   4544 R   0,4   0,2   0:00.07 top
+     24 root      20   0       0      0      0 S   0,2   0,0   0:00.14 ksoftirqd/1
+    168 root      20   0       0      0      0 S   0,2   0,0   0:00.18 jbd2/sda2-8
+    640 polkitd   20   0  383516   9932   7784 S   0,2   0,2   0:00.16 polkitd
+    934 aluno     20   0  215612   3504   3000 S   0,2   0,1   0:00.36 VBoxClient
+    990 aluno     20   0  384744  41308  31152 S   0,2   1,0   0:00.59 xfwm4
+   1007 aluno     20   0  215712   4120   3424 S   0,2   0,1   0:00.18 VBoxClient
+   1058 aluno     20   0  187776  31624  12928 S   0,2   0,8   0:00.49 python3
+      1 root      20   0   21948  13068   9512 S   0,0   0,3   0:03.74 systemd
+      2 root      20   0       0      0      0 S   0,0   0,0   0:00.00 kthreadd
+      3 root      20   0       0      0      0 S   0,0   0,0   0:00.00 pool_workqueue_release
+      4 root       0 -20       0      0      0 I   0,0   0,0   0:00.00 kworker/R-rcu_g
+===== fluidez: vmstat (r = fila de CPU, wa = espera de disco, st = roubado pelo computador)
+procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu-------
+ r  b   swpd  livre   buff  cache   si   so    bi    bo   in   cs us sy id wa st gu
+ 0  0      0 2300952  31304 1058704    0    0  2076  3144 2186   16  9  8 82  0  0  0
+ 4  0      0 2300952  31304 1058744    0    0     0     0 6539 13535 11 28 61  0  0  0
+ 3  0      0 2300700  31304 1058744    0    0     0     0 6478 14127 12 27 61  0  0  0
+ 2  0      0 2300700  31312 1058744    0    0     0    18 6431 14139 13 27 60  0  0  0
+ 0  0      0 2300448  31312 1058744    0    0     0     0 6481 14157 12 28 60  0  0  0
+ 1  0      0 2300448  31312 1058744    0    0     0     0 6489 14283 12 27 61  0  0  0
+===== fluidez: compositor do XFCE
+use_compositing=true
+vblank_mode=xpresent
+sync_to_vblank=A propriedade "/general/sync_to_vblank" não existe no canal "xfwm4".
+show_frame_shadow=false
+show_popup_shadow=false
+show_dock_shadow=false
+frame_opacity=100
+move_opacity=100
+resize_opacity=100
+unredirect_overlays=true
+zoom_desktop=false
+===== fluidez: processos que acordam muito (lista de serviços ligados)
+cron.service
+dbus.service
+earlyoom.service
+getty@tty1.service
+jenkins.service
+lightdm.service
+NetworkManager.service
+polkit.service
+systemd-journald.service
+systemd-logind.service
+systemd-resolved.service
+systemd-udevd.service
+udisks2.service
+upower.service
+user@1000.service
+===== fluidez: tempo para desenhar (x11perf-like: xdotool + xwd 5 vezes)
+/usr/bin/time: cannot run xwd: No such file or directory
+Command exited with non-zero status 127
+0.00
+/usr/bin/time: cannot run xwd: No such file or directory
+Command exited with non-zero status 127
+0.00
+/usr/bin/time: cannot run xwd: No such file or directory
+Command exited with non-zero status 127
+0.00
+/usr/bin/time: cannot run xwd: No such file or directory
+Command exited with non-zero status 127
+0.00
+/usr/bin/time: cannot run xwd: No such file or directory
+Command exited with non-zero status 127
+0.00
+===== VBox.log: modo de execução (VT-x/AMD-V ou Hyper-V/NEM = tartaruga)
+00:00:00.951375 DMI Product Version: Hyper-V UEFI Release v4.1
+00:00:00.994277   UseNEMInstead           <integer> = 0x0000000000000000 (0)
+00:00:00.994278 [/NEM/] (level 1)
+00:00:00.994362 HM: HMR3Init: AMD-V w/ nested paging
+00:00:01.050136 HM: Using AMD-V implementation 2.0
+00:00:01.050139 HM: AMD-V revision                    = 0x1
+00:00:01.050140 HM: AMD-V max ASID                    = 32768
+00:00:01.050140 HM: AMD-V features                    = 0x294f9
+00:00:01.050154 HM:   Enabled nested paging
+00:00:01.050158 HM: VT-x/AMD-V init method: Global
+00:00:01.050158 HM: VT-x/AMD-V enable method: Host API
+00:00:01.056249   Mnemonic - Description                                  = Guest (Host)
+00:00:01.056285   Mnemonic - Description                                  = Guest (Host)
+00:00:01.056318   Mnemonic - Description                                  = Guest (Host)
+00:00:01.056368   Mnemonic - Description                                  = Guest (Host)
+00:00:01.056393   Mnemonic - Description                                  = Guest (Host)
+00:00:01.056393   NP - Nested Paging                                      = 0 (1)
+00:00:01.056409   Mnemonic - Description                                  = Guest (Host)
+00:00:01.056416   Mnemonic - Description                                  = Guest (Host)
+00:00:04.954915 TM: Switching TSC mode from 'VirtTSCEmulated' to 'RealTSCOffset'

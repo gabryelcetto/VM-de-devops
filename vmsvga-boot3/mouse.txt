@@ -1,0 +1,169 @@
+===== VBox.log: mouse / USB tablet / Guest Additions
+00:00:00.770462   Driver <string>  = "MouseQueue" (cb=11)
+00:00:00.770463   Driver <string>  = "MainMouse" (cb=10)
+00:00:00.770557 [/USB/HidMouse/] (level 2)
+00:00:00.770558 [/USB/HidMouse/0/] (level 3)
+00:00:00.770559 [/USB/HidMouse/0/Config/] (level 4)
+00:00:00.770560   Mode <string>  = "absolute" (cb=9)
+00:00:00.770561 [/USB/HidMouse/0/LUN#0/] (level 4)
+00:00:00.770561   Driver <string>  = "MouseQueue" (cb=11)
+00:00:00.770562 [/USB/HidMouse/0/LUN#0/AttachedDriver/] (level 5)
+00:00:00.770563   Driver <string>  = "MainMouse" (cb=10)
+00:00:00.770563 [/USB/HidMouse/0/LUN#0/Config/] (level 5)
+00:00:00.831069 VUSB: Attached 'HidMouse' to port 1 on RootHub#0 (FullSpeed)
+00:00:09.399285 VMMDev: Guest Additions information report: Version 6.0.0 r127566 '6.0.0'
+00:00:09.399327 VMMDev: Guest Additions information report: Interface = 0x00010004 osType = 0x00053100 (Linux >= 2.6, 64-bit)
+00:00:09.399405 VMMDev: Guest Additions capability report: (0x0 -> 0x0) seamless: no, hostWindowMapping: no, graphics: no
+00:00:11.692384 VMMDev: Guest Additions capability report: (0x0 -> 0x1) seamless: yes, hostWindowMapping: no, graphics: no
+00:00:12.273229 VMMDev: Guest Additions capability report: (0x1 -> 0x5) seamless: yes, hostWindowMapping: no, graphics: yes
+===== /proc/bus/input/devices
+I: Bus=0019 Vendor=0000 Product=0001 Version=0000
+N: Name="Power Button"
+P: Phys=LNXPWRBN/button/input0
+S: Sysfs=/devices/LNXSYSTM:00/LNXPWRBN:00/input/input0
+U: Uniq=
+H: Handlers=kbd event0 
+B: PROP=0
+B: EV=3
+B: KEY=8000 10000000000000 0
+
+I: Bus=0019 Vendor=0000 Product=0003 Version=0000
+N: Name="Sleep Button"
+P: Phys=LNXSLPBN/button/input0
+S: Sysfs=/devices/LNXSYSTM:00/LNXSLPBN:00/input/input1
+U: Uniq=
+H: Handlers=kbd event1 
+B: PROP=0
+B: EV=3
+B: KEY=4000 0 0
+
+I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
+N: Name="AT Translated Set 2 keyboard"
+P: Phys=isa0060/serio0/input0
+S: Sysfs=/devices/platform/i8042/serio0/input/input2
+U: Uniq=
+H: Handlers=sysrq kbd event2 leds 
+B: PROP=0
+B: EV=120013
+B: KEY=402000002 3803078f800d001 feffffdfffefffff fffffffffffffffe
+B: MSC=10
+B: LED=7
+
+I: Bus=0011 Vendor=0002 Product=0006 Version=0000
+N: Name="ImExPS/2 Generic Explorer Mouse"
+P: Phys=isa0060/serio1/input0
+S: Sysfs=/devices/platform/i8042/serio1/input/input4
+U: Uniq=
+H: Handlers=mouse0 event3 
+B: PROP=1
+B: EV=7
+B: KEY=1f0000 0 0 0 0
+B: REL=143
+
+I: Bus=0003 Vendor=80ee Product=0021 Version=0110
+N: Name="VirtualBox USB Tablet"
+P: Phys=usb-0000:00:06.0-1/input0
+S: Sysfs=/devices/pci0000:00/0000:00:06.0/usb1/1-1/1-1:1.0/0003:80EE:0021.0001/input/input5
+U: Uniq=
+H: Handlers=mouse1 event4 js0 
+B: PROP=0
+B: EV=1f
+B: KEY=1f0000 0 0 0 0
+B: REL=1940
+B: ABS=3
+B: MSC=10
+
+I: Bus=0019 Vendor=0000 Product=0006 Version=0000
+N: Name="Video Bus"
+P: Phys=LNXVIDEO/video/input0
+S: Sysfs=/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A03:00/LNXVIDEO:00/input/input6
+U: Uniq=
+H: Handlers=kbd event5 
+B: PROP=0
+B: EV=3
+B: KEY=3e000b00000000 0 0 0
+
+I: Bus=0001 Vendor=80ee Product=cafe Version=0000
+N: Name="VirtualBox mouse integration"
+P: Phys=
+S: Sysfs=/devices/pci0000:00/0000:00:04.0/input/input7
+U: Uniq=
+H: Handlers=mouse2 event6 js1 
+B: PROP=0
+B: EV=b
+B: KEY=10000 0 0 0 0
+B: ABS=3
+
+===== xinput list
+⎡ Virtual core pointer                    	id=2	[master pointer  (3)]
+⎜   ↳ Virtual core XTEST pointer              	id=4	[slave  pointer  (2)]
+⎜   ↳ VirtualBox mouse integration            	id=9	[slave  pointer  (2)]
+⎜   ↳ VirtualBox USB Tablet                   	id=10	[slave  pointer  (2)]
+⎜   ↳ ImExPS/2 Generic Explorer Mouse         	id=12	[slave  pointer  (2)]
+⎣ Virtual core keyboard                   	id=3	[master keyboard (2)]
+    ↳ Virtual core XTEST keyboard             	id=5	[slave  keyboard (3)]
+    ↳ Power Button                            	id=6	[slave  keyboard (3)]
+    ↳ Sleep Button                            	id=7	[slave  keyboard (3)]
+    ↳ Video Bus                               	id=8	[slave  keyboard (3)]
+    ↳ AT Translated Set 2 keyboard            	id=11	[slave  keyboard (3)]
+===== Xorg: dispositivos de entrada
+[     5.553] (==) Automatically adding devices
+[     5.553] (==) Automatically adding GPU devices
+[     5.554] (II) The server relies on udev to provide the list of input devices.
+[     5.554] 	X.Org XInput driver : 24.4
+[     5.559] (II) xfree86: Adding drm device (/dev/dri/card0)
+[     5.845] (==) modeset(0): Silken mouse enabled
+[     5.847] (II) Initializing extension XInputExtension
+[     5.934] (II) config/udev: Adding input device Power Button (/dev/input/event0)
+[     5.934] (**) Power Button: Applying InputClass "libinput keyboard catchall"
+[     5.934] (II) LoadModule: "libinput"
+[     5.934] (II) Loading /usr/lib/xorg/modules/input/libinput_drv.so
+[     5.938] (II) Module libinput: vendor="X.Org Foundation"
+[     5.938] 	Module class: X.Org XInput Driver
+[     5.938] 	ABI class: X.Org XInput driver, version 24.4
+[     5.938] (II) Using input driver 'libinput' for 'Power Button'
+[     5.938] (**) Option "Device" "/dev/input/event0"
+[     5.954] (**) Option "config_info" "udev:/sys/devices/LNXSYSTM:00/LNXPWRBN:00/input/input0/event0"
+[     5.954] (II) XINPUT: Adding extended input device "Power Button" (type: KEYBOARD, id 6)
+[     5.973] (II) config/udev: Adding input device Sleep Button (/dev/input/event1)
+[     5.973] (**) Sleep Button: Applying InputClass "libinput keyboard catchall"
+[     5.973] (II) Using input driver 'libinput' for 'Sleep Button'
+[     5.973] (**) Option "Device" "/dev/input/event1"
+[     5.980] (**) Option "config_info" "udev:/sys/devices/LNXSYSTM:00/LNXSLPBN:00/input/input1/event1"
+[     5.980] (II) XINPUT: Adding extended input device "Sleep Button" (type: KEYBOARD, id 7)
+[     5.982] (II) config/udev: Adding input device Video Bus (/dev/input/event5)
+[     5.982] (**) Video Bus: Applying InputClass "libinput keyboard catchall"
+[     5.982] (II) Using input driver 'libinput' for 'Video Bus'
+[     5.982] (**) Option "Device" "/dev/input/event5"
+[     5.995] (**) Option "config_info" "udev:/sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A03:00/LNXVIDEO:00/input/input6/event5"
+[     5.995] (II) XINPUT: Adding extended input device "Video Bus" (type: KEYBOARD, id 8)
+[     5.998] (II) config/udev: Adding input device VirtualBox mouse integration (/dev/input/event6)
+[     5.998] (**) VirtualBox mouse integration: Applying InputClass "libinput pointer catchall"
+[     5.998] (II) Using input driver 'libinput' for 'VirtualBox mouse integration'
+[     5.998] (**) VirtualBox mouse integration: always reports core events
+[     5.998] (**) Option "Device" "/dev/input/event6"
+[     5.999] (II) event6  - VirtualBox mouse integration: is tagged by udev as: Mouse
+[     5.999] (II) event6  - VirtualBox mouse integration: device is a pointer
+[     5.999] (II) event6  - VirtualBox mouse integration: device removed
+[     6.011] (**) Option "config_info" "udev:/sys/devices/pci0000:00/0000:00:04.0/input/input7/event6"
+[     6.011] (II) XINPUT: Adding extended input device "VirtualBox mouse integration" (type: MOUSE, id 9)
+[     6.011] (**) VirtualBox mouse integration: (accel) selected scheme none/0
+[     6.011] (**) VirtualBox mouse integration: (accel) acceleration factor: 2.000
+[     6.011] (**) VirtualBox mouse integration: (accel) acceleration threshold: 4
+[     6.012] (II) event6  - VirtualBox mouse integration: is tagged by udev as: Mouse
+[     6.012] (II) event6  - VirtualBox mouse integration: device is a pointer
+[     6.013] (II) config/udev: Adding input device VirtualBox mouse integration (/dev/input/js1)
+[     6.013] (II) No input driver specified, ignoring this device.
+[     6.013] (II) config/udev: Adding input device VirtualBox mouse integration (/dev/input/mouse2)
+[     6.013] (II) No input driver specified, ignoring this device.
+[     6.014] (II) config/udev: Adding input device VirtualBox USB Tablet (/dev/input/event4)
+[     6.014] (**) VirtualBox USB Tablet: Applying InputClass "libinput pointer catchall"
+[     6.014] (II) Using input driver 'libinput' for 'VirtualBox USB Tablet'
+[     6.014] (**) VirtualBox USB Tablet: always reports core events
+[     6.014] (**) Option "Device" "/dev/input/event4"
+[     6.070] (II) event4  - VirtualBox USB Tablet: is tagged by udev as: Mouse
+[     6.070] (II) event4  - VirtualBox USB Tablet: device is a pointer
+[     6.070] (II) event4  - VirtualBox USB Tablet: device removed
+[     6.085] (**) Option "config_info" "udev:/sys/devices/pci0000:00/0000:00:06.0/usb1/1-1/1-1:1.0/0003:80EE:0021.0001/input/input5/event4"
+[     6.085] (II) XINPUT: Adding extended input device "VirtualBox USB Tablet" (type: MOUSE, id 10)
+[     6.085] (**) VirtualBox USB Tablet: (accel) selected scheme none/0

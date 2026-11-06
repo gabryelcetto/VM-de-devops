@@ -1,0 +1,49 @@
+memory=4096
+vram=128
+cpus=2
+graphicscontroller="vmsvga"
+hidpointing="usbtablet"
+hidkeyboard="ps2kbd"
+usb="on"
+
+======== vmsvga boot 1 ========
+login automático em: 14s | segundos com a janela preta: 148 | última vez preta: t=150s
+tela 25 s depois do login: 1 0 (cores brilho)
+janela da VM no computador (x y larg alt): 320 159 1279 840
+mouse do computador em (639,453) [0.25x 0.35y da janela] -> ponteiro dentro da VM: x:320 y:276 screen:0 window:20971539 
+mouse do computador em (1215,663) [0.70x 0.60y da janela] -> ponteiro dentro da VM: x:896 y:486 screen:0 window:20971539 
+mouse do computador em (959,327) [0.50x 0.20y da janela] -> ponteiro dentro da VM: x:640 y:150 screen:0 window:20971539 
+depois de pedir 1366x768: 14194 19 | xrandr: current 1366 x 768
+depois de pedir 1280x800: 14257 19 | xrandr: current 1280 x 800
+desligou pelo botão (ACPI)
+
+======== vmsvga boot 2 ========
+login automático em: 2s | segundos com a janela preta: 148 | última vez preta: t=150s
+tela 25 s depois do login: 1 0 (cores brilho)
+janela da VM no computador (x y larg alt): 234 159 1280 841
+mouse do computador em (554,453) [0.25x 0.35y da janela] -> ponteiro dentro da VM: x:321 y:276 screen:0 window:20971539 
+mouse do computador em (1130,663) [0.70x 0.60y da janela] -> ponteiro dentro da VM: x:897 y:486 screen:0 window:20971539 
+mouse do computador em (874,327) [0.50x 0.20y da janela] -> ponteiro dentro da VM: x:641 y:150 screen:0 window:20971539 
+depois de pedir 1366x768: 14201 19 | xrandr: current 1366 x 768
+depois de pedir 1280x800: 14272 19 | xrandr: current 1280 x 800
+
+======== vmsvga boot 3 ========
+login automático em: 2s | segundos com a janela preta: 148 | última vez preta: t=150s
+tela 25 s depois do login: 1 0 (cores brilho)
+janela da VM no computador (x y larg alt): 234 159 1280 841
+mouse do computador em (554,453) [0.25x 0.35y da janela] -> ponteiro dentro da VM: x:321 y:276 screen:0 window:20971539 
+mouse do computador em (1130,663) [0.70x 0.60y da janela] -> ponteiro dentro da VM: x:897 y:486 screen:0 window:20971539 
+mouse do computador em (874,327) [0.50x 0.20y da janela] -> ponteiro dentro da VM: x:641 y:150 screen:0 window:20971539 
+depois de pedir 1366x768: 14234 19 | xrandr: current 1366 x 768
+depois de pedir 1280x800: 14304 19 | xrandr: current 1280 x 800
+desligou pelo botão (ACPI)
+
+======== vmsvga boot 4 ========
+login automático em: 2s | segundos com a janela preta: 148 | última vez preta: t=150s
+tela 25 s depois do login: 1 0 (cores brilho)
+janela da VM no computador (x y larg alt): 234 159 1280 841
+mouse do computador em (554,453) [0.25x 0.35y da janela] -> ponteiro dentro da VM: x:321 y:276 screen:0 window:20971539 
+mouse do computador em (1130,663) [0.70x 0.60y da janela] -> ponteiro dentro da VM: x:897 y:486 screen:0 window:20971539 
+mouse do computador em (874,327) [0.50x 0.20y da janela] -> ponteiro dentro da VM: x:641 y:150 screen:0 window:20971539 
+depois de pedir 1366x768: 14245 19 | xrandr: current 1366 x 768
+depois de pedir 1280x800: 14314 19 | xrandr: current 1280 x 800
