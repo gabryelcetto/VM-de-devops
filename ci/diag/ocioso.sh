@@ -13,6 +13,7 @@ gsh()  { timeout 300 VBoxManage guestcontrol "$VM" run --username aluno --passwo
   --wait-stdout --wait-stderr --timeout 280000 -- /bin/bash -lc "$1" 2>&1; }
 gcopy_to()   { VBoxManage guestcontrol "$VM" copyto --username aluno --password devops "$1" "$2" >/dev/null 2>&1; }
 gcopy_from() { VBoxManage guestcontrol "$VM" copyfrom --username aluno --password devops "$1" "$2" >/dev/null 2>&1; }
+# shellcheck disable=SC2034
 XENV='export DISPLAY=:0 XAUTHORITY=/home/aluno/.Xauthority DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u)/bus;'
 SUDO="echo devops | sudo -S -p ''"
 pid_vm() { pgrep -f 'VirtualBoxVM|VBoxHeadless' | head -n 1; }
@@ -26,7 +27,7 @@ medir() { # $1 = nome do passo
   pid="$(pid_vm)"; sleep 20; h1=$(cpu_proc "$pid"); sleep 30; h2=$(cpu_proc "$pid")
   for _ in $(seq 1 20); do gsh "test -e /tmp/medida-$n.txt.ok && echo pronto" | grep -q pronto && break; sleep 2; done
   # timers: 10 s, destacado, começando 15 s depois (sem o guestcontrol ativo)
-  gsh "$SUDO setsid -f bash -c 'sleep 15; bash /tmp/rastrear-timers.sh 10 /tmp/timers-$n.txt' >/dev/null 2>&1 < /dev/null; echo ok" >/dev/null
+  gsh "setsid -f bash -c \"sleep 15; echo devops | sudo -S -p '' bash /tmp/rastrear-timers.sh 10 /tmp/timers-$n.txt\" >/dev/null 2>&1 < /dev/null; echo ok" >/dev/null
   sleep 30
   for _ in $(seq 1 20); do gsh "test -e /tmp/timers-$n.txt.ok && echo pronto" | grep -q pronto && break; sleep 2; done
   gcopy_from "/tmp/medida-$n.txt" "$OUT/medida-$n.txt"
@@ -61,21 +62,18 @@ VBoxManage controlvm "$VM" setvideomodehint 1280 800 32; sleep 10
 gsh "docker images -q | wc -l" >/dev/null
 gsh "$SUDO systemctl start devops-lab-apt-update.service; echo ok" >/dev/null
 
-medir 0-como-no-teste
-[ -n "$WID" ] && xdotool mousemove 5 5
-medir 1-mouse-fora-da-janela
-gsh "$SUDO systemctl stop docker.service docker.socket containerd.service; echo ok" >/dev/null
-medir 2-sem-docker
-VBoxManage controlvm "$VM" setvideomodehint 1024 768 32; sleep 10
-medir 3-tela-1024x768
-gsh "$XENV xfconf-query -c xfwm4 -p /general/use_compositing -s false; echo ok" >/dev/null
-medir 4-sem-compositor
-gsh "pkill -f 'VBoxClient [-]-seamless'; pkill -f 'VBoxClient [-]-clipboard'; pkill -f 'VBoxClient [-]-vmsvga'; pkill -f 'VBoxClient [-]-checkhostversion'; echo ok" >/dev/null
-medir 5-sem-vboxclient
-gsh "pkill -f '[p]ainel.py'; $SUDO systemctl stop earlyoom; echo ok" >/dev/null
-medir 6-sem-painel-earlyoom
-gsh "$XENV xfce4-panel --quit; pkill xfdesktop; echo ok" >/dev/null
-medir 7-sem-painel-xfce-e-desktop
+medir 0-boot1
+gsh "systemctl --no-pager list-units --state=running --type=service | head -n 40; systemd-analyze blame | head -n 15" > "$OUT/servicos-boot1.txt" 2>&1
+VBoxManage controlvm "$VM" acpipowerbutton; for _ in $(seq 1 60); do VBoxManage showvminfo "$VM" --machinereadable | grep -q '^VMState="poweroff"' && break; sleep 3; done
+VBoxManage controlvm "$VM" poweroff >/dev/null 2>&1; sleep 3
+VBoxManage guestproperty unset "$VM" /VirtualBox/GuestInfo/OS/LoggedInUsers >/dev/null 2>&1
+VBoxManage startvm "$VM" --type gui >/dev/null 2>&1 || VBoxManage startvm "$VM" --type headless >/dev/null
+for t in $(seq 5 5 600); do sleep 5; u="$(prop /VirtualBox/GuestInfo/OS/LoggedInUsers)"; [ -n "$u" ] && [ "$u" != "0" ] && { log "boot2: login em ${t}s"; break; }; done
+sleep 150
+gsh "systemctl --no-pager list-units --state=running --type=service | head -n 40" > "$OUT/servicos-boot2.txt" 2>&1
+medir 1-boot2
+sleep 240
+medir 2-boot2-mais-tarde
 VBoxManage controlvm "$VM" poweroff >/dev/null 2>&1; sleep 3
 cp "$HOME/VirtualBox VMs/$VM/Logs/VBox.log" "$OUT/VBox.log" 2>/dev/null || true
 VBoxManage unregistervm "$VM" --delete >/dev/null 2>&1 || true
