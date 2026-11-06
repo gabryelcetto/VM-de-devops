@@ -32,13 +32,16 @@ jobs:
           wget -qO- https://www.virtualbox.org/download/oracle_vbox_2016.asc | sudo gpg --dearmor -o /usr/share/keyrings/oracle-virtualbox-2016.gpg
           echo "deb [arch=amd64 signed-by=/usr/share/keyrings/oracle-virtualbox-2016.gpg] https://download.virtualbox.org/virtualbox/debian noble contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
           sudo apt-get update
-          sudo apt-get install -y "linux-headers-$(uname -r)" build-essential virtualbox-7.2 imagemagick
+          sudo apt-get install -y "linux-headers-$(uname -r)" build-essential virtualbox-7.2 imagemagick xvfb xdotool
           sudo /sbin/vboxconfig
       - name: Testar a VM
         id: test
         run: |
           set +e
-          bash ci/test-ova-virtualbox.sh final/DevOps-Lab.ova resultados
+          # Com janela, num X virtual: é como o aluno usa (pega tela preta e mouse)
+          Xvfb :99 -screen 0 1600x1000x24 >/dev/null 2>&1 &
+          sleep 2
+          DISPLAY=:99 VBOX_TIPO=gui bash ci/test-ova-virtualbox.sh final/DevOps-Lab.ova resultados
           echo "fails=$?" >> "$GITHUB_OUTPUT"
           exit 0
       - name: Publicar resultados (branch test-results)

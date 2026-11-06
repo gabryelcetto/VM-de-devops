@@ -97,6 +97,15 @@ install -D -m 0644 "$G/lightdm-gtk-greeter.conf" /etc/lightdm/lightdm-gtk-greete
 
 chown -R "${LAB_USER}:${LAB_USER}" "$HOME_DIR"
 
+# ---------------------------------------------------------------- integração com o VirtualBox
+# Arrastar-e-soltar entre o computador e a VM fica desligado: o VBoxClient --draganddrop
+# acorda a VM ~280 vezes por segundo mesmo parado (medido), o que pesa muito no VirtualBox
+# com Hyper-V. Copiar/colar (--clipboard) continua ligado. É um conffile: o apt preserva.
+XC=/etc/X11/Xsession.d/98vboxadd-xclient
+sed -i 's|^\([[:space:]]*/usr/bin/VBoxClient --draganddrop.*\)$|  # DevOps-Lab: desligado (pesa na VM parada)  \1|' "$XC"
+grep -q '^[[:space:]]*/usr/bin/VBoxClient --clipboard' "$XC"
+! grep -q '^[[:space:]]*/usr/bin/VBoxClient --draganddrop' "$XC"
+
 # ---------------------------------------------------------------- conferências
 test -s /usr/share/backgrounds/xfce/xfce-shapes.svg
 fc-list > /tmp/fontes.txt

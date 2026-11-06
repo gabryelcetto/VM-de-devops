@@ -143,20 +143,11 @@ touch /etc/ssh/.regenerar-chaves
 # Docker liga no primeiro uso (docker.socket), não no boot
 systemctl disable docker.service containerd.service
 systemctl enable docker.socket
-# Jenkins liga 45 s depois do boot, para não disputar CPU com a área de trabalho
-cat > /etc/systemd/system/jenkins-atrasado.timer <<'EOF'
-[Unit]
-Description=Liga o Jenkins logo depois que a área de trabalho abre
-
-[Timer]
-OnBootSec=45s
-Unit=jenkins.service
-
-[Install]
-WantedBy=timers.target
-EOF
+# Jenkins liga só quando o aluno usa (atalho "Jenkins" ou Painel DevOps → Ligar o Jenkins).
+# Ligar sozinho no boot ocupava os 2 processadores por 1-2 min justo quando a área de
+# trabalho abre, o que deixava a VM travando (muito pior no VirtualBox com Hyper-V).
 systemctl disable jenkins.service
-systemctl enable jenkins-atrasado.timer
+rm -f /etc/systemd/system/jenkins-atrasado.timer /etc/systemd/system/timers.target.wants/jenkins-atrasado.timer
 # Lista de pacotes do apt atualizada em segundo plano (3 min após o boot e a cada 12 h),
 # para "sudo apt install" funcionar sem erro mesmo sem "apt update"
 cat > /etc/systemd/system/devops-lab-apt-update.service <<'EOF'
@@ -203,7 +194,8 @@ python3 --version
 java -version
 firefox --version
 systemctl is-active jenkins
-systemctl is-enabled jenkins-atrasado.timer docker.socket devops-lab-apt-update.timer
+systemctl is-enabled docker.socket devops-lab-apt-update.timer
+! systemctl is-enabled --quiet jenkins.service   # Jenkins sob demanda
 sudo -u "${LAB_USER}" -H code --list-extensions | tee /tmp/extensoes.txt
 grep -qi ms-ceintl.vscode-language-pack-pt-br /tmp/extensoes.txt
 grep -qi hashicorp.terraform /tmp/extensoes.txt

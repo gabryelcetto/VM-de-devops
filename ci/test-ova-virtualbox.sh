@@ -87,7 +87,12 @@ VBoxManage showvminfo "$VM" --machinereadable > "$OUT/vminfo.txt"
 grep -E '^(ostype|memory|cpus|graphicscontroller|vram|nic1|storagecontrollertype0|storagecontrollerportcount0|ioapic|paravirtprovider|mouse|clipboard|draganddrop)=' "$OUT/vminfo.txt" | tee -a "$SUMMARY"
 
 # ---------------------------------------------------------------- 1º boot
-VBoxManage startvm "$VM" --type headless
+# Com janela (como o aluno usa) quando há um X (Xvfb no CI): a tela preta da VMSVGA só
+# aparecia com janela; em "headless" o teste passava e o defeito chegava ao aluno.
+TIPO="${VBOX_TIPO:-headless}"; [ -n "${DISPLAY:-}" ] || TIPO=headless
+log "Modo do VirtualBox no teste: $TIPO"
+VBoxManage setextradata global GUI/SuppressMessages "all" >/dev/null 2>&1 || true
+VBoxManage startvm "$VM" --type "$TIPO"
 wait_desktop "boot1" 900
 sleep 20
 
@@ -98,12 +103,37 @@ else
 fi
 
 # Ferramentas de print/inspeção da tela, só para o teste (esta VM é descartada depois)
-gsh "echo devops | sudo -S -p '' apt-get update -qq; echo devops | sudo -S -p '' apt-get install -y -qq x11-utils x11-apps >/dev/null; which xwd xwininfo" >> "$OUT/qa-detalhes.txt"
+gsh "echo devops | sudo -S -p '' apt-get update -qq; echo devops | sudo -S -p '' apt-get install -y -qq x11-utils x11-apps xdotool >/dev/null; which xwd xwininfo xdotool" >> "$OUT/qa-detalhes.txt"
 
 # ---------------------------------------------------------------- imagem na janela do VirtualBox
 # (sem redimensionar nada: é exatamente o que o aluno vê ao ligar a VM)
 CORES="$(print_vbox janela-virtualbox-1)"
 if [ "${CORES:-0}" -gt 100 ]; then ok "Janela do VirtualBox mostra a área de trabalho ($CORES cores)"; else bad "Janela do VirtualBox PRETA após o login ($CORES cores)"; fi
+
+# ---------------------------------------------------------------- mouse e janela (só com janela)
+if [ "$TIPO" = gui ] && command -v xdotool >/dev/null; then
+  W="$(xdotool search --name "^$VM" 2>/dev/null | tail -n 1)"
+  read -r WX WY WL WA < <(xdotool getwindowgeometry --shell "$W" 2>/dev/null | awk -F= '/^X=/{x=$2}/^Y=/{y=$2}/^WIDTH=/{l=$2}/^HEIGHT=/{a=$2}END{print x+0, y+0, l+0, a+0}')
+  MOK=0; MTXT=""
+  for pos in "0.25 0.40" "0.70 0.65"; do
+    read -r fx fy <<<"$pos"
+    hx=$(awk -v a="$WX" -v l="$WL" -v f="$fx" 'BEGIN{print int(a+l*f)}'); hy=$(awk -v a="$WY" -v l="$WA" -v f="$fy" 'BEGIN{print int(a+l*f)}')
+    xdotool mousemove "$hx" "$hy"; sleep 0.5; xdotool mousemove_relative 1 1; sleep 1.5
+    G="$(gsh "$XENV xdotool getmouselocation")"
+    gx=$(echo "$G" | sed -n 's/.*x:\([0-9]*\).*/\1/p'); gy=$(echo "$G" | sed -n 's/.*y:\([0-9]*\).*/\1/p')
+    # o ponteiro dentro da VM vai para o mesmo ponto da janela (descontando a barra de menu)
+    dx=$(( ${gx:-9999} - (hx + 1 - WX) )); dy=$(( ${gy:-9999} - (hy + 1 - WY) ))
+    [ "${dx#-}" -le 40 ] && [ "${dy#-}" -le 70 ] && MOK=$((MOK+1))
+    MTXT="$MTXT computador($hx,$hy)->VM(${gx:-?},${gy:-?})"
+  done
+  if [ "$MOK" = 2 ]; then ok "Integração do mouse: o ponteiro da VM segue o mouse do computador sem capturar ($MTXT)"; else bad "Integração do mouse: o ponteiro da VM não seguiu o mouse ($MTXT; janela $WX,$WY ${WL}x$WA)"; fi
+fi
+for res in "1366 768" "1280 800"; do
+  # shellcheck disable=SC2086
+  VBoxManage controlvm "$VM" setvideomodehint $res 32 >/dev/null 2>&1; sleep 12
+  CORES="$(print_vbox "janela-redimensionada-${res// /x}")"; ATUAL="$(gsh "$XENV xrandr --current | sed -n 's/.*current \\([0-9]*\\) x \\([0-9]*\\).*/\\1x\\2/p'")"
+  if [ "$ATUAL" = "${res// /x}" ] && [ "${CORES:-0}" -gt 100 ]; then ok "Janela redimensionada para ${res// /x}: a tela da VM acompanha e não fica preta"; else bad "Janela redimensionada para ${res// /x}: resolução '$ATUAL', $CORES cores"; fi
+done
 
 # ---------------------------------------------------------------- interface (logo após o login)
 CORES="$(print_tela tela-1-login)"
@@ -118,7 +148,7 @@ chk  "Painel com menu, atalhos, tarefas, bandeja e relógio" "$XENV xfconf-query
 chk  "Compositor leve ligado (janelas não deixam rastro ao arrastar)" "$XENV echo \$(xfconf-query -c xfwm4 -p /general/use_compositing) \$(xfconf-query -c xfwm4 -p /general/vblank_mode) \$(xfconf-query -c xfwm4 -p /general/show_frame_shadow)" "true xpresent false"
 chk  "Atalhos confiáveis na Área de Trabalho" "D=\$(xdg-user-dir DESKTOP); ls \"\$D\"; n=0; for f in \"\$D\"/*.desktop; do $XENV gio info -a metadata::xfce-exe-checksum \"\$f\" | grep -q checksum && n=\$((n+1)); done; echo confiaveis=\$n" "confiaveis=8"
 chk  "Teclado ABNT2 na interface" "$XENV setxkbmap -query" "layout: +br"
-chk  "Integração com o VirtualBox (VBoxClient)" "pgrep -a VBoxClient" "VBoxClient"
+chk  "Integração com o VirtualBox: copiar/colar e ajuste de tela ligados, arrastar/soltar desligado (leve)" "pgrep -a VBoxClient; echo clipboard=\$(pgrep -fc 'VBoxClient [-]-clipboard') tela=\$(pgrep -fc 'VBoxClient [-]-vmsvga') arrastar=\$(pgrep -fc 'VBoxClient [-]-draganddrop')" "clipboard=[1-9] tela=[1-9] arrastar=0"
 # (antes de qualquer teste baixar imagens: confere que vieram dentro do .ova)
 chk  "Imagens Docker já baixadas (nginx, python, alpine, hello-world)" "docker image inspect nginx:alpine python:3.12-slim alpine:latest hello-world:latest --format '{{.Id}}' | wc -l" "^4$"
 chk  "Imagens do monitoramento guardadas na VM (compactadas, íntegras)" "ls -la /opt/devops-lab/monitoramento/imagens.tar.zst && zstd -tq --long=27 /opt/devops-lab/monitoramento/imagens.tar.zst && echo integro" "integro"
@@ -132,13 +162,35 @@ nchk "Sem peso morto no .ova (cache de .vsix e Copilot embutido, que fica deslig
 R="$(grun /usr/local/bin/verificar-lab)"; echo "$R" > "$OUT/verificar-lab-1.txt"
 if echo "$R" | grep -q 'FALHA'; then bad "verificar-lab (logo após o login)"; else ok "verificar-lab (logo após o login) sem falhas"; fi
 
-# Jenkins liga sozinho ~45 s após o boot; espera até 8 min
+# ---------------------------------------------------------------- leveza (VM parada, como o aluno deixa)
+# Mede por dentro da VM sem o guestcontrol ativo (ele mesmo gasta CPU) e, junto, a CPU do
+# VirtualBox no computador: é o que pesa no VirtualBox com Hyper-V (tartaruga verde).
+# (a atualização da lista do apt roda sozinha 3 min após o boot: roda agora para não cair na medida)
+gsh "echo devops | sudo -S -p '' systemctl start devops-lab-apt-update.service" >/dev/null
+gcopy "$HERE/vm-tests/medir-ocioso.sh" /tmp/medir-ocioso.sh
+gsh "setsid -f bash /tmp/medir-ocioso.sh 20 30 /tmp/medida.txt >/dev/null 2>&1 < /dev/null" >/dev/null
+VMPID="$(pgrep -f "VirtualBoxVM.*$VM|VBoxHeadless.*$VM" | head -n 1)"
+sleep 20; H1=$(awk '{print $14+$15}' "/proc/$VMPID/stat" 2>/dev/null || echo 0); sleep 30; H2=$(awk '{print $14+$15}' "/proc/$VMPID/stat" 2>/dev/null || echo 0)
+for _ in $(seq 1 20); do gsh "test -e /tmp/medida.txt.ok && echo pronto" | grep -q pronto && break; sleep 2; done
+M="$(gsh "cat /tmp/medida.txt")"; printf '### VM parada\n%s\n\n' "$M" >> "$OUT/qa-detalhes.txt"
+HOSTCPU=$(( (H2 - H1) * 100 / $(getconf CLK_TCK) / 30 ))
+GCPU="$(echo "$M" | sed -n 's/^CPU ocupada.*: \([0-9]*\).*/\1/p')"
+TICS="$(echo "$M" | awk '$2=="LOC"{print $1; exit}')"
+log "VM parada: VirtualBox no computador ${HOSTCPU}% de 1 núcleo | dentro da VM ${GCPU:-?}% | relógio ${TICS:-?}/s"
+if [ "$HOSTCPU" -le 12 ] && [ "${GCPU:-99}" -le 8 ] && [ "${TICS:-9999}" -le 700 ]; then ok "VM parada é leve (computador ${HOSTCPU}%, VM ${GCPU}%, relógio ${TICS}/s)"; else bad "VM parada pesada: computador ${HOSTCPU}% (máx 12), VM ${GCPU:-?}% (máx 8), relógio ${TICS:-?}/s (máx 700)"; log "$(echo "$M" | sed -n '3,12p')"; fi
+
+# Jenkins fica DESLIGADO até o aluno usar (VM leve no começo); o atalho "Jenkins" liga e abre
+sleep 30
+chk  "Jenkins não liga sozinho no boot (fica leve até usar)" "awk '{print int(\$1)\"s de boot\"}' /proc/uptime; echo \$(systemctl is-active jenkins) \$(systemctl is-enabled jenkins)" "inactive disabled"
+gsh "mkdir -p /tmp/ff && printf '#!/bin/sh\\necho ABRIU \$*\\n' > /tmp/ff/firefox && chmod +x /tmp/ff/firefox; (PATH=/tmp/ff:\$PATH setsid -f abrir-jenkins > /tmp/abrir-jenkins.txt 2>&1)" >/dev/null
 J=0; T0=$SECONDS
 for _ in $(seq 1 96); do
   if [ "$(gsh "curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/login")" = "200" ]; then J=1; break; fi
   sleep 5
 done
-if [ "$J" = 1 ]; then ok "Jenkins ligou sozinho e responde em http://localhost:8080 (+$((SECONDS-T0))s após a checagem)"; else bad "Jenkins não respondeu em 8 min"; fi
+if [ "$J" = 1 ]; then ok "Atalho Jenkins liga o Jenkins e ele responde em http://localhost:8080 (em $((SECONDS-T0))s)"; else bad "Jenkins não respondeu em 8 min depois do atalho"; fi
+sleep 5
+chk  "Atalho Jenkins abre o Firefox no Jenkins quando ele fica pronto" "cat /tmp/abrir-jenkins.txt" "ABRIU http://localhost:8080"
 chk  "Jenkins: login aluno/devops (sem assistente inicial)" "curl -s -o /dev/null -w '%{http_code}' -u aluno:devops http://localhost:8080/api/json" "^200$"
 chk  "Jenkins: anônimo bloqueado" "curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/json" "^403$"
 chk  "Jenkins: plugins Pipeline, Git, GitHub e Docker ativos" "curl -g -s -u aluno:devops 'http://localhost:8080/pluginManager/api/json?depth=1&tree=plugins[shortName,active]' | python3 -c 'import json,sys; a={p[\"shortName\"] for p in json.load(sys.stdin)[\"plugins\"] if p[\"active\"]}; n={\"workflow-aggregator\",\"git\",\"github\",\"docker-workflow\",\"pipeline-stage-view\"}; print(len(a), \"ativos; faltam:\", sorted(n-a) or \"nenhum\")'" "faltam: nenhum"
@@ -280,15 +332,15 @@ if VBoxManage showvminfo "$VM" --machinereadable | grep -q '^VMState="poweroff"'
 else
   bad "VM não desligou pelo ACPI"; VBoxManage controlvm "$VM" poweroff || true; sleep 5
 fi
-# 2º boot: PC lento E controladora VMSVGA (é o que o VirtualBox escolhe ao importar o
-# arquivo compatível com o VirtualBox 6.1); a imagem tem que aparecer do mesmo jeito.
-VBoxManage modifyvm "$VM" --cpu-execution-cap 35 --graphicscontroller vmsvga
-VBoxManage startvm "$VM" --type headless
-if wait_desktop "boot2-cpu35-vmsvga" 1200; then
+# 2º boot: PC lento (CPU limitada, como o VirtualBox com Hyper-V) E a outra controladora
+# (VBoxSVGA, se o aluno trocar nas configurações): a imagem tem que aparecer do mesmo jeito.
+VBoxManage modifyvm "$VM" --cpu-execution-cap 35 --graphicscontroller vboxsvga
+VBoxManage startvm "$VM" --type "$TIPO"
+if wait_desktop "boot2-cpu35-vboxsvga" 1200; then
   sleep 30
-  CORES="$(print_vbox janela-virtualbox-2-vmsvga)"
-  if [ "${CORES:-0}" -gt 100 ]; then ok "PC lento + VMSVGA: janela do VirtualBox mostra a área de trabalho ($CORES cores)"; else log "[AVISO] PC lento + VMSVGA: janela do VirtualBox preta ($CORES cores) - o .ova usa VBoxSVGA; com VMSVGA o aluno deve trocar para VBoxSVGA"; fi
-  log "PC lento + VMSVGA - resolução: $(gsh "$XENV xrandr 2>/dev/null | sed -n 's/.*current \\([0-9]* x [0-9]*\\).*/\\1/p'")"
+  CORES="$(print_vbox janela-virtualbox-2-vboxsvga)"
+  if [ "${CORES:-0}" -gt 100 ]; then ok "PC lento + VBoxSVGA: janela do VirtualBox mostra a área de trabalho ($CORES cores)"; else bad "PC lento + VBoxSVGA: janela do VirtualBox preta ($CORES cores)"; fi
+  log "PC lento + VBoxSVGA - resolução: $(gsh "$XENV xrandr 2>/dev/null | sed -n 's/.*current \\([0-9]* x [0-9]*\\).*/\\1/p'")"
   CORES="$(print_tela tela-3-pc-lento)"
   if [ "${CORES:-0}" -gt 100 ]; then ok "PC lento: tela desenhada ($CORES cores)"; else bad "PC lento: tela vazia/preta ($CORES cores)"; fi
   log "PC lento - $(gsh 'systemd-analyze' | head -n 1)"

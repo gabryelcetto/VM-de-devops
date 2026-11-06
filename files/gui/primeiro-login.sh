@@ -19,3 +19,19 @@ if grep -q '^vmwgfx ' /proc/modules 2>/dev/null; then
     xrandr --output "$SAIDA" --mode 1280x800 2>/dev/null || xrandr --output "$SAIDA" --mode 1024x768 2>/dev/null || true
   fi
 fi
+
+# VMSVGA: o ajustador de tela do VirtualBox (VBoxClient --vmsvga-session, do pacote do Ubuntu)
+# deixa a saída de vídeo SEM MODO ao iniciar: por dentro a área de trabalho existe,
+# mas a janela do VirtualBox fica PRETA (medido no VirtualBox 7.2: 5 de 5 boots).
+# Vigia por 1 minuto (PC lento demora) e religa a saída com "xrandr --auto" se ela apagar.
+# Não mexe em nada se a saída estiver com modo (ex.: depois que o aluno redimensiona a janela).
+if grep -q '^vmwgfx ' /proc/modules 2>/dev/null; then
+  (
+    for _ in $(seq 1 30); do
+      if ! xrandr --current 2>/dev/null | grep -qE ' connected( primary)? [0-9]+x[0-9]+\+'; then
+        xrandr --auto 2>/dev/null || true
+      fi
+      sleep 2
+    done
+  ) &
+fi
