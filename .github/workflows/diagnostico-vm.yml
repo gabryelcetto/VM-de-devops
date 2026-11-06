@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
   diag:
@@ -21,13 +22,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        video: [nenhuma, initramfs, xrandr-auto, sem-vboxclient-vmsvga]
+        video: [ocioso]
     steps:
       - uses: actions/checkout@v4
-      - name: Baixar o .ova publicado
+      - name: Baixar o .ova
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # .ova final de um build que ainda não virou Release (ci/diag/run.txt)
+          if [ -s ci/diag/run.txt ]; then
+            gh run download "$(cat ci/diag/run.txt)" -R "${{ github.repository }}" -n DevOps-Lab-ova-final -D final && ls -l final && exit 0
+          fi
           TAG="${{ github.event.inputs.versao }}"
           [ -n "$TAG" ] || TAG="$(gh api repos/${{ github.repository }}/releases/latest --jq .tag_name)"
           echo "Versão: $TAG"
@@ -46,7 +51,7 @@ jobs:
           Xvfb :99 -screen 0 1600x1000x24 >/dev/null 2>&1 &
           export DISPLAY=:99
           sleep 2
-          bash ci/diag/tela-vmsvga.sh final/DevOps-Lab.ova "diag-${{ matrix.video }}" "${{ matrix.video }}" 5 || true
+          bash ci/diag/ocioso.sh final/DevOps-Lab.ova "diag-${{ matrix.video }}" || true
           import -window root "diag-${{ matrix.video }}/computador-final.png" || true
       - name: Mostrar o resumo no log
         if: always()
