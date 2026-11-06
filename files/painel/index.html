@@ -1143,7 +1143,7 @@ async function carregarJenkins(){
   const j = await get('/api/jenkins'); const el = $('#jenkins');
   if(!j.respondendo){
     el.innerHTML = j.servico === 'active' ? `<div class="faixa-aviso"><span class="girando"></span> O Jenkins está ligando (cerca de 1 minuto). Esta página atualiza sozinha.</div>`
-      : `<div class="faixa-aviso">O Jenkins está desligado.${BT('Ligar o Jenkins', "acao('/api/jenkins',{acao:'ligar'},this)", {pri:1, icone:'energia'})}</div>`;
+      : `<div class="faixa-aviso">O Jenkins está desligado (fica assim para a VM ficar leve; liga em cerca de 1 minuto).${BT('Ligar o Jenkins', "acao('/api/jenkins',{acao:'ligar'},this)", {pri:1, icone:'energia'})}</div>`;
     return;
   }
   DADOS.jenkins = j;

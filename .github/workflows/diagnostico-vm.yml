@@ -1,0 +1,66 @@
+name: Diagnóstico da VM (mouse, tela preta, fluidez)
+
+# Roda só quando se faz push na branch "diagnostico-vm": liga a versão publicada no
+# VirtualBox COM JANELA (num X virtual) várias vezes e guarda prints e logs.
+on:
+  push:
+    branches: [diagnostico-vm]
+  workflow_dispatch:
+    inputs:
+      versao:
+        description: "Tag da Release (vazio = a mais recente)"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  diag:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        video: [nenhuma, initramfs, xrandr-auto, sem-vboxclient-vmsvga]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Baixar o .ova publicado
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ github.event.inputs.versao }}"
+          [ -n "$TAG" ] || TAG="$(gh api repos/${{ github.repository }}/releases/latest --jq .tag_name)"
+          echo "Versão: $TAG"
+          gh release download "$TAG" -R "${{ github.repository }}" -p DevOps-Lab.ova -D final
+          ls -l final
+      - name: Instalar VirtualBox 7.2, Xvfb e ferramentas
+        run: |
+          sudo modprobe -r kvm_intel kvm_amd kvm || true
+          wget -qO- https://www.virtualbox.org/download/oracle_vbox_2016.asc | sudo gpg --dearmor -o /usr/share/keyrings/oracle-virtualbox-2016.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/oracle-virtualbox-2016.gpg] https://download.virtualbox.org/virtualbox/debian noble contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
+          sudo apt-get update
+          sudo apt-get install -y "linux-headers-$(uname -r)" build-essential virtualbox-7.2 imagemagick xvfb xdotool
+          sudo /sbin/vboxconfig
+      - name: Varredura (${{ matrix.video }})
+        run: |
+          Xvfb :99 -screen 0 1600x1000x24 >/dev/null 2>&1 &
+          export DISPLAY=:99
+          sleep 2
+          bash ci/diag/tela-vmsvga.sh final/DevOps-Lab.ova "diag-${{ matrix.video }}" "${{ matrix.video }}" 5 || true
+          import -window root "diag-${{ matrix.video }}/computador-final.png" || true
+      - name: Mostrar o resumo no log
+        if: always()
+        run: cat diag-${{ matrix.video }}/RESUMO-*.txt || true
+      - name: Guardar resultados (branch diag-${{ matrix.video }})
+        if: always()
+        run: |
+          cp -r "diag-${{ matrix.video }}" /tmp/res
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git checkout -q --orphan tmp-res
+          git rm -rfq . || true
+          rm -rf ./*
+          cp -r /tmp/res/. .
+          git add -A
+          git commit -qm "Diagnóstico ${{ matrix.video }} (run ${{ github.run_id }})"
+          git push -qf origin HEAD:diag-${{ matrix.video }}

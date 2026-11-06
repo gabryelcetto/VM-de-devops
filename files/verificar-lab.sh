@@ -29,10 +29,12 @@ check "Firefox"         firefox --version
 codigo="$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/login 2>/dev/null)"
 if [ "$codigo" = "200" ]; then
   printf "${verde}[OK]${nc}    %-16s %s\n" "Jenkins" "http://localhost:8080 (aluno / devops) - versão $(dpkg-query -W -f='${Version}' jenkins)"
-elif systemctl is-active --quiet jenkins || systemctl is-active --quiet jenkins-atrasado.timer; then
-  printf "${amarelo}[AGUARDE]${nc} %-14s %s\n" "Jenkins" "ligando (sobe ~1 min depois do boot); rode verificar-lab de novo daqui a pouco"
+elif systemctl is-active --quiet jenkins; then
+  printf "${amarelo}[AGUARDE]${nc} %-14s %s\n" "Jenkins" "ligando (leva ~1 min); rode verificar-lab de novo daqui a pouco"
+elif systemctl is-failed --quiet jenkins; then
+  printf "${vermelho}[FALHA]${nc} %-16s %s\n" "Jenkins" "não conseguiu ligar (veja: journalctl -u jenkins -n 50)"
 else
-  printf "${vermelho}[FALHA]${nc} %-16s %s\n" "Jenkins" "parado (sudo systemctl start jenkins)"
+  printf "${amarelo}[DESLIGADO]${nc} %-12s %s\n" "Jenkins" "liga quando você usar: atalho \"Jenkins\" ou Painel DevOps → Jenkins → Ligar"
 fi
 
 if docker info >/dev/null 2>&1; then

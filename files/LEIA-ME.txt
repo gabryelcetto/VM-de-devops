@@ -26,8 +26,9 @@ Jenkins
  - Endereço:  http://localhost:8080   (atalho "Jenkins")
  - Usuário:   aluno
  - Senha:     devops
- - Ele liga sozinho cerca de 1 minuto depois que a máquina
-   abre. Se a página não carregar, aguarde e recarregue.
+ - Fica desligado para a máquina ficar leve. Ele liga quando
+   você abre o atalho "Jenkins" (ou no Painel DevOps → Jenkins →
+   Ligar o Jenkins) e leva cerca de 1 minuto para abrir.
  - Pipelines podem usar Docker (o Jenkins está no grupo docker).
 
 Monitoramento: Grafana, Prometheus e Uptime Kuma
@@ -75,8 +76,14 @@ Dicas
 -----
  - Use a pasta ~/projetos (atalho "projetos" aqui ao lado).
  - Para levar seu trabalho: git push para o seu GitHub.
- - Copiar/colar e arrastar arquivos entre o Windows e a VM
-   já estão ligados.
+ - Copiar/colar entre o Windows e a VM já está ligado.
+   Arrastar arquivos fica desligado (deixava a VM mais pesada);
+   para levar arquivos, use o git ou uma pasta compartilhada
+   (Dispositivos > Pastas Compartilhadas no VirtualBox).
+ - Tartaruga verde no canto da janela do VirtualBox = o Windows
+   está com o Hyper-V ligado e a VM roda mais devagar. Deixe
+   ligado só o que estiver usando (Jenkins e monitoramento
+   ficam desligados até você abrir).
  - Maximize a janela do VirtualBox: a resolução se ajusta.
  - Se a VM estiver lenta, aumente a memória para 6 GB em
    Configurações > Sistema no VirtualBox (com ela desligada).

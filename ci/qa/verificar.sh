@@ -7,7 +7,7 @@ cd "$(dirname "$0")/../.."
 echo "== ruff (Python)"
 ruff check --select E9,F,B,PLE --ignore B008,B904 files/painel/painel.py files/monitoramento/preparar-kuma.py ci/qa/*.py tests/
 echo "== shellcheck (scripts)"
-shellcheck -S warning scripts/*.sh ci/*.sh ci/lab/*.sh ci/qa/*.sh ci/vm-tests/*.sh files/*.sh files/painel/*.sh files/monitoramento/atalhos/*.sh .devcontainer/*.sh
+shellcheck -S warning scripts/*.sh ci/*.sh ci/lab/*.sh ci/qa/*.sh ci/vm-tests/*.sh files/*.sh files/painel/*.sh files/monitoramento/atalhos/*.sh files/gui/*.sh ci/diag/*.sh .devcontainer/*.sh
 echo "== tela x servidor"
 python3 ci/qa/checar-frontend.py
 echo "== testes de unidade (com cobertura de ramos)"

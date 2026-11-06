@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Gera o .ova final com o próprio VirtualBox, a partir do .ova "compatível"
 # convertido do QEMU, aplicando as configurações recomendadas para Linux:
-#   vídeo VBoxSVGA 128 MB (com VMSVGA a tela ficava preta, inclusive com Hyper-V), 1 porta SATA, mouse USB tablet, área de transferência
-#   e arrastar/soltar bidirecionais, áudio desligado.
+#   vídeo VMSVGA 128 MB (a recomendada pelo VirtualBox para Linux: medido, pesa metade da
+#   VBoxSVGA no computador e acorda a VM bem menos; a tela preta dela é corrigida no login,
+#   veja files/gui/primeiro-login.sh), 1 porta SATA, mouse USB tablet, área de transferência
+#   bidirecional (arrastar/soltar desligado: pesa na VM parada), áudio desligado.
 # Uso: ci/finalize-ova-virtualbox.sh <entrada.ova> <pasta-saida>
 set -euxo pipefail
 IN="$1"
@@ -19,9 +21,9 @@ DISCO="$(VBoxManage showvminfo "$VM" --machinereadable | sed -n "s/^\"$CTL-Image
   --medium "$DISCO" --nonrotational on --discard on || echo "AVISO: não marquei o disco como SSD"
 VBoxManage modifyvm "$VM" \
   --ostype Ubuntu_64 --cpus 2 --memory 4096 --ioapic on --rtc-use-utc on \
-  --graphicscontroller vboxsvga --vram 128 \
+  --graphicscontroller vmsvga --vram 128 \
   --usb-ohci on --mouse usbtablet \
-  --clipboard-mode bidirectional --drag-and-drop bidirectional \
+  --clipboard-mode bidirectional --drag-and-drop disabled \
   --audio-enabled off --nictype1 virtio \
   --description "$DESC"
 VBoxManage showvminfo "$VM" --machinereadable \
