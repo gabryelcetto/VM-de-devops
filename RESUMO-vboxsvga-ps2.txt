@@ -1,0 +1,49 @@
+memory=4096
+vram=128
+cpus=2
+graphicscontroller="vboxsvga"
+hidpointing="ps2mouse"
+hidkeyboard="ps2kbd"
+usb="off"
+
+======== vboxsvga-ps2 boot 1 ========
+login automático em: 12s | segundos com a janela preta: 8 | última vez preta: t=10s
+tela 25 s depois do login: 14203 20 (cores brilho)
+janela da VM no computador (x y larg alt): 480 191 1024 809
+mouse do computador em (736,474) [0.25x 0.35y da janela] -> ponteiro dentro da VM: x:257 y:265 screen:0 window:20971539 
+mouse do computador em (1196,676) [0.70x 0.60y da janela] -> ponteiro dentro da VM: x:717 y:467 screen:0 window:20971539 
+mouse do computador em (992,352) [0.50x 0.20y da janela] -> ponteiro dentro da VM: x:513 y:143 screen:0 window:20971539 
+depois de pedir 1366x768: 14095 19 | xrandr: current 1366 x 768
+depois de pedir 1280x800: 14219 19 | xrandr: current 1280 x 800
+desligou pelo botão (ACPI)
+
+======== vboxsvga-ps2 boot 2 ========
+login automático em: 12s | segundos com a janela preta: 6 | última vez preta: t=8s
+tela 25 s depois do login: 14203 20 (cores brilho)
+janela da VM no computador (x y larg alt): 234 159 1024 809
+mouse do computador em (490,442) [0.25x 0.35y da janela] -> ponteiro dentro da VM: x:257 y:265 screen:0 window:18874387 
+mouse do computador em (950,644) [0.70x 0.60y da janela] -> ponteiro dentro da VM: x:717 y:467 screen:0 window:18874387 
+mouse do computador em (746,320) [0.50x 0.20y da janela] -> ponteiro dentro da VM: x:513 y:143 screen:0 window:18874387 
+depois de pedir 1366x768: 14092 19 | xrandr: current 1366 x 768
+depois de pedir 1280x800: 14257 19 | xrandr: current 1280 x 800
+
+======== vboxsvga-ps2 boot 3 ========
+login automático em: 2s | segundos com a janela preta: 6 | última vez preta: t=8s
+tela 25 s depois do login: 14265 19 (cores brilho)
+janela da VM no computador (x y larg alt): 234 159 1280 841
+mouse do computador em (554,453) [0.25x 0.35y da janela] -> ponteiro dentro da VM: x:321 y:276 screen:0 window:10485779 
+mouse do computador em (1130,663) [0.70x 0.60y da janela] -> ponteiro dentro da VM: x:897 y:486 screen:0 window:10485779 
+mouse do computador em (874,327) [0.50x 0.20y da janela] -> ponteiro dentro da VM: x:641 y:150 screen:0 window:10485779 
+depois de pedir 1366x768: 14087 19 | xrandr: current 1366 x 768
+depois de pedir 1280x800: 14244 19 | xrandr: current 1280 x 800
+desligou pelo botão (ACPI)
+
+======== vboxsvga-ps2 boot 4 ========
+login automático em: 12s | segundos com a janela preta: 6 | última vez preta: t=8s
+tela 25 s depois do login: 14212 20 (cores brilho)
+janela da VM no computador (x y larg alt): 234 159 1024 809
+mouse do computador em (490,442) [0.25x 0.35y da janela] -> ponteiro dentro da VM: x:257 y:265 screen:0 window:10485779 
+mouse do computador em (950,644) [0.70x 0.60y da janela] -> ponteiro dentro da VM: x:717 y:467 screen:0 window:10485779 
+mouse do computador em (746,320) [0.50x 0.20y da janela] -> ponteiro dentro da VM: x:513 y:143 screen:0 window:10485779 
+depois de pedir 1366x768: 14106 19 | xrandr: current 1366 x 768
+depois de pedir 1280x800: 14267 19 | xrandr: current 1280 x 800
