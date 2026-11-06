@@ -48,10 +48,19 @@ jobs:
           sleep 2
           bash ci/diag-vm.sh final/DevOps-Lab.ova "diag-${{ matrix.video }}" "${{ matrix.video }}" 4 || true
           import -window root "diag-${{ matrix.video }}/computador-final.png" || true
-      - name: Guardar resultados
+      - name: Mostrar o resumo no log
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: diag-${{ matrix.video }}
-          path: diag-${{ matrix.video }}/
-          retention-days: 14
+        run: cat diag-${{ matrix.video }}/RESUMO-*.txt || true
+      - name: Guardar resultados (branch diag-${{ matrix.video }})
+        if: always()
+        run: |
+          cp -r "diag-${{ matrix.video }}" /tmp/res
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git checkout -q --orphan tmp-res
+          git rm -rfq . || true
+          rm -rf ./*
+          cp -r /tmp/res/. .
+          git add -A
+          git commit -qm "Diagnóstico ${{ matrix.video }} (run ${{ github.run_id }})"
+          git push -qf origin HEAD:diag-${{ matrix.video }}
