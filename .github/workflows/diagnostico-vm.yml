@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        video: [vboxsvga, vmsvga, vboxsvga-ps2]
+        video: [atual, ps2, vmsvga-cedo]
     steps:
       - uses: actions/checkout@v4
       - name: Baixar o .ova publicado
@@ -46,7 +46,7 @@ jobs:
           Xvfb :99 -screen 0 1600x1000x24 >/dev/null 2>&1 &
           export DISPLAY=:99
           sleep 2
-          bash ci/diag-vm.sh final/DevOps-Lab.ova "diag-${{ matrix.video }}" "${{ matrix.video }}" 4 || true
+          bash ci/diag/fluidez.sh final/DevOps-Lab.ova "diag-${{ matrix.video }}" "${{ matrix.video }}" || true
           import -window root "diag-${{ matrix.video }}/computador-final.png" || true
       - name: Mostrar o resumo no log
         if: always()
