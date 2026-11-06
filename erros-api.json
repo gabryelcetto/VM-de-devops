@@ -1,0 +1,51 @@
+[
+  {
+    "quando": "2026-11-06T20:29:59.953Z",
+    "url": "http://localhost:8090/api/git",
+    "status": 400,
+    "pedido": "{\"acao\":\"apagar_branch\",\"repo\":\"/home/aluno/projetos/lab-repo-py\",\"branch\":\"feature/teste\"}",
+    "resposta": "{\"erro\": \"NAO_JUNTADA: A branch feature/teste tem commits que não foram juntados (merge) em outra branch. Se apagar, esses commits se perdem.\"}"
+  },
+  {
+    "quando": "2026-11-06T20:30:08.002Z",
+    "url": "http://localhost:8090/api/jenkins",
+    "status": 400,
+    "pedido": "{\"acao\":\"criar\",\"tipo\":\"pipeline\",\"job\":\"ola-jenkins\",\"nome\":\"ola-jenkins\",\"pasta\":\"\",\"cron_scm\":\"\",\"cron\":\"\",\"script\":\"pipeline {\\n  agent any\\n  stages {\\n    stage('Ola') {\\n      steps {\\n        echo 'Ola do Jenkins!'\\n      }\\n    }\\n    stage('Informacoes') {\\n      steps {\\n        sh 'date && hostname && whoami'\\n      }\\n    }\\n  }\\n}\\n\",\"descricao\":\"\",\"construir\":false,\"credencial\":\"\"}",
+    "resposta": "{\"erro\": \"Já existe um item com esse nome no Jenkins. Escolha outro nome ou apague o antigo.\"}"
+  },
+  {
+    "quando": "2026-11-06T20:30:58.822Z",
+    "url": "http://localhost:8090/api/jenkins",
+    "status": 400,
+    "pedido": "{\"acao\":\"criar\",\"tipo\":\"pipeline_scm\",\"job\":\"qa-falso\",\"nome\":\"qa-falso\",\"pasta\":\"\",\"repo\":\"https://github.com/usuario/repositorio.git\",\"branch\":\"main\",\"jenkinsfile\":\"exemplos/Jenkinsfile\",\"credencial\":\"\",\"cron_scm\":\"\",\"cron\":\"\",\"descricao\":\"\",\"construir\":false}",
+    "resposta": "{\"erro\": \"Troque o endereço de exemplo (usuario/repositorio) pelo endereço do seu repositório no GitHub.\"}"
+  },
+  {
+    "quando": "2026-11-06T20:31:03.661Z",
+    "url": "http://localhost:8090/api/jenkins",
+    "status": 400,
+    "pedido": "{\"acao\":\"criar_credencial\",\"tipo\":\"usuario\",\"id\":\"qa-vazia\",\"usuario\":\"\",\"senha\":\"\"}",
+    "resposta": "{\"erro\": \"Preencha o usuário do GitHub e o token. Sem eles a credencial não funciona.\"}"
+  },
+  {
+    "quando": "2026-11-06T20:31:03.666Z",
+    "url": "http://localhost:8090/api/jenkins",
+    "status": 400,
+    "pedido": "{\"acao\":\"criar_credencial\",\"tipo\":\"usuario\",\"id\":\"qa-senha\",\"usuario\":\"aluno\",\"senha\":\"minhasenha123\"}",
+    "resposta": "{\"erro\": \"Isso não parece um token do GitHub (eles começam com ghp_ ou github_pat_). O GitHub não aceita a senha da conta: crie um token em github.com/settings/personal-access-tokens.\"}"
+  },
+  {
+    "quando": "2026-11-06T20:35:53.060Z",
+    "url": "http://localhost:8090/api/docker",
+    "status": 400,
+    "pedido": "{\"acao\":\"run\",\"imagem\":\"nginx:alpine\",\"nome\":\"qa-dup\",\"memoria\":\"128m\"}",
+    "resposta": "{\"erro\": \"Já existe um container chamado qa-dup. Apague o antigo na aba Docker ou escolha outro nome.\"}"
+  },
+  {
+    "quando": "2026-11-06T20:38:37.307Z",
+    "url": "http://localhost:8090/api/executar",
+    "status": 400,
+    "pedido": "{\"ferramenta\":\"projeto\",\"acao\":\"apagar\",\"pasta\":\"/home/aluno/.config\"}",
+    "resposta": "{\"erro\": \"Só dá para apagar pastas de projeto que ficam direto em ~/projetos.\"}"
+  }
+]

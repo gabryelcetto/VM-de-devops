@@ -1,0 +1,125 @@
+Nov 06 20:27:25 runnervm7aw5e systemd[1]: Starting jenkins.service - Jenkins Continuous Integration Server...
+Nov 06 20:27:25 runnervm7aw5e jenkins[10676]: Running from: /usr/share/java/jenkins.war
+Nov 06 20:27:26 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:26.246+0000 [id=1]        INFO        winstone.Logger#logInternal: Beginning extraction from war file
+Nov 06 20:27:26 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:26.709+0000 [id=1]        WARNING        o.e.j.ee9.nested.ContextHandler#setContextPath: Empty contextPath
+Nov 06 20:27:26 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:26.766+0000 [id=1]        INFO        org.eclipse.jetty.server.Server#doStart: jetty-12.1.14; built: 2026-10-02T05:48:05.032Z; git: 15cecbd757a2f6b0fdc6a8944f4c6d0020b17da0; jvm 21.0.12.1+1-1-24.04.4-Ubuntu
+Nov 06 20:27:27 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:27.129+0000 [id=1]        INFO        o.e.j.e.w.StandardDescriptorProcessor#visitServlet: NO JSP Support for /, did not find org.eclipse.jetty.ee9.jsp.JettyJspServlet
+Nov 06 20:27:27 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:27.170+0000 [id=1]        INFO        o.e.j.s.DefaultSessionIdManager#doStart: Session workerName=node0
+Nov 06 20:27:27 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:27.474+0000 [id=1]        INFO        hudson.WebAppMain#contextInitialized: Jenkins home directory: /var/lib/jenkins found at: EnvVars.masterEnvVars.get("JENKINS_HOME")
+Nov 06 20:27:27 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:27.605+0000 [id=1]        INFO        o.e.j.s.handler.ContextHandler#doStart: Started oeje9n.ContextHandler$CoreContextHandler@3506d826{Jenkins v2.580.2,/,b=file:///var/cache/jenkins/war/,a=AVAILABLE,h=oeje9n.ContextHandler$CoreContextHandler$CoreToNestedHandler@35dd9ed3{STARTED}}
+Nov 06 20:27:27 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:27.617+0000 [id=1]        INFO        o.e.j.server.AbstractConnector#doStart: Started oejs.ServerConnector@2bef09c0{HTTP/1.1, (http/1.1)}{0.0.0.0:8080}
+Nov 06 20:27:27 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:27.618+0000 [id=1]        INFO        org.eclipse.jetty.server.Server#doStart: Started oejs.Server@62ce72ff{STARTING}[12.1.14,sto=0] @854ms
+Nov 06 20:27:27 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:27.619+0000 [id=34]        INFO        winstone.Logger#logInternal: Winstone Servlet Engine running: controlPort=disabled
+Nov 06 20:27:27 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:27.714+0000 [id=33]        INFO        jenkins.model.Jenkins#<init>: Starting version 2.580.2
+Nov 06 20:27:27 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:27.838+0000 [id=42]        INFO        jenkins.InitReactorRunner$1#onAttained: Started initialization
+Nov 06 20:27:27 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:27.844+0000 [id=46]        INFO        jenkins.InitReactorRunner$1#onAttained: Listed all plugins
+Nov 06 20:27:28 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:28.596+0000 [id=44]        INFO        jenkins.InitReactorRunner$1#onAttained: Prepared all plugins
+Nov 06 20:27:28 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:28.600+0000 [id=41]        INFO        jenkins.InitReactorRunner$1#onAttained: Started all plugins
+Nov 06 20:27:28 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:28.602+0000 [id=42]        INFO        jenkins.InitReactorRunner$1#onAttained: Augmented all extensions
+Nov 06 20:27:28 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:28.770+0000 [id=44]        INFO        jenkins.InitReactorRunner$1#onAttained: System config loaded
+Nov 06 20:27:28 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:28.771+0000 [id=47]        INFO        jenkins.InitReactorRunner$1#onAttained: System config adapted
+Nov 06 20:27:28 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:28.772+0000 [id=47]        INFO        jenkins.InitReactorRunner$1#onAttained: Loaded all jobs
+Nov 06 20:27:28 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:28.773+0000 [id=47]        INFO        jenkins.InitReactorRunner$1#onAttained: Configuration for all jobs updated
+Nov 06 20:27:28 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:28.801+0000 [id=63]        INFO        hudson.util.Retrier#start: Attempt #1 to do the action check updates server
+Nov 06 20:27:29 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:29.085+0000 [id=41]        INFO        jenkins.install.SetupWizard#init:
+Nov 06 20:27:29 runnervm7aw5e jenkins[10676]: [LF]>
+Nov 06 20:27:29 runnervm7aw5e jenkins[10676]: [LF]> *************************************************************
+Nov 06 20:27:29 runnervm7aw5e jenkins[10676]: [LF]> *************************************************************
+Nov 06 20:27:29 runnervm7aw5e jenkins[10676]: [LF]> *************************************************************
+Nov 06 20:27:29 runnervm7aw5e jenkins[10676]: [LF]>
+Nov 06 20:27:29 runnervm7aw5e jenkins[10676]: [LF]> Jenkins initial setup is required. An admin user has been created and a password generated.
+Nov 06 20:27:29 runnervm7aw5e jenkins[10676]: [LF]> Please use the following password to proceed to installation:
+Nov 06 20:27:29 runnervm7aw5e jenkins[10676]: [LF]>
+Nov 06 20:27:29 runnervm7aw5e jenkins[10676]: [LF]> 1d45b881b87b4629abbdbaecc207b31b
+Nov 06 20:27:29 runnervm7aw5e jenkins[10676]: [LF]>
+Nov 06 20:27:29 runnervm7aw5e jenkins[10676]: [LF]> This may also be found at: /var/lib/jenkins/secrets/initialAdminPassword
+Nov 06 20:27:29 runnervm7aw5e jenkins[10676]: [LF]>
+Nov 06 20:27:29 runnervm7aw5e jenkins[10676]: [LF]> *************************************************************
+Nov 06 20:27:29 runnervm7aw5e jenkins[10676]: [LF]> *************************************************************
+Nov 06 20:27:29 runnervm7aw5e jenkins[10676]: [LF]> *************************************************************
+Nov 06 20:27:31 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:31.618+0000 [id=44]        INFO        jenkins.InitReactorRunner$1#onAttained: Completed initialization
+Nov 06 20:27:31 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:31.633+0000 [id=33]        INFO        hudson.lifecycle.Lifecycle#onReady: Jenkins is fully up and running
+Nov 06 20:27:31 runnervm7aw5e systemd[1]: Started jenkins.service - Jenkins Continuous Integration Server.
+Nov 06 20:27:32 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:32.193+0000 [id=63]        INFO        h.m.DownloadService$Downloadable#load: Obtained the updated data file for hudson.tasks.Maven.MavenInstaller
+Nov 06 20:27:32 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:32.194+0000 [id=63]        INFO        hudson.util.Retrier#start: Performed the action check updates server successfully at the attempt #1
+Nov 06 20:27:33 runnervm7aw5e systemd[1]: Stopping jenkins.service - Jenkins Continuous Integration Server...
+Nov 06 20:27:33 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:33.421+0000 [id=35]        INFO        winstone.Logger#logInternal: JVM is terminating. Shutting down Jetty
+Nov 06 20:27:33 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:33.422+0000 [id=35]        INFO        org.eclipse.jetty.server.Server#doStop: Stopped oejs.Server@62ce72ff{STOPPING}[12.1.14,sto=0]
+Nov 06 20:27:33 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:33.424+0000 [id=35]        INFO        o.e.j.server.AbstractConnector#doStop: Stopped oejs.ServerConnector@2bef09c0{HTTP/1.1, (http/1.1)}{0.0.0.0:8080}
+Nov 06 20:27:33 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:33.426+0000 [id=35]        INFO        hudson.lifecycle.Lifecycle#onStatusUpdate: Stopping Jenkins
+Nov 06 20:27:33 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:33.428+0000 [id=35]        INFO        jenkins.model.Jenkins$13#onAttained: Started termination
+Nov 06 20:27:33 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:33.434+0000 [id=35]        INFO        jenkins.model.Jenkins$13#onAttained: Completed termination
+Nov 06 20:27:33 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:33.434+0000 [id=35]        INFO        jenkins.model.Jenkins#_cleanUpDisconnectComputers: Starting node disconnection
+Nov 06 20:27:33 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:33.438+0000 [id=35]        INFO        jenkins.model.Jenkins#_cleanUpShutdownPluginManager: Stopping plugin manager
+Nov 06 20:27:33 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:33.439+0000 [id=35]        INFO        jenkins.model.Jenkins#_cleanUpPersistQueue: Persisting build queue
+Nov 06 20:27:33 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:33.444+0000 [id=35]        INFO        jenkins.model.Jenkins#_cleanUpAwaitDisconnects: Waiting for node disconnection completion
+Nov 06 20:27:33 runnervm7aw5e jenkins[10676]: 2026-11-06 20:27:33.444+0000 [id=35]        INFO        hudson.lifecycle.Lifecycle#onStatusUpdate: Jenkins stopped
+Nov 06 20:27:33 runnervm7aw5e systemd[1]: jenkins.service: Deactivated successfully.
+Nov 06 20:27:33 runnervm7aw5e systemd[1]: Stopped jenkins.service - Jenkins Continuous Integration Server.
+Nov 06 20:27:33 runnervm7aw5e systemd[1]: jenkins.service: Consumed 16.490s CPU time.
+Nov 06 20:28:34 runnervm7aw5e systemd[1]: Starting jenkins.service - Jenkins Continuous Integration Server...
+Nov 06 20:28:34 runnervm7aw5e jenkins[11200]: Running from: /usr/share/java/jenkins.war
+Nov 06 20:28:34 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:34.532+0000 [id=1]        INFO        winstone.Logger#logInternal: Beginning extraction from war file
+Nov 06 20:28:34 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:34.578+0000 [id=1]        WARNING        o.e.j.ee9.nested.ContextHandler#setContextPath: Empty contextPath
+Nov 06 20:28:34 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:34.623+0000 [id=1]        INFO        org.eclipse.jetty.server.Server#doStart: jetty-12.1.14; built: 2026-10-02T05:48:05.032Z; git: 15cecbd757a2f6b0fdc6a8944f4c6d0020b17da0; jvm 21.0.12.1+1-1-24.04.4-Ubuntu
+Nov 06 20:28:34 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:34.960+0000 [id=1]        INFO        o.e.j.e.w.StandardDescriptorProcessor#visitServlet: NO JSP Support for /, did not find org.eclipse.jetty.ee9.jsp.JettyJspServlet
+Nov 06 20:28:34 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:34.994+0000 [id=1]        INFO        o.e.j.s.DefaultSessionIdManager#doStart: Session workerName=node0
+Nov 06 20:28:35 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:35.234+0000 [id=1]        INFO        hudson.WebAppMain#contextInitialized: Jenkins home directory: /var/lib/jenkins found at: EnvVars.masterEnvVars.get("JENKINS_HOME")
+Nov 06 20:28:35 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:35.294+0000 [id=1]        INFO        o.e.j.s.handler.ContextHandler#doStart: Started oeje9n.ContextHandler$CoreContextHandler@64d43929{Jenkins v2.580.2,/,b=file:///var/cache/jenkins/war/,a=AVAILABLE,h=oeje9n.ContextHandler$CoreContextHandler$CoreToNestedHandler@1d269ed7{STARTED}}
+Nov 06 20:28:35 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:35.300+0000 [id=1]        INFO        o.e.j.server.AbstractConnector#doStart: Started oejs.ServerConnector@54ca4e42{HTTP/1.1, (http/1.1)}{0.0.0.0:8080}
+Nov 06 20:28:35 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:35.300+0000 [id=1]        INFO        org.eclipse.jetty.server.Server#doStart: Started oejs.Server@4c9e9fb8{STARTING}[12.1.14,sto=0] @679ms
+Nov 06 20:28:35 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:35.301+0000 [id=26]        INFO        winstone.Logger#logInternal: Winstone Servlet Engine running: controlPort=disabled
+Nov 06 20:28:35 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:35.442+0000 [id=25]        INFO        jenkins.model.Jenkins#<init>: Starting version 2.580.2
+Nov 06 20:28:35 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:35.541+0000 [id=33]        INFO        jenkins.InitReactorRunner$1#onAttained: Started initialization
+Nov 06 20:28:36 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:36.932+0000 [id=31]        INFO        jenkins.InitReactorRunner$1#onAttained: Listed all plugins
+Nov 06 20:28:38 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:38.805+0000 [id=34]        INFO        jenkins.InitReactorRunner$1#onAttained: Prepared all plugins
+Nov 06 20:28:38 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:38.820+0000 [id=31]        INFO        jenkins.InitReactorRunner$1#onAttained: Started all plugins
+Nov 06 20:28:38 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:38.822+0000 [id=33]        INFO        jenkins.InitReactorRunner$1#onAttained: Augmented all extensions
+Nov 06 20:28:39 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:39.844+0000 [id=36]        INFO        jenkins.InitReactorRunner$1#onAttained: System config loaded
+Nov 06 20:28:39 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:39.844+0000 [id=36]        INFO        jenkins.InitReactorRunner$1#onAttained: System config adapted
+Nov 06 20:28:39 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:39.845+0000 [id=33]        INFO        jenkins.InitReactorRunner$1#onAttained: Loaded all jobs
+Nov 06 20:28:39 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:39.850+0000 [id=37]        INFO        jenkins.InitReactorRunner$1#onAttained: Configuration for all jobs updated
+Nov 06 20:28:39 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:39.854+0000 [id=33]        INFO        j.util.groovy.GroovyHookScript#execute: Executing /var/lib/jenkins/init.groovy.d/01-devops-lab.groovy
+Nov 06 20:28:40 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:40.301+0000 [id=33]        INFO        jenkins.InitReactorRunner$1#onAttained: Completed initialization
+Nov 06 20:28:40 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:40.313+0000 [id=25]        INFO        hudson.lifecycle.Lifecycle#onReady: Jenkins is fully up and running
+Nov 06 20:28:40 runnervm7aw5e systemd[1]: Started jenkins.service - Jenkins Continuous Integration Server.
+Nov 06 20:28:51 runnervm7aw5e systemd[1]: Stopping jenkins.service - Jenkins Continuous Integration Server...
+Nov 06 20:28:51 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:51.148+0000 [id=27]        INFO        winstone.Logger#logInternal: JVM is terminating. Shutting down Jetty
+Nov 06 20:28:51 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:51.149+0000 [id=27]        INFO        org.eclipse.jetty.server.Server#doStop: Stopped oejs.Server@4c9e9fb8{STOPPING}[12.1.14,sto=0]
+Nov 06 20:28:51 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:51.150+0000 [id=27]        INFO        o.e.j.server.AbstractConnector#doStop: Stopped oejs.ServerConnector@54ca4e42{HTTP/1.1, (http/1.1)}{0.0.0.0:8080}
+Nov 06 20:28:51 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:51.152+0000 [id=27]        INFO        hudson.lifecycle.Lifecycle#onStatusUpdate: Stopping Jenkins
+Nov 06 20:28:51 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:51.162+0000 [id=27]        INFO        jenkins.model.Jenkins$13#onAttained: Started termination
+Nov 06 20:28:51 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:51.168+0000 [id=27]        INFO        jenkins.model.Jenkins$13#onAttained: Completed termination
+Nov 06 20:28:51 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:51.169+0000 [id=27]        INFO        jenkins.model.Jenkins#_cleanUpDisconnectComputers: Starting node disconnection
+Nov 06 20:28:51 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:51.172+0000 [id=27]        INFO        jenkins.model.Jenkins#_cleanUpShutdownPluginManager: Stopping plugin manager
+Nov 06 20:28:51 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:51.174+0000 [id=27]        INFO        jenkins.model.Jenkins#_cleanUpPersistQueue: Persisting build queue
+Nov 06 20:28:51 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:51.176+0000 [id=27]        INFO        jenkins.model.Jenkins#_cleanUpAwaitDisconnects: Waiting for node disconnection completion
+Nov 06 20:28:51 runnervm7aw5e jenkins[11200]: 2026-11-06 20:28:51.177+0000 [id=27]        INFO        hudson.lifecycle.Lifecycle#onStatusUpdate: Jenkins stopped
+Nov 06 20:28:51 runnervm7aw5e systemd[1]: jenkins.service: Deactivated successfully.
+Nov 06 20:28:51 runnervm7aw5e systemd[1]: Stopped jenkins.service - Jenkins Continuous Integration Server.
+Nov 06 20:28:51 runnervm7aw5e systemd[1]: jenkins.service: Consumed 11.535s CPU time.
+Nov 06 20:28:51 runnervm7aw5e systemd[1]: Starting jenkins.service - Jenkins Continuous Integration Server...
+Nov 06 20:28:51 runnervm7aw5e jenkins[11323]: Running from: /usr/share/java/jenkins.war
+Nov 06 20:28:51 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:51.601+0000 [id=1]        INFO        winstone.Logger#logInternal: Beginning extraction from war file
+Nov 06 20:28:51 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:51.645+0000 [id=1]        WARNING        o.e.j.ee9.nested.ContextHandler#setContextPath: Empty contextPath
+Nov 06 20:28:51 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:51.688+0000 [id=1]        INFO        org.eclipse.jetty.server.Server#doStart: jetty-12.1.14; built: 2026-10-02T05:48:05.032Z; git: 15cecbd757a2f6b0fdc6a8944f4c6d0020b17da0; jvm 21.0.12.1+1-1-24.04.4-Ubuntu
+Nov 06 20:28:52 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:52.021+0000 [id=1]        INFO        o.e.j.e.w.StandardDescriptorProcessor#visitServlet: NO JSP Support for /, did not find org.eclipse.jetty.ee9.jsp.JettyJspServlet
+Nov 06 20:28:52 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:52.054+0000 [id=1]        INFO        o.e.j.s.DefaultSessionIdManager#doStart: Session workerName=node0
+Nov 06 20:28:52 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:52.290+0000 [id=1]        INFO        hudson.WebAppMain#contextInitialized: Jenkins home directory: /var/lib/jenkins found at: EnvVars.masterEnvVars.get("JENKINS_HOME")
+Nov 06 20:28:52 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:52.350+0000 [id=1]        INFO        o.e.j.s.handler.ContextHandler#doStart: Started oeje9n.ContextHandler$CoreContextHandler@64d43929{Jenkins v2.580.2,/,b=file:///var/cache/jenkins/war/,a=AVAILABLE,h=oeje9n.ContextHandler$CoreContextHandler$CoreToNestedHandler@1d269ed7{STARTED}}
+Nov 06 20:28:52 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:52.357+0000 [id=1]        INFO        o.e.j.server.AbstractConnector#doStart: Started oejs.ServerConnector@4c9e9fb8{HTTP/1.1, (http/1.1)}{0.0.0.0:8080}
+Nov 06 20:28:52 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:52.358+0000 [id=1]        INFO        org.eclipse.jetty.server.Server#doStart: Started oejs.Server@9ec531{STARTING}[12.1.14,sto=0] @671ms
+Nov 06 20:28:52 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:52.358+0000 [id=26]        INFO        winstone.Logger#logInternal: Winstone Servlet Engine running: controlPort=disabled
+Nov 06 20:28:52 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:52.495+0000 [id=25]        INFO        jenkins.model.Jenkins#<init>: Starting version 2.580.2
+Nov 06 20:28:52 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:52.589+0000 [id=33]        INFO        jenkins.InitReactorRunner$1#onAttained: Started initialization
+Nov 06 20:28:52 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:52.618+0000 [id=37]        INFO        jenkins.InitReactorRunner$1#onAttained: Listed all plugins
+Nov 06 20:28:54 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:54.478+0000 [id=31]        INFO        jenkins.InitReactorRunner$1#onAttained: Prepared all plugins
+Nov 06 20:28:54 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:54.492+0000 [id=38]        INFO        jenkins.InitReactorRunner$1#onAttained: Started all plugins
+Nov 06 20:28:54 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:54.499+0000 [id=35]        INFO        jenkins.InitReactorRunner$1#onAttained: Augmented all extensions
+Nov 06 20:28:55 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:55.036+0000 [id=37]        INFO        jenkins.InitReactorRunner$1#onAttained: System config loaded
+Nov 06 20:28:55 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:55.037+0000 [id=34]        INFO        jenkins.InitReactorRunner$1#onAttained: System config adapted
+Nov 06 20:28:55 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:55.038+0000 [id=31]        INFO        jenkins.InitReactorRunner$1#onAttained: Loaded all jobs
+Nov 06 20:28:55 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:55.044+0000 [id=35]        INFO        jenkins.InitReactorRunner$1#onAttained: Configuration for all jobs updated
+Nov 06 20:28:55 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:55.070+0000 [id=34]        INFO        jenkins.InitReactorRunner$1#onAttained: Completed initialization
+Nov 06 20:28:55 runnervm7aw5e jenkins[11323]: 2026-11-06 20:28:55.085+0000 [id=25]        INFO        hudson.lifecycle.Lifecycle#onReady: Jenkins is fully up and running
+Nov 06 20:28:55 runnervm7aw5e systemd[1]: Started jenkins.service - Jenkins Continuous Integration Server.

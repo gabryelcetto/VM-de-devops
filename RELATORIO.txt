@@ -1,0 +1,240 @@
+Laboratório do Painel — 2026-11-06T20:39:40.031Z
+Repositório de teste: https://github.com/gabryelcetto/VM-de-devops.git (lab-painel)
+OK: 235   FALHAS: 1
+
+[OK]    Abas :: abre "inicio" — Atualizado às 20:29:16
+[OK]    Abas :: abre "docker" — Atualizado às 20:29:20
+[OK]    Abas :: abre "jenkins" — Atualizado às 20:29:25
+[OK]    Abas :: abre "git" — Atualizado às 20:29:25
+[OK]    Abas :: abre "vscode" — Atualizado às 20:29:30
+[OK]    Abas :: abre "terraform" — Atualizado às 20:29:35
+[OK]    Abas :: abre "python" — Atualizado às 20:29:35
+[OK]    Abas :: abre "monitoramento" — Atualizado às 20:29:40
+[OK]    Abas :: abre "atividades" — Atualizado às 20:29:45
+[OK]    Abas :: abre "sistema" — Atualizado às 20:29:46
+[OK]    Git :: configurar nome e e-mail — Identidade do Git salva.
+[OK]    Git :: gerar chave SSH — Chave SSH criada. Agora copie a chave pública e cole no GitHub.
+[OK]    Git :: novo repositório (modelo 0) — Projeto criado em ~/projetos/lab-repo-py.
+[OK]    Git :: novo repositório (modelo 1) — Projeto criado em ~/projetos/lab-repo-tf.
+[OK]    Git :: novo repositório (modelo 2) — Projeto criado em ~/projetos/lab-repo-node.
+[OK]    Git :: novo repositório (modelo 3) — Projeto criado em ~/projetos/lab-repo-simples.
+[OK]    Git :: commit pela tela (arquivos marcados) — [main (root-commit) 05e9b34] primeiro commit do laboratorio 3 files changed, 8 insertions(+) create mode 100644 .gitignore create mode 100644 README.md create mode 100644 app.py
+[OK]    Git :: criar e trocar de branch — Switched to a new branch 'feature/teste'
+[OK]    Git :: commit na branch — [feature/teste aaa42ba] commit na branch 1 file changed, 1 insertion(+) create mode 100644 branch.txt
+[OK]    Git :: voltar para main — Switched to branch 'main'
+[OK]    Git :: merge da branch — Updating 05e9b34..aaa42ba Fast-forward branch.txt | 1 + 1 file changed, 1 insertion(+) create mode 100644 branch.txt
+[OK]    Git :: tag — Tag v1.0.0 criada. Use Push para enviá-la ao GitHub.
+[OK]    Git :: gráfico — * aaa42ba (HEAD -> main, tag: v1.0.0, feature/teste) commit na branch (Aluno Lab, 2026-11-06) * 05e9b34 primeiro commit do laboratorio (Aluno Lab, 2026-11-06)
+[OK]    Git :: info do repositório — {"caminho":"/home/aluno/projetos/lab-repo-py","nome":"lab-repo-py","branch":"main","branches":["feature/teste","main"],"mudancas":[],"log":[{"hash":"aaa42ba","data":"06/11 20:29","autor":"Aluno Lab","msg":"commit na branch"},{"hash":"05e9b34","data":"06/11 20:29","autor":"Aluno Lab","msg":"primeiro commit do laboratorio"}],"remoto":"","sincronia":"","tags":["v1.0.0"],"stashes":[]}
+[OK]    Git :: remoto — Repositório remoto (origin) agora é https://github.com/usuario/repositorio.git.
+[OK]    Git :: diff — (sem diferenças)
+[OK]    Git :: desfazer último commit — Último commit desfeito (as mudanças continuam nos arquivos).
+[OK]    Git :: stash — Saved working directory and index state On main: guardado pelo painel
+[OK]    Git :: stash pop — On branch main Changes to be committed: (use "git restore --staged <file>..." to unstage) new file: branch.txt Dropped refs/stash@{0} (fc75cf59fb99c8fd8c4ca9ebb2aff4bd373cef17)
+[OK]    Git :: apagar branch não juntada: avisa antes — NAO_JUNTADA: A branch feature/teste tem commits que não foram juntados (merge) em outra branch. Se apagar, esses commits se perdem.
+[OK]    Git :: apagar branch (forçado, depois do aviso) — Branch feature/teste apagada.
+[OK]    QA :: Push sem nenhum commit explica o que fazer — error: src refspec HEAD does not match any error: failed to push some refs to 'https://github.com/gabryelcetto/nao-existe-qa.git' Dica: Ainda não existe nenhum commit para enviar. Faça um Commit antes do primeiro Push.
+[OK]    Jenkins :: Pipeline: Olá (ola-jenkins, sem construir) — caso do aluno — Pipeline 'ola-jenkins' criado.
+[OK]    Jenkins :: criar de novo com o mesmo nome dá mensagem clara — Já existe um item com esse nome no Jenkins. Escolha outro nome ou apague o antigo.
+[OK]    Jenkins :: criar "Pipeline: Olá" — Pipeline 'lab-0' criado.
+[OK]    Jenkins :: build de "Pipeline: Olá" termina com sucesso — Started by user aluno [Pipeline] Start of Pipeline [Pipeline] node Running on Jenkins in /var/lib/jenkins/workspace/lab-0 [Pipeline] { [Pipeline] stage [Pipeline] { (Ola) [Pipeline] echo Ola do Jenkins! [Pipeline] } [Pipeline] // stage [Pipeline] stage [Pipeline] { (Informacoes) [Pipeline] sh + date Fri Nov 6 20:30:11 UTC 2026 + hostname runnervm7aw5e + whoami jenkins [Pipeline] } [Pipeline] // stage [Pipeline] } [Pipeline] // node [Pipeline] End of Pipeline Finished: SUCCESS
+[OK]    Jenkins :: criar "Pipeline: Docker" — Pipeline 'lab-1' criado.
+[OK]    Jenkins :: build de "Pipeline: Docker" termina com sucesso — ypoint.…" Less than a second ago Up Less than a second 0.0.0.0:8088->80/tcp, [::]:8088->80/tcp site-jenkins [Pipeline] sh + docker inspect -f Limite de memoria: {{.HostConfig.Memory}} bytes site-jenkins Limite de memoria: 1073741824 bytes [Pipeline] sh + sleep 2 + curl -s http://localhost:8088 + grep -i welcome to nginx <title>Welcome to nginx!</title> <h1>Welcome to nginx!</h1> [Pipeline] } [Pipeline] // stage [Pipeline] } [Pipeline] // node [Pipeline] End of Pipeline Finished: SUCCESS
+[OK]    Jenkins :: criar "Pipeline: Docker Compose" — Pipeline 'lab-2' criado.
+[OK]    Jenkins :: build de "Pipeline: Docker Compose" termina com sucesso — curl -s http://localhost:8087 + grep -i nginx <title>Welcome to nginx!</title> <h1>Welcome to nginx!</h1> <p>If you see this page, nginx is successfully installed and working. <a href="https://nginx.org/">nginx.org</a>.<br/> <a href="https://community.nginx.org/">community.nginx.org</a>.<br/> <a href="https://f5.com/nginx">f5.com/nginx</a>.</p> <p><em>Thank you for using nginx.</em></p> [Pipeline] } [Pipeline] // stage [Pipeline] } [Pipeline] // node [Pipeline] End of Pipeline Finished: SUCCESS
+[OK]    Jenkins :: criar "Pipeline: Testes Python" — Pipeline 'lab-3' criado.
+[OK]    Jenkins :: build de "Pipeline: Testes Python" termina com sucesso — + python --version Python 3.12.16 [Pipeline] } [Pipeline] // stage [Pipeline] stage [Pipeline] { (Teste) [Pipeline] sh + python -c assert 1 + 1 == 2; print(123) 123 [Pipeline] } [Pipeline] // stage [Pipeline] } $ docker stop --time=1 f4d6ca62882947b6694bae02238fab1c5d14695d05e1def3e21f5da838b04513 $ docker rm -f --volumes f4d6ca62882947b6694bae02238fab1c5d14695d05e1def3e21f5da838b04513 [Pipeline] // withDockerContainer [Pipeline] } [Pipeline] // node [Pipeline] End of Pipeline Finished: SUCCESS
+[OK]    Jenkins :: criar "Pipeline com parâmetros" — Pipeline 'lab-4' criado.
+[OK]    Jenkins :: build de "Pipeline com parâmetros" termina com sucesso — Started by user aluno [Pipeline] Start of Pipeline [Pipeline] node Running on Jenkins in /var/lib/jenkins/workspace/lab-4 [Pipeline] { [Pipeline] stage [Pipeline] { (Ola) [Pipeline] echo Ola, turma! Publicando em dev. [Pipeline] } [Pipeline] // stage [Pipeline] } [Pipeline] // node [Pipeline] End of Pipeline Finished: SUCCESS
+[OK]    Jenkins :: criar "Pipeline do Git" — Pipeline do Git 'lab-5' criado.
+[OK]    Jenkins :: build de "Pipeline do Git" termina com sucesso — sh + docker run --rm alpine echo Ola de um container rodado pelo pipeline Unable to find image 'alpine:latest' locally latest: Pulling from library/alpine 881fc932939e: Already exists Digest: sha256:3f4d6b32e26703c6082839234f43769d5046b3ac7c910033911d1e71d8cd630a Status: Downloaded newer image for alpine:latest Ola de um container rodado pelo pipeline [Pipeline] } [Pipeline] // stage [Pipeline] } [Pipeline] // withEnv [Pipeline] } [Pipeline] // node [Pipeline] End of Pipeline Finished: SUCCESS
+[OK]    Jenkins :: criar "Freestyle" — Freestyle 'lab-6' criado.
+[OK]    Jenkins :: build de "Freestyle" termina com sucesso — Started by user aluno Running as SYSTEM Building in workspace /var/lib/jenkins/workspace/lab-6 [lab-6] $ /bin/sh -xe /tmp/jenkins482618791191101444.sh + echo Ola do Freestyle! Ola do Freestyle! + docker --version Docker version 28.0.4, build b8034c0 + git --version git version 2.56.0 Finished: SUCCESS
+[OK]    Jenkins :: criar "Freestyle + Git" — Freestyle 'lab-7' criado.
+[OK]    Jenkins :: build de "Freestyle + Git" termina com sucesso — instalado](#1-o-que-vem-instalado) 2. [Opção 1: VirtualBox (baixar a VM)](#2-opção-1-virtualbox-baixar-a-vm) 3. [Opção 2: navegador (sem baixar nada)](#3-opção-2-navegador-sem-baixar-nada) 4. [Primeiros passos](#4-primeiros-passos) 5. [Painel DevOps](#5-painel-devops) 6. [Monitoramento: Grafana, Prometheus e Uptime Kuma](#6-monitoramento-grafana-prometheus-e-uptime-kuma) 7. [Problemas comuns](#7-problemas-comuns) 8. [Para quem mantém o projeto](#8-para-quem-mantém-o-projeto) Finished: SUCCESS
+[OK]    Jenkins :: criar "Multibranch" — Multibranch 'lab-8' criado. O Jenkins está procurando as branches com Jenkinsfile.
+[OK]    Jenkins :: criar "Pasta" — Pasta 'lab-9' criado.
+[OK]    Jenkins :: Freestyle dentro da Pasta — Freestyle 'lab-9/dentro-da-pasta' criado.
+[OK]    Jenkins :: build dentro da Pasta — Started by user aluno Running as SYSTEM Building in workspace /var/lib/jenkins/workspace/lab-9/dentro-da-pasta [dentro-da-pasta] $ /bin/sh -xe /tmp/jenkins15582785649769701699.sh + echo Ola do Freestyle! Ola do Freestyle! + docker --version Docker version 28.0.4, build b8034c0 + git --version git version 2.56.0 Finished: SUCCESS
+[OK]    Jenkins :: container criado pelo "Pipeline: Docker" continua ligado e aparece no Docker — running origem=jenkins limite=1073741824
+[OK]    Jenkins :: limite de 1 GB aplicado ao container do pipeline — 1073741824
+[OK]    QA :: Jenkins recusa o endereço de exemplo usuario/repositorio com explicação — Troque o endereço de exemplo (usuario/repositorio) pelo endereço do seu repositório no GitHub.
+[OK]    QA :: nenhum modelo do Jenkins vem com repositório falso — https://github.com/gabryelcetto/VM-de-devops.git https://github.com/gabryelcetto/VM-de-devops.git https://github.com/gabryelcetto/VM-de-devops.git
+[OK]    QA :: job copiado constrói de verdade (não fica preso esperando salvar) — Construção de 'lab-0-qa-copia' iniciada. Started by user aluno [Pipeline] Start of Pipeline [Pipeline] node Running on Jenkins in /var/lib/jenkins/workspace/lab-0-qa-copia [Pipeline] { [Pipeline] stage [Pipeline] { (Ola) [Pipeline] echo Ola do Jenkins! [Pipeline] } [Pipeline] // stage [Pipeline] stage [Pipeline] { (Informacoes) [Pipeline] sh + date Fri Nov 6 20:31:00 UTC 2026 + hostname runnervm7aw5e + whoami jenkins [Pipeline] } [Pipeline] // stage [Pipeline] } [Pipeline] // node [Pipeline] End of Pipeline Finished: SUCCESS
+[OK]    QA :: credencial de token vazia é recusada com explicação — Preencha o usuário do GitHub e o token. Sem eles a credencial não funciona.
+[OK]    QA :: senha da conta no lugar do token é recusada com explicação — Isso não parece um token do GitHub (eles começam com ghp_ ou github_pat_). O GitHub não aceita a senha da conta: crie um token em github.com/settings/personal-access-tokens.
+[OK]    QA :: Painel lê os parâmetros do job — {"parametros":[{"nome":"NOME","tipo":"String","descricao":"Quem cumprimentar","opcoes":[],"padrao":"turma"},{"nome":"AMBIENTE","tipo":"Choice","descricao":"Onde publicar","opcoes":["dev","homologacao"
+[OK]    QA :: build com os valores escolhidos (NOME=qa, AMBIENTE=producao) — Started by user aluno [Pipeline] Start of Pipeline [Pipeline] node Running on Jenkins in /var/lib/jenkins/workspace/lab-4 [Pipeline] { [Pipeline] stage [Pipeline] { (Ola) [Pipeline] echo Ola, qa! Publicando em producao. [Pipeline] } [Pipeline] // stage [Pipeline] } [Pipeline] // node [Pipeline] End of Pipeline Finished: SUCCESS
+[OK]    QA :: Construir num job com parâmetros abre a tela para escolher os valores
+[OK]    QA :: projeto Compose criado pelo Jenkins aparece — {"nome":"site-jenkins","status":"running(1)","arquivos":"/var/lib/jenkins/workspace/lab-2/docker-compose.yml"}
+[OK]    QA :: aba Compose marca o projeto como "Criado pelo Jenkins"
+[OK]    QA :: Derrubar o projeto do Jenkins pelo Painel funciona — Container site-jenkins-web-1 Stopping Container site-jenkins-web-1 Stopped Container site-jenkins-web-1 Removing Container site-jenkins-web-1 Removed Network site-jenkins_default Removing Network site-jenkins_default Removed
+[OK]    Jenkins :: credencial (modelo 0) — Credencial 'lab-token' criada. Use o ID 'lab-token' nos jobs.
+[OK]    Jenkins :: credencial (modelo 1) — Credencial 'lab-ssh-minha' criada. Use o ID 'lab-ssh-minha' nos jobs.
+[OK]    Jenkins :: credencial (modelo 2) — Credencial 'lab-ssh-outra' criada. Use o ID 'lab-ssh-outra' nos jobs.
+[OK]    Jenkins :: credencial (modelo 3) — Credencial 'lab-segredo' criada. Use o ID 'lab-segredo' nos jobs.
+[OK]    Jenkins :: ver configuração — {"campo":"script","valor":"pipeline {\n agent any\n stages {\n stage('Ola') {\n steps {\n echo 'Ola do Jenkins!'\n }\n }\n stage('Informacoes') {\n steps {\n sh 'date && hostname && whoami'\n }\n }\n }\n}\n","cron":"","cron_scm":"","repo":"","gatilhos
+[OK]    Jenkins :: editar script — Configuração salva.
+[OK]    Jenkins :: gatilhos — Configuração salva.
+[OK]    Jenkins :: desligar gatilhos — Configuração salva.
+[OK]    Jenkins :: desativar — Job desativado (não roda até ser ativado).
+[OK]    Jenkins :: ativar — Job ativado.
+[OK]    Jenkins :: copiar — Cópia 'lab-0-copia' criada e pronta para construir.
+[OK]    Jenkins :: construir — Construção de 'lab-0' iniciada.
+[OK]    Jenkins :: etapas — {"numero":"2","status":"SUCCESS","etapas":[{"nome":"Editado","status":"SUCCESS","duracao":24}]}
+[OK]    Jenkins :: console — [Pipeline] Start of Pipeline [Pipeline] node Running on Jenkins in /var/lib/jenkins/workspace/lab-0 [Pipeline] { [Pipeline] stage [Pipeline] { (Editado) [Pipeline] echo editado pelo painel [Pipeline] } [Pipeline] // stage [Pipeline] } [Pipeline] // node [Pipeline] End of Pipeline Finished: SUCCESS
+[OK]    Jenkins :: apagar cópia — 'lab-0-copia' apagado.
+[OK]    Jenkins :: credenciais (lista) — {"credenciais":[{"id":"lab-token","nome":"GitHub (token)","tipo":"Username with password","descricao":"GitHub (token)"},{"id":"lab-ssh-minha","nome":"GitHub (chave SSH do aluno)","tipo":"SSH Username with private key","descricao":"GitHub (chave SSH do aluno)"},{"id":"lab-ssh-outra","nome":"Chave SSH
+[OK]    Docker :: criar container "Site com Nginx" — Container meu-site criado e rodando.
+[OK]    Docker :: "Site com Nginx" continua rodando depois de 8 s — running — Up 11 seconds
+[OK]    Docker :: "Site com Nginx" sem rótulo de compose estranho — projeto=
+[OK]    Docker :: criar container "Apache" — Container meu-apache criado e rodando.
+[OK]    Docker :: "Apache" continua rodando depois de 8 s — running — Up 11 seconds
+[OK]    Docker :: "Apache" sem rótulo de compose estranho — projeto=
+[OK]    Docker :: criar container "Python (servidor de arquivos)" — Container meu-python criado e rodando.
+[OK]    Docker :: "Python (servidor de arquivos)" continua rodando depois de 8 s — running — Up 11 seconds
+[OK]    Docker :: "Python (servidor de arquivos)" sem rótulo de compose estranho — projeto=
+[OK]    Docker :: criar container "MySQL" — Container meu-mysql criado e rodando.
+[OK]    Docker :: "MySQL" continua rodando depois de 8 s — running — Up 11 seconds
+[OK]    Docker :: "MySQL" sem rótulo de compose estranho — projeto=
+[OK]    Docker :: criar container "PostgreSQL" — Container meu-postgres criado e rodando.
+[OK]    Docker :: "PostgreSQL" continua rodando depois de 8 s — running — Up 11 seconds
+[OK]    Docker :: "PostgreSQL" sem rótulo de compose estranho — projeto=
+[OK]    Docker :: criar container "Redis" — Container meu-redis criado e rodando.
+[OK]    Docker :: "Redis" continua rodando depois de 8 s — running — Up 10 seconds
+[OK]    Docker :: "Redis" sem rótulo de compose estranho — projeto=
+[OK]    Docker :: criar container "Ubuntu (para explorar)" — Container meu-ubuntu criado e rodando.
+[OK]    Docker :: "Ubuntu (para explorar)" continua rodando depois de 8 s — running — Up 10 seconds
+[OK]    Docker :: "Ubuntu (para explorar)" sem rótulo de compose estranho — projeto=
+[OK]    Docker :: criar container "Hello World" — Container lab-hello criado e rodando.
+[OK]    Docker :: "Hello World" sem rótulo de compose estranho — projeto=
+[OK]    Docker :: criar container "Personalizado" — Container iw criado e rodando. A imagem python não tem um programa que fique rodando sozinho, então usei o comando sleep infinity para o container continuar ligado. Use o Terminal dele para trabalhar.
+[OK]    Docker :: "Personalizado" continua rodando depois de 8 s — running — Up 11 seconds
+[OK]    Docker :: "Personalizado" sem rótulo de compose estranho — projeto=
+[OK]    Docker :: modo aplicativo: menu próprio (Containers, Imagens, Volumes, Redes, Projetos Compose, Builds) no lugar do menu do Painel — {"menuGeral":"none","lado":["Containers","Imagens","Volumes","Redes","Projetos Compose","Builds"],"titulo":"Docker (DevOps-Lab)","barra":"Docker rodando9 de 10 containers rodando\n CPU 0,5%Memória 487 MB\n Painel DevOps"}
+[OK]    Docker :: barra de baixo mostra o Docker rodando e o uso dos containers — Docker rodando9 de 10 containers rodando CPU 0,5%Memória 487 MB Painel DevOps
+[OK]    Docker :: cartões de uso de CPU e memória dos containers — Uso de CPU dos containers0,5%de 400% (4 núcleos, cada um vale 100%) / Uso de memória dos containers487 MBde 15,6 GB da VM
+[OK]    Docker :: clicar no nome abre os detalhes com os logs do container — 37.403554765Z 2026/11/06 20:31:37 [notice] 1#1: start worker process 32 2026-11-06T20:31:37.403744022Z 2026/11/06 20:31:37 [notice] 1#1: start worker process 33
+[OK]    Docker :: aba Inspecionar mostra o docker inspect formatado
+[OK]    Docker :: aba Executar roda um comando dentro do container — nginx version: nginx/1.31.8
+[OK]    Docker :: aba Estatísticas mostra CPU e memória
+[OK]    Docker :: marcar dois containers mostra as ações em lote — 2 selecionadosIniciarPararApagarLimpar seleção
+[OK]    Docker :: Parar em lote para os dois containers — exited,exited
+[FALHA] Docker :: "Só os que estão rodando" esconde os parados — iw,lab-hello,meu-ubuntu,meu-redis,meu-postgres,meu-mysql,meu-python,meu-apache,meu-site,site-jenkins
+[OK]    Docker :: Iniciar em lote liga os dois de novo — running,running
+[OK]    Docker :: aba Imagens marca as imagens em uso por containers — nginx,redis,postgres,httpd,python,mysql,ubuntu,hello-world
+[OK]    Docker :: tela do Docker sem erros de JavaScript
+[OK]    Docker :: parar — Container parado.
+[OK]    Docker :: iniciar — Container iniciado.
+[OK]    Docker :: reiniciar — Container reiniciado.
+[OK]    Docker :: logs — ice] 1#1: start worker process 22 2026-11-06T20:34:19.851297606Z 2026/11/06 20:34:19 [notice] 1#1: start worker process 23 2026-11-06T20:34:19.851468076Z 2026/11/06 20:34:19 [notice] 1#1: start worker process 24 2026-11-06T20:34:19.851804059Z 2026/11/06 20:34:19 [notice] 1#1: start worker process 25
+[OK]    Docker :: detalhes — "IPAddress": "172.17.0.3", "IPPrefixLen": 16, "IPv6Gateway": "", "GlobalIPv6Address": "", "GlobalIPv6PrefixLen": 0, "DNSNames": null } } } } ]
+[OK]    Docker :: rodar comando — nginx version: nginx/1.31.8
+[OK]    Docker :: criar rede — Rede 'lab-rede' criada. Containers na mesma rede se encontram pelo nome.
+[OK]    Docker :: apagar rede — Rede 'lab-rede' apagada.
+[OK]    Docker :: criar volume — Volume 'lab-volume' criado.
+[OK]    Docker :: apagar volume — Volume 'lab-volume' apagado.
+[OK]    Docker :: site do Nginx responde em :8081 — ok
+[OK]    Docker :: Compose "Site Nginx" sobe — Concluído 344 ms · docker compose -f /home/aluno/projetos/lab-compose-0/docker-compose.yml up -d --remove-orphans Network lab-compose-0_default Creating Network lab-compose-0_default Created Container lab-compose-0-web-1 Creating Container lab-compose-0-web-1 Created Container lab-compose-0-web-1 Starting Container lab-compose-0-web-1 Started
+[OK]    Docker :: Compose "Site Nginx" derruba — {"tarefa":"6a6374971d8d","titulo":"docker compose down (lab-compose-0)"}
+[OK]    Docker :: Compose "Nginx + Redis" sobe — Concluído 430 ms · docker compose -f /home/aluno/projetos/lab-compose-1/docker-compose.yml up -d --remove-orphans Network lab-compose-1_default Creating Network lab-compose-1_default Created Container lab-compose-1-cache-1 Creating Container lab-compose-1-cache-1 Created Container lab-compose-1-web-1 Creating Container lab-compose-1-web-1 Created Container lab-compose-1-cache-1 Starting Container lab-compose-1-cache-1 Started Container lab-compose-1-web-1 Starting Container lab-compose-1-web-1 Started
+[OK]    Docker :: Compose "Nginx + Redis" derruba — {"tarefa":"89e0d36dc956","titulo":"docker compose down (lab-compose-1)"}
+[OK]    Docker :: Compose "WordPress + MySQL" sobe — Concluído 10,1 s · docker compose -f /home/aluno/projetos/lab-compose-2/docker-compose.yml up -d --remove-orphans ab-compose-2_default Creating Network lab-compose-2_default Created Volume "lab-compose-2_db-dados" Creating Volume "lab-compose-2_db-dados" Created Container lab-compose-2-db-1 Creating Container lab-compose-2-db-1 Created Container lab-compose-2-wordpress-1 Creating Container lab-compose-2-wordpress-1 Created Container lab-compose-2-db-1 Starting Container lab-compose-2-db-1 Started Container lab-compose-2-wordpress-1 Starting Container lab-compose-2-wordpress-1 Started
+[OK]    Docker :: Compose "WordPress + MySQL" derruba — {"tarefa":"aa018879a6dd","titulo":"docker compose down (lab-compose-2)"}
+[OK]    Docker :: Compose "Em branco" sobe — Concluído 281 ms · docker compose -f /home/aluno/projetos/lab-compose-3/docker-compose.yml up -d --remove-orphans Network lab-compose-3_default Creating Network lab-compose-3_default Created Container lab-compose-3-app-1 Creating Container lab-compose-3-app-1 Created Container lab-compose-3-app-1 Starting Container lab-compose-3-app-1 Started
+[OK]    Docker :: Compose "Em branco" derruba — {"tarefa":"76332362a022","titulo":"docker compose down (lab-compose-3)"}
+[OK]    Docker :: construir imagem (modelo 0) — Concluído 399 ms · docker build -t lab-imagem-0 . 3 [internal] load .dockerignore #3 transferring context: 2B done #3 DONE 0.0s #4 [internal] load build context #4 transferring context: 149B done #4 DONE 0.0s #5 [1/2] FROM docker.io/library/nginx:alpine #5 DONE 0.0s #6 [2/2] COPY index.html /usr/share/nginx/html/index.html #6 DONE 0.0s #7 exporting to image #7 exporting layers 0.1s done #7 writing image sha256:767d25f5b86ad3b74fb5a9a1c4fcb8f2677b244231b442603031a6507d406346 done #7 naming to docker.io/library/lab-imagem-0 done #7 DONE 0.1s
+[OK]    Docker :: construir imagem (modelo 1) — Concluído 1,1 s · docker build -t lab-imagem-1 . ignore #3 transferring context: 2B done #3 DONE 0.0s #4 [1/3] FROM docker.io/library/python:3.12-slim #4 DONE 0.0s #5 [internal] load build context #5 transferring context: 143B done #5 DONE 0.0s #6 [2/3] WORKDIR /app #6 DONE 0.0s #7 [3/3] COPY app.py . #7 DONE 0.0s #8 exporting to image #8 exporting layers #8 exporting layers 0.9s done #8 writing image sha256:20c996c77ce663f0ebeefb381e7ed527426c2904705e2dee3a2022af5efea223 done #8 naming to docker.io/library/lab-imagem-1 done #8 DONE 0.9s
+[OK]    QA :: criar container de uma imagem com site já sugere porta e nome — {"portas":"8100:80","nome":"lab-imagem-0-1"}
+[OK]    QA :: container da imagem própria sobe — Container lab-imagem-0-1 criado e rodando.
+[OK]    QA :: site da imagem própria abre na porta sugerida (8100:80) — ok
+[OK]    QA :: imagem de script que termina com sucesso não aparece como erro — O container lab-imagem-1-1 rodou o programa dele e terminou com sucesso (programas de uma vez só, como scripts, param quando acabam; servidores continuam ligados). Saída: Ola de dentro do container!
+[OK]    QA :: container com nome repetido dá mensagem clara — Já existe um container chamado qa-dup. Apague o antigo na aba Docker ou escolha outro nome.
+[OK]    QA :: modelos de container/Compose/Jenkins não usam a mesma porta — repetidas:
+[OK]    Docker :: baixar imagem — Concluído 483 ms · docker pull alpine:latest
+[OK]    Monitoramento :: vem instalado e desligado (não gasta memória à toa) — grafana=-/fora uptime-kuma=-/fora prometheus=-/fora node-exporter=-/fora
+[OK]    Monitoramento :: botão "Ligar monitoramento" sobe os 4 serviços — Concluído 25,5 s · bash -c if [ -f imagens.tar.zst ] && ! docker compose config --images | xargs docker image inspect >/dev/null 2>&1; then echo "== Primeira vez: preparando as imagens que vêm na VM (cerca de 1 minuto) =="; zstd -d -q --long=27 -c imagens.tar.zst | docker load || exit 1; fi; docker compose up -d nto-grafana-1 Created Container monitoramento-uptime-kuma-1 Created Container monitoramento-prometheus-1 Created Container monitoramento-node-exporter-1 Starting Container monitoramento-grafana-1 Starting Container monitoramento-uptime-kuma-1 Starting Container monitoramento-prometheus
+[OK]    Monitoramento :: Grafana, Uptime Kuma, Prometheus e node-exporter respondem — grafana=running/no ar uptime-kuma=running/no ar prometheus=running/no ar node-exporter=running/no ar
+[OK]    Monitoramento :: aba mostra os serviços no ar — SituaçãoTudo no ar Ligado usa cerca de 400 MB de memória. Login do Grafana e do Uptime Kumaaluno / devopso mesmo do resto do laboratório Arquivo do Docker Compose/opt/devops-lab/monitoramento/docker-compose.ymlos quatro serviços sobem juntosServiçoSituaçãoEndereçoLoginGrafanaGráficos e painéis. Já
+[OK]    Monitoramento :: Grafana entra com aluno/devops e a fonte Prometheus funciona — 200 {"details":{"application":"Prometheus","features":{"rulerApiEnabled":false}},"message":"Successfully queried the Prometheus API.","status":"OK"}
+[OK]    Monitoramento :: Grafana já tem o painel "Esta VM" — 200 {"meta":{"type":"db","canSave":true,"canEdit":true,"canAdmin":true,"canStar":true,"canDelete":true,"slug":"esta-vm-devop
+[OK]    Monitoramento :: gráfico de memória tem dados (Grafana → Prometheus → node-exporter) — 200 {"status":"success","data":{"resultType":"vector","result":[{"metric":{"__name__":"node_memory_MemTotal_bytes","instance":"127.0.0.1:9100","job":"esta-vm"},"val
+[OK]    Monitoramento :: login no Grafana pela tela abre o painel "Esta VM" — Ir direto para o conteúdo principal Grafana Página inicial Marcadores Favorito Painéis de controle Explorar Aprofundar Alertas Conexões Administração Procurar…
+[OK]    Monitoramento :: Prometheus coleta a VM, o Docker e ele mesmo — {"esta-vm":"1","docker":"1","prometheus":"1"}
+[OK]    Monitoramento :: Uptime Kuma responde em :3001 — 302
+[OK]    Monitoramento :: Uptime Kuma entra com aluno/devops e já vigia Jenkins, Painel, Grafana e Prometheus
+[OK]    Monitoramento :: ver os logs do monitoramento — Concluído 90 ms · docker compose -p monitoramento logs --tail 200 --no-color :25Z [SERVER] INFO: Connected to the database uptime-kuma-1 | 2026-11-06T20:36:25Z [SERVICES] INFO: Starting nscd uptime-kuma-1 | 2026-11-06T20:36:25Z [SERVER] INFO: Listening on: http://127.0.0.1:3001 uptime-kuma-1 | 2026-11-06T20:36:44Z [SOCKET] INFO: New polling connection, IP = 127.0.0.1 uptime-kuma-1 | 2026-11-06T20:36:49Z [AUTH] INFO: Login by username + password. IP=127.0.0.1 uptime-kuma-1 | 2026-11-06T20:36:49Z [AUTH] INFO: Successfully logged in user aluno. IP=127.0.0.1
+[OK]    Monitoramento :: reiniciar — Concluído 4,3 s · docker compose -f /opt/devops-lab/monitoramento/docker-compose.yml restart Container monitoramento-node-exporter-1 Restarting Container monitoramento-uptime-kuma-1 Restarting Container monitoramento-prometheus-1 Restarting Container monitoramento-grafana-1 Restarting Container monitoramento-prometheus-1 Started Container monitoramento-node-exporter-1 Started Container monitoramento-grafana-1 Started Container monitoramento-uptime-kuma-1 Started
+[OK]    Monitoramento :: volta ao ar depois de reiniciar — grafana=running/no ar uptime-kuma=running/no ar prometheus=running/no ar node-exporter=running/no ar
+[OK]    Monitoramento :: Desligar — Concluído 4,2 s · docker compose -f /opt/devops-lab/monitoramento/docker-compose.yml down -prometheus-1 Removing Container monitoramento-node-exporter-1 Stopped Container monitoramento-node-exporter-1 Removing Container monitoramento-prometheus-1 Removed Container monitoramento-node-exporter-1 Removed Container monitoramento-grafana-1 Stopped Container monitoramento-grafana-1 Removing Container monitoramento-grafana-1 Removed Container monitoramento-uptime-kuma-1 Stopped Container monitoramento-uptime-kuma-1 Removing Container monitoramento-uptime-kuma-1 Removed
+[OK]    Monitoramento :: desligado de verdade (memória liberada) — grafana=-/fora uptime-kuma=-/fora prometheus=-/fora node-exporter=-/fora
+[OK]    Monitoramento :: dados do Grafana e do Kuma continuam guardados (volumes) — ["7f8e99116b8a9115dda8666caa01874c33d4bd7a7f830a9c127d0d8bad9b61d7","lab-compose-2_db-dados","monitoramento_grafana-dados","monitoramento_kuma-dados","monitoramento_prometheus-dados","mysql-dados","po
+[OK]    Monitoramento :: atalho grafana no menu de aplicativos
+[OK]    Monitoramento :: atalho uptime-kuma no menu de aplicativos
+[OK]    Monitoramento :: atalho prometheus no menu de aplicativos
+[OK]    Monitoramento :: atalho "Uptime Kuma" liga o monitoramento desligado (preparando as imagens) e abre o navegador — 27 s; Uptime Kuma: Ligando o monitoramento (Grafana, Prometheus e Uptime Kuma)... na primeira vez leva cerca de 1 minuto. ABRIU http://localhost:3001
+[OK]    Monitoramento :: atalho "Grafana" com o monitoramento já ligado abre na hora — ABRIU http://localhost:3000
+[OK]    Docker :: atalho "Docker" abre a tela do Docker numa janela própria — ABRIU http://localhost:8090/?app=docker#docker
+[OK]    Docker :: endereço localhost:8090/#docker abre na aba Docker — aba ativa: docker
+[OK]    Docker :: trocar o #aba no endereço troca a aba — aba ativa: monitoramento
+[OK]    Monitoramento :: atalho com nome errado explica o uso — uso: abrir-monitoramento grafana|kuma|prometheus Command failed: abrir-monitoramento outro uso: abrir-monitoramento grafana|kuma|prometheus
+[OK]    Terraform :: init "Variáveis e saídas" — Concluído 50 ms · terraform init -input=false -no-color Initializing the backend... Initializing provider plugins... - terraform.io/builtin/terraform is built in to Terraform Terraform has been successfully initialized!
+[OK]    Terraform :: validate "Variáveis e saídas" — Concluído 43 ms · terraform validate -no-color Success! The configuration is valid.
+[OK]    Terraform :: plan "Variáveis e saídas" — Concluído 48 ms · terraform plan -input=false -no-color aform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols: + create Terraform will perform the following actions: # terraform_data.exemplo will be created + resource "terraform_data" "exemplo" { + id = (known after apply) + input = "Ola, turma de DevOps!" + output = (known after apply) } Plan: 1 to add, 0 to change, 0 to destroy. Changes to Outputs: + mensagem = (known after apply)
+[OK]    Terraform :: apply "Variáveis e saídas" — Concluído 51 ms · terraform apply -auto-approve -input=false -no-color + resource "terraform_data" "exemplo" { + id = (known after apply) + input = "Ola, turma de DevOps!" + output = (known after apply) } Plan: 1 to add, 0 to change, 0 to destroy. Changes to Outputs: + mensagem = (known after apply) terraform_data.exemplo: Creating... terraform_data.exemplo: Creation complete after 0s [id=a44e7c91-e755-2313-9182-e553db08ee8f] Apply complete! Resources: 1 added, 0 changed, 0 destroyed. Outputs: mensagem = "Ola, turma de DevOps!"
+[OK]    Terraform :: output "Variáveis e saídas" — Concluído 42 ms · terraform output -no-color mensagem = "Ola, turma de DevOps!"
+[OK]    Terraform :: show "Variáveis e saídas" — Concluído 48 ms · terraform show -no-color # terraform_data.exemplo: resource "terraform_data" "exemplo" { id = "a44e7c91-e755-2313-9182-e553db08ee8f" input = "Ola, turma de DevOps!" output = "Ola, turma de DevOps!" } Outputs: mensagem = "Ola, turma de DevOps!"
+[OK]    Terraform :: destroy "Variáveis e saídas" — Concluído 50 ms · terraform destroy -auto-approve -input=false -no-color - resource "terraform_data" "exemplo" { - id = "a44e7c91-e755-2313-9182-e553db08ee8f" -> null - input = "Ola, turma de DevOps!" -> null - output = "Ola, turma de DevOps!" -> null } Plan: 0 to add, 0 to change, 1 to destroy. Changes to Outputs: - mensagem = "Ola, turma de DevOps!" -> null terraform_data.exemplo: Destroying... [id=a44e7c91-e755-2313-9182-e553db08ee8f] terraform_data.exemplo: Destruction complete after 0s Destroy complete! Resources: 1 destroyed.
+[OK]    Terraform :: init "Arquivo local" — Concluído 888 ms · terraform init -input=false -no-color ... Initializing provider plugins... - Finding latest version of hashicorp/local... - Installing hashicorp/local v2.9.1... - Installed hashicorp/local v2.9.1 (signed by HashiCorp) Terraform has created a lock file .terraform.lock.hcl to record the provider selections it made above. Include this file in your version control repository so that Terraform can guarantee to make the same selections by default when you run "terraform init" in the future. Terraform has been successfully initialized!
+[OK]    Terraform :: validate "Arquivo local" — Concluído 143 ms · terraform validate -no-color Success! The configuration is valid.
+[OK]    Terraform :: plan "Arquivo local" — Concluído 187 ms · terraform plan -input=false -no-color sha512 = (known after apply) + content_md5 = (known after apply) + content_sha1 = (known after apply) + content_sha256 = (known after apply) + content_sha512 = (known after apply) + directory_permission = "0777" + file_permission = "0777" + filename = "./ola.txt" + id = (known after apply) } Plan: 1 to add, 0 to change, 0 to destroy. Changes to Outputs: + arquivo = "./ola.txt"
+[OK]    Terraform :: apply "Arquivo local" — Concluído 235 ms · terraform apply -auto-approve -input=false -no-color = (known after apply) + directory_permission = "0777" + file_permission = "0777" + filename = "./ola.txt" + id = (known after apply) } Plan: 1 to add, 0 to change, 0 to destroy. Changes to Outputs: + arquivo = "./ola.txt" local_file.ola: Creating... local_file.ola: Creation complete after 0s [id=ffde83ae62dc4761a7b1177d7ad082032357bb29] Apply complete! Resources: 1 added, 0 changed, 0 destroyed. Outputs: arquivo = "./ola.txt"
+[OK]    Terraform :: output "Arquivo local" — Concluído 58 ms · terraform output -no-color arquivo = "./ola.txt"
+[OK]    Terraform :: show "Arquivo local" — Concluído 126 ms · terraform show -no-color e62dc4761a7b1177d7ad082032357bb29" content_sha256 = "8647d2415f83ff2747b66e092867ce0793eca1e6a5e9c9d5b36b911c92c821f8" content_sha512 = "6fba409c152fc74cf1104fd676dc2f8880bdfaa5e65508a4c9eedd0ad228cf03ed610f3fcd33d7345719bab5535ca0149b8a8174260958f4b67eb518928c8068" directory_permission = "0777" file_permission = "0777" filename = "./ola.txt" id = "ffde83ae62dc4761a7b1177d7ad082032357bb29" } Outputs: arquivo = "./ola.txt"
+[OK]    Terraform :: destroy "Arquivo local" — Concluído 270 ms · terraform destroy -auto-approve -input=false -no-color null - directory_permission = "0777" -> null - file_permission = "0777" -> null - filename = "./ola.txt" -> null - id = "ffde83ae62dc4761a7b1177d7ad082032357bb29" -> null } Plan: 0 to add, 0 to change, 1 to destroy. Changes to Outputs: - arquivo = "./ola.txt" -> null local_file.ola: Destroying... [id=ffde83ae62dc4761a7b1177d7ad082032357bb29] local_file.ola: Destruction complete after 0s Destroy complete! Resources: 1 destroyed.
+[OK]    Terraform :: init "Container Docker" — Concluído 1,4 s · terraform init -input=false -no-color oviders are signed by their developers. If you'd like to know more about provider signing, you can read about it here: https://developer.hashicorp.com/terraform/cli/plugins/signing Terraform has created a lock file .terraform.lock.hcl to record the provider selections it made above. Include this file in your version control repository so that Terraform can guarantee to make the same selections by default when you run "terraform init" in the future. Terraform has been successfully initialized!
+[OK]    Terraform :: validate "Container Docker" — Concluído 236 ms · terraform validate -no-color Success! The configuration is valid.
+[OK]    Terraform :: plan "Container Docker" — Concluído 311 ms · terraform plan -input=false -no-color labels (known after apply) + ports { + external = 8085 + internal = 80 + ip = "0.0.0.0" + protocol = "tcp" } } # docker_image.nginx will be created + resource "docker_image" "nginx" { + id = (known after apply) + image_id = (known after apply) + keep_locally = true + name = "nginx:alpine" + repo_digest = (known after apply) } Plan: 2 to add, 0 to change, 0 to destroy.
+[OK]    Terraform :: apply "Container Docker" — Concluído 575 ms · terraform apply -auto-approve -input=false -no-color = "nginx:alpine" + repo_digest = (known after apply) } Plan: 2 to add, 0 to change, 0 to destroy. docker_image.nginx: Creating... docker_image.nginx: Creation complete after 0s [id=sha256:7cac34a4d72be2539edd7d8732207e8ffc8268a0b6458e6491f9b7c3dc95a70dnginx:alpine] docker_container.web: Creating... docker_container.web: Creation complete after 0s [id=fef69b0bdf6829638da3a52ab642f869981757e0ec83a00c18df1c85d296b5e8] Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
+[OK]    Terraform :: output "Container Docker" — Concluído 104 ms · terraform output -no-color Warning: No outputs found The state file either has no outputs defined, or all the defined outputs are empty. Please define an output in your configuration with the `output` keyword and run `terraform refresh` for it to become available. If you are using interpolation, please verify the interpolated value is not empty. You can use the `terraform console` command to assist.
+[OK]    Terraform :: show "Container Docker" — Concluído 251 ms · terraform show -no-color 5 internal = 80 ip = "0.0.0.0" protocol = "tcp" } } # docker_image.nginx: resource "docker_image" "nginx" { id = "sha256:7cac34a4d72be2539edd7d8732207e8ffc8268a0b6458e6491f9b7c3dc95a70dnginx:alpine" image_id = "sha256:7cac34a4d72be2539edd7d8732207e8ffc8268a0b6458e6491f9b7c3dc95a70d" keep_locally = true name = "nginx:alpine" repo_digest = "nginx@sha256:713fc2ebfd92e8217db451477182ee91944b123d2b1ee9fd5a8c6e91ca6c3a11" }
+[OK]    Terraform :: destroy "Container Docker" — Concluído 605 ms · terraform destroy -auto-approve -input=false -no-color 6:713fc2ebfd92e8217db451477182ee91944b123d2b1ee9fd5a8c6e91ca6c3a11" -> null } Plan: 0 to add, 0 to change, 2 to destroy. docker_container.web: Destroying... [id=fef69b0bdf6829638da3a52ab642f869981757e0ec83a00c18df1c85d296b5e8] docker_container.web: Destruction complete after 0s docker_image.nginx: Destroying... [id=sha256:7cac34a4d72be2539edd7d8732207e8ffc8268a0b6458e6491f9b7c3dc95a70dnginx:alpine] docker_image.nginx: Destruction complete after 0s Destroy complete! Resources: 2 destroyed.
+[OK]    Terraform :: apply do "Container Docker" cria o nginx-terraform — Concluído 568 ms · terraform apply -auto-approve -input=false -no-color
+[OK]    Terraform :: apagar o container por fora não avisa o Terraform (estado ainda lista docker_container.web) — ["docker_container.web","docker_image.nginx"]
+[OK]    Terraform :: "Conferir com a realidade (refresh)" tira do estado o que não existe mais — Concluído 388 ms · terraform apply -refresh-only -auto-approve -input=false -no-color ["docker_image.nginx"] attributes hidden) - ports { - external = 8085 -> null - internal = 80 -> null - ip = "0.0.0.0" -> null - protocol = "tcp" -> null } } This is a refresh-only plan, so Terraform will not take any actions to undo these. If you were expecting these changes then you can apply this plan to record the updated values in the Terraform state without changing any remote objects. Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+[OK]    Terraform :: apagar projeto depois do refresh — Concluído 463 ms · bash -c echo '== terraform destroy: apagando o que o projeto criou =='; terraform destroy -auto-approve -input=false -no-color && echo "== apagando a pasta $PWD =="; cd .. && rm -rf -- "$1" && echo "Projeto apagado." apagar /home/aluno/projetos/lab-tf-refresh - name = "nginx:alpine" -> null - repo_digest = "nginx@sha256:713fc2ebfd92e8217db451477182ee91944b123d2b1ee9fd5a8c6e91ca6c3a11" -> null } Plan: 0 to add, 0 to change, 1 to destroy. docker_image.nginx: Destroying... [id=sha256:7cac34a4d72be2539edd7d8732207e8ffc8268a0b6458e6491f9b7c3dc95a70dnginx:alpine] docker_image.ngin
+[OK]    Terraform :: "Apagar projeto" roda o destroy antes de apagar a pasta — Concluído 629 ms · bash -c echo '== terraform destroy: apagando o que o projeto criou =='; terraform destroy -auto-approve -input=false -no-color && echo "== apagando a pasta $PWD =="; cd .. && rm -rf -- "$1" && echo "Projeto apagado." apagar /home/aluno/projetos/lab-tf-apagar } Plan: 0 to add, 0 to change, 2 to destroy. docker_container.web: Destroying... [id=2c216a1a935383378f06b3191ba516d3d5d9b97f469f6ecbd5a6f03cf6bf53cf] docker_container.web: Destruction complete after 0s docker_image.nginx: Destroying... [id=sha256:7cac34a4d72be2539edd7d8732207e8ffc8268a0b6458e6491f9b7c3dc95a70dnginx:alpi
+[OK]    Terraform :: o container criado pelo Terraform some junto (não fica sobrando) — antes=running depois=não existe
+[OK]    Terraform :: a pasta do projeto some da lista
+[OK]    Terraform :: a imagem nginx:alpine continua (keep_locally)
+[OK]    QA :: Painel recusa apagar pasta que não é projeto — Só dá para apagar pastas de projeto que ficam direto em ~/projetos.
+[OK]    Docker :: "Apagar projeto" do Compose derruba os containers e apaga a pasta — antes=1 depois=0 == docker compose down: removendo containers e volumes do projeto == Container lab-compose-apagar-web-1 Stopping Container lab-compose-apagar-web-1 Stopped Container lab-compose-apagar-web-1 Removing Container lab-compose-apagar-web-1 Removed Network lab-compose-apagar_default Removing Network lab-compose-apagar_default Removed == apagando a pasta /home/aluno/projetos/lab-compose-apagar == Projeto apagado.
+[OK]    Python :: criar .venv "Olá mundo" — Concluído 2,8 s · python3 -m venv .venv
+[OK]    Python :: rodar main.py — Concluído 24 ms · /home/aluno/projetos/lab-py-0/.venv/bin/python -u main.py Ola, turma de DevOps! Python 3.12.3
+[OK]    Python :: criar .venv "API com Flask" — Concluído 1,6 s · /home/aluno/projetos/lab-py-1/.venv/bin/python -m pip install -r requirements.txt kB 27.0 MB/s eta 0:00:00 Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB) Downloading werkzeug-3.1.9-py3-none-any.whl (228 kB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 228.7/228.7 kB 31.7 MB/s eta 0:00:00 Installing collected packages: markupsafe, itsdangerous, click, blinker, werkzeug, jinja2, flask Successfully installed blinker-1.9.0 click-8.5.1 flask-3.1.3 itsdangerous-2.2.0 jinja2-3.1.6 markupsafe-3.0.4 werkzeug-3.1.9
+[OK]    Python :: instalar pacotes "API com Flask" — Concluído 1,6 s · /home/aluno/projetos/lab-py-1/.venv/bin/python -m pip install -r requirements.txt kB 27.0 MB/s eta 0:00:00 Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB) Downloading werkzeug-3.1.9-py3-none-any.whl (228 kB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 228.7/228.7 kB 31.7 MB/s eta 0:00:00 Installing collected packages: markupsafe, itsdangerous, click, blinker, werkzeug, jinja2, flask Successfully installed blinker-1.9.0 click-8.5.1 flask-3.1.3 itsdangerous-2.2.0 jinja2-3.1.6 markupsafe-3.0.4 werkzeug-3.1.9
+[OK]    Python :: criar .venv "Testes com pytest" — Concluído 2,1 s · /home/aluno/projetos/lab-py-2/.venv/bin/python -m pip install -r requirements.txt l (7.6 kB) Downloading packaging-26.3-py3-none-any.whl (129 kB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 130.0/130.0 kB 51.2 MB/s eta 0:00:00 Downloading pluggy-1.7.0-py3-none-any.whl (27 kB) Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 35.7 MB/s eta 0:00:00 Installing collected packages: pygments, pluggy, packaging, iniconfig, pytest Successfully installed iniconfig-2.3.1 packaging-26.3 pluggy-1.7.0 pygments-2.21.0 pytest-9.2.0
+[OK]    Python :: instalar pacotes "Testes com pytest" — Concluído 2,1 s · /home/aluno/projetos/lab-py-2/.venv/bin/python -m pip install -r requirements.txt l (7.6 kB) Downloading packaging-26.3-py3-none-any.whl (129 kB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 130.0/130.0 kB 51.2 MB/s eta 0:00:00 Downloading pluggy-1.7.0-py3-none-any.whl (27 kB) Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 35.7 MB/s eta 0:00:00 Installing collected packages: pygments, pluggy, packaging, iniconfig, pytest Successfully installed iniconfig-2.3.1 packaging-26.3 pluggy-1.7.0 pygments-2.21.0 pytest-9.2.0
+[OK]    Python :: rodar test_calc.py — Concluído 197 ms · /home/aluno/projetos/lab-py-2/.venv/bin/python -u test_calc.py ============================= test session starts ============================== platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /home/aluno/projetos/lab-py-2/.venv/bin/python cachedir: .pytest_cache rootdir: /home/aluno/projetos/lab-py-2 collecting ... collected 1 item test_calc.py::test_somar PASSED [100%] ============================== 1 passed in 0.01s ===============================
+[OK]    Python :: rodar testes (pytest) — Concluído 194 ms · /home/aluno/projetos/lab-py-2/.venv/bin/python -m pytest -v ============================= test session starts ============================== platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /home/aluno/projetos/lab-py-2/.venv/bin/python cachedir: .pytest_cache rootdir: /home/aluno/projetos/lab-py-2 collecting ... collected 1 item test_calc.py::test_somar PASSED [100%] ============================== 1 passed in 0.00s ===============================
+[OK]    Python :: apagar projeto Python — Concluído 31 ms · bash -c echo "== apagando a pasta $PWD =="; cd .. && rm -rf -- "$1" && echo "Projeto apagado." apagar /home/aluno/projetos/lab-py-0
+[OK]    Abas :: "inicio" com tudo criado — Atualizado às 20:39:12
+[OK]    Abas :: "vscode" com tudo criado — Atualizado às 20:39:15
+[OK]    Abas :: "atividades" com tudo criado — Atualizado às 20:39:20
+[OK]    Abas :: "sistema" com tudo criado — Atualizado às 20:39:25
+[OK]    QA :: Desligar o Docker desliga de verdade — Docker desligado. Ele liga sozinho de novo quando você usar o docker ou clicar em Ligar. estado=inactive
+[OK]    QA :: Ligar o Docker de novo funciona — Docker ligado. estado=active
+[OK]    QA :: página inicial do Lab tem o link do Painel DevOps
+[OK]    Desempenho :: /api/saude-lab responde em menos de 2,5 s — mediana 12 ms
+[OK]    Desempenho :: /api/resumo responde em menos de 2,5 s — mediana 486 ms
+[OK]    Desempenho :: /api/docker responde em menos de 2,5 s — mediana 490 ms
+[OK]    Desempenho :: /api/jenkins responde em menos de 2,5 s — mediana 303 ms
+[OK]    Desempenho :: /api/git responde em menos de 2,5 s — mediana 67 ms
+[OK]    Desempenho :: /api/vscode responde em menos de 2,5 s — mediana 3 ms
+[OK]    Desempenho :: /api/terraform responde em menos de 2,5 s — mediana 4 ms
+[OK]    Desempenho :: /api/python responde em menos de 2,5 s — mediana 5 ms
+[OK]    Desempenho :: /api/monitoramento responde em menos de 2,5 s — mediana 91 ms
+[OK]    Desempenho :: /api/sistema responde em menos de 2,5 s — mediana 36 ms
+[OK]    Desempenho :: /api/tarefas responde em menos de 2,5 s — mediana 2 ms
+[OK]    Desempenho :: /api/ferramentas responde em menos de 2,5 s — mediana 2 ms
+[OK]    Desempenho :: o painel abre e mostra os dados em menos de 4 s — 524 ms

@@ -1,0 +1,13 @@
+/api/saude-lab       mediana    12 ms  (min 12, max 12)
+/api/resumo          mediana   486 ms  (min 479, max 495)
+/api/docker          mediana   490 ms  (min 489, max 497)
+/api/jenkins         mediana   303 ms  (min 302, max 310)
+/api/git             mediana    67 ms  (min 66, max 67)
+/api/vscode          mediana     3 ms  (min 2, max 3)
+/api/terraform       mediana     4 ms  (min 4, max 4)
+/api/python          mediana     5 ms  (min 5, max 6)
+/api/monitoramento   mediana    91 ms  (min 90, max 92)
+/api/sistema         mediana    36 ms  (min 35, max 37)
+/api/tarefas         mediana     2 ms  (min 2, max 2)
+/api/ferramentas     mediana     2 ms  (min 2, max 271)
+abrir o painel na Visão geral (até mostrar dados)  524 ms

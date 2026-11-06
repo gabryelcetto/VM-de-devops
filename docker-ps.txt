@@ -1,0 +1,4 @@
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS                      PORTS                                     NAMES
+206e1dc375e6   lab-imagem-1   "python app.py"          3 minutes ago   Exited (0) 3 minutes ago                                              lab-imagem-1-1
+d93777ff2a70   lab-imagem-0   "/docker-entrypoint.…"   4 minutes ago   Exited (0) 16 seconds ago                                             lab-imagem-0-1
+6d2640b23455   nginx:alpine   "/docker-entrypoint.…"   9 minutes ago   Up 12 seconds               0.0.0.0:8088->80/tcp, [::]:8088->80/tcp   site-jenkins
