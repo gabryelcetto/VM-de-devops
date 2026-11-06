@@ -1,0 +1,22 @@
+CPU ocupada (média dos 2 núcleos): 1.1%
+trocas de contexto/s: 193
+--- processos (% de 1 núcleo)
+   0.2%  11013  bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida-5-sem-clipboard-
+   0.1%  752  VBoxClient /usr/bin/VBoxClient --seamless
+   0.1%  648  Xorg /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/light
+   0.1%  581  VBoxService /usr/sbin/VBoxService
+   0.0%  881  python3 python3 /usr/local/lib/devops-lab/painel/painel.py
+   0.0%  855  panel-1-whisker /usr/lib/x86_64-linux-gnu/xfce4/panel/wrapper-2.0 /usr/lib/x
+   0.0%  844  Thunar Thunar --daemon
+   0.0%  834  VBoxClient /usr/bin/VBoxClient --vmsvga
+   0.0%  807  xfwm4 xfwm4
+   0.0%  519  polkitd /usr/lib/polkit-1/polkitd --no-debug
+   0.0%  211  systemd-journal /usr/lib/systemd/systemd-journald
+   0.0%  11  kworker/u4:0-events_power_efficient
+--- interrupções/s
+    127  LOC   Local timer interrupts
+     46  CAL   Function call interrupts
+     26  RES   Rescheduling interrupts
+      2  20   IO-APIC 20-fasteoi vboxguest
+      1  21   IO-APIC 21-fasteoi ahci[0000:00:0d.0]
+      0  TLB   TLB shootdowns

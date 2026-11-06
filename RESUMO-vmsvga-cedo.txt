@@ -1,0 +1,28 @@
+cpus=2 graphicscontroller="vboxsvga" hidpointing="usbtablet" usb="on" 
+[boot1] login em 12s | janela preta por 10s | tela no fim: 14240 cores
+0
+[boot2-vmsvga] login em 12s | janela preta por 8s | tela no fim: 14229 cores
+VBoxDRMClient rodando: 0
+pedido 1366x768: tela 14122 cores 1366x768 | xrandr: current 1366 x 768
+pedido 1280x800: tela 14280 cores 1280x800 | xrandr: current 1280 x 800
+pedido 1024x768: tela 14229 cores 1024x768 | xrandr: current 1024 x 768
+abrir terminal: 1129 ms | abrir Thunar: 539 ms
+[0-como-vem] VirtualBox no computador: 8% de 1 núcleo | dentro da VM: CPU ocupada (média dos 2 núcleos): 4.0% trocas de contexto/s: 452 
+         0.4% 1247 bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida-0-como-vem.txt; 0.4% 1054 java /usr/bin/java -Djava.awt.headless=true -Djenkins.install.run; 0.2% 752 VBoxClient /usr/bin/VBoxClient --seamless; 0.2% 648 Xorg /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/light;
+        irq/s: 632=LOC 55=CAL 39=RES 12=21 
+[1-sem-arrastar-soltar] VirtualBox no computador: 6% de 1 núcleo | dentro da VM: CPU ocupada (média dos 2 núcleos): 2.0% trocas de contexto/s: 286 
+         0.4% 3637 bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida-1-sem-arrastar-s; 0.3% 1054 java /usr/bin/java -Djava.awt.headless=true -Djenkins.install.run; 0.1% 881 python3 python3 /usr/local/lib/devops-lab/painel/painel.py; 0.1% 752 VBoxClient /usr/bin/VBoxClient --seamless;
+        irq/s: 355=LOC 66=CAL 28=RES 1=20 
+[2-vblank-off] VirtualBox no computador: 6% de 1 núcleo | dentro da VM: CPU ocupada (média dos 2 núcleos): 1.7% trocas de contexto/s: 279 
+         0.4% 5509 bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida-2-vblank-off.txt; 0.2% 1054 java /usr/bin/java -Djava.awt.headless=true -Djenkins.install.run; 0.1% 881 python3 python3 /usr/local/lib/devops-lab/painel/painel.py; 0.1% 752 VBoxClient /usr/bin/VBoxClient --seamless;
+        irq/s: 339=LOC 65=CAL 28=RES 2=20 
+[3-sem-compositor] VirtualBox no computador: 6% de 1 núcleo | dentro da VM: CPU ocupada (média dos 2 núcleos): 1.5% trocas de contexto/s: 250 
+         0.3% 7379 bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida-3-sem-compositor; 0.3% 1054 java /usr/bin/java -Djava.awt.headless=true -Djenkins.install.run; 0.1% 752 VBoxClient /usr/bin/VBoxClient --seamless; 0.1% 648 Xorg /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/light;
+        irq/s: 259=LOC 57=CAL 26=RES 1=21 
+[4-sem-jenkins] VirtualBox no computador: 4% de 1 núcleo | dentro da VM: CPU ocupada (média dos 2 núcleos): 1.2% trocas de contexto/s: 216 
+         0.2% 9208 bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida-4-sem-jenkins.tx; 0.1% 881 python3 python3 /usr/local/lib/devops-lab/painel/painel.py; 0.1% 752 VBoxClient /usr/bin/VBoxClient --seamless; 0.1% 648 Xorg /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/light;
+        irq/s: 137=LOC 52=CAL 27=RES 3=20 
+[5-sem-clipboard-seamless] VirtualBox no computador: 3% de 1 núcleo | dentro da VM: CPU ocupada (média dos 2 núcleos): 1.1% trocas de contexto/s: 193 
+         0.2% 11013 bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida-5-sem-clipboard-; 0.1% 752 VBoxClient /usr/bin/VBoxClient --seamless; 0.1% 648 Xorg /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/light; 0.1% 581 VBoxService /usr/sbin/VBoxService;
+        irq/s: 127=LOC 46=CAL 26=RES 2=20 
+abrir terminal (no fim): 560 ms | abrir Thunar: 37 ms

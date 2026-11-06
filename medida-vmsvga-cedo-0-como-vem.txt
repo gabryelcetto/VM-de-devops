@@ -1,0 +1,27 @@
+CPU ocupada (média dos 2 núcleos): 4.0%
+trocas de contexto/s: 452
+--- processos (% de 1 núcleo)
+   0.4%  1247  bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida-0-como-vem.txt
+   0.4%  1054  java /usr/bin/java -Djava.awt.headless=true -Djenkins.install.run
+   0.2%  752  VBoxClient /usr/bin/VBoxClient --seamless
+   0.2%  648  Xorg /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/light
+   0.1%  881  python3 python3 /usr/local/lib/devops-lab/painel/painel.py
+   0.1%  844  Thunar Thunar --daemon
+   0.1%  834  VBoxClient /usr/bin/VBoxClient --vmsvga
+   0.1%  760  VBoxClient /usr/bin/VBoxClient --draganddrop
+   0.1%  581  VBoxService /usr/sbin/VBoxService
+   0.1%  452  dbus-daemon @dbus-daemon --system --address=systemd: --nofork --nopidfil
+   0.1%  336  systemd-resolve /usr/lib/systemd/systemd-resolved
+   0.1%  1  systemd /sbin/init
+   0.1%  17  rcu_preempt
+   0.0%  855  panel-1-whisker /usr/lib/x86_64-linux-gnu/xfce4/panel/wrapper-2.0 /usr/lib/x
+   0.0%  851  xfdesktop xfdesktop
+--- interrupções/s
+    632  LOC   Local timer interrupts
+     55  CAL   Function call interrupts
+     39  RES   Rescheduling interrupts
+     12  21   IO-APIC 21-fasteoi ahci[0000:00:0d.0]
+      5  19   IO-APIC 19-fasteoi virtio0
+      1  20   IO-APIC 20-fasteoi vboxguest
+      0  TLB   TLB shootdowns
+      0  MIS  

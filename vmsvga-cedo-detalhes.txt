@@ -1,0 +1,8 @@
+[    3.662868] vmwgfx 0000:00:02.0: [drm] Screen Target display unit initialized
+[    3.670428] fbcon: vmwgfxdrmfb (fb0) is primary device
+[    3.677741] vmwgfx 0000:00:02.0: [drm] fb0: vmwgfxdrmfb frame buffer device
+nov 06 14:37:19 devops-lab VBoxService[581]: PAM unable to dlopen(pam_lastlog.so): /usr/lib/security/pam_lastlog.so: cannot open shared object file: No such file or directory
+nov 06 14:37:19 devops-lab VBoxService[581]: PAM adding faulty module: pam_lastlog.so
+nov 06 14:37:19 devops-lab VBoxService[581]: pam_loginuid(login:session): Error writing /proc/self/loginuid: Operation not permitted
+nov 06 14:37:19 devops-lab VBoxService[581]: pam_loginuid(login:session): set_loginuid failed
+nov 06 14:37:19 devops-lab VBoxService[581]: pam_unix(login:session): session opened for user aluno(uid=1000) by (uid=0)
