@@ -56,6 +56,8 @@ jobs:
           echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
           sudo apt-get update && sudo apt-get install -y packer
           packer version
+          # Só para diagnóstico: tira fotos da tela da instalação do Ubuntu pelo VNC
+          pipx install vncdotool || echo "::warning::vncdotool não instalou; sem fotos da instalação"
 
       - name: Descobrir a ISO mais recente do Ubuntu 24.04
         id: iso
@@ -71,6 +73,19 @@ jobs:
           set -o pipefail
           packer init ci/devops-lab-qemu.pkr.hcl
           echo 1 > packer.rc
+          : > packer.log
+          # Foto da tela da instalação a cada 5 min: se ela travar, dá para ver em que ponto parou
+          (
+            mkdir -p telas-instalacao
+            until grep -q 'Waiting for SSH' packer.log; do sleep 10; grep -qE 'errored|Builds finished' packer.log && exit 0; done
+            porta=$(grep -oE 'vnc://127\.0\.0\.1:[0-9]+' packer.log | head -n 1 | sed 's/.*://')
+            [ -n "$porta" ] || exit 0
+            i=0
+            while ! grep -qE 'Connected to SSH|errored|Builds finished' packer.log; do
+              sleep 300; i=$((i+1))
+              timeout 60 vncdo -s "127.0.0.1::$porta" capture "telas-instalacao/tela-$(printf %02d "$i").png" >/dev/null 2>&1 || true
+            done
+          ) &
           timeout --signal=INT --kill-after=5m 120m \
             packer build -color=false -var "iso_name=${{ steps.iso.outputs.name }}" ci/devops-lab-qemu.pkr.hcl 2>&1 | tee packer.log
           echo 0 > packer.rc
@@ -86,6 +101,17 @@ jobs:
             msg=$(sed 's/%/%25/g' "$f" | awk '{printf "%s%%0A", $0}')
             echo "::error title=packer-${f}::${msg}"
           done
+
+      - name: Guardar fotos da instalação (só quando falha)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostico-instalacao
+          path: |
+            telas-instalacao/
+            packer.log
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Converter para .ova (VirtualBox)
         run: |
