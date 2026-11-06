@@ -1,0 +1,726 @@
+debconf: incapaz de inicializar interface: Dialog
+debconf: (A interface dialog não funcionará em um terminal burro, em um buffer shell do emacs, ou sem um terminal controlador.)
+debconf: tentando com interface: Readline
+debconf: incapaz de inicializar interface: Readline
+debconf: (Essa interface requer um tty controlador.)
+debconf: tentando com interface: Teletype
+dpkg-preconfigure: incapaz de reabrir o stdin: 
+/usr/bin/xwd
+/usr/bin/xwininfo
+/usr/bin/xdotool
+-rw-rw-r-- 1 aluno aluno 4099179 nov  6 17:26 /tmp/tela.xwd
+### Sessão XFCE completa (xfwm4, painel, área de trabalho, xfsettingsd)
+ok-xfwm4 ok-xfce4-panel ok-xfdesktop ok-xfsettingsd 
+
+### Painel do XFCE na tela
+
+xwininfo: Window id: 0x234 (the root window) (has no name)
+
+  Root window id: 0x234 (the root window) (has no name)
+  Parent window id: 0x0 (none)
+     32 children:
+     0x2400008 (has no name): ()  1x1+-1+-1  +-1+-1
+     0x1a00008 (has no name): ()  1x1+-1+-1  +-1+-1
+     0x200000d "wrapper-2.0": ()  10x10+-100+-100  +-100+-100
+     0x2000008 (has no name): ()  1x1+-1+-1  +-1+-1
+     0x2400001 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  10x10+10+10  +10+10
+     0x140000b (has no name): ()  1x1+-1+-1  +-1+-1
+     0x2000001 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  10x10+10+10  +10+10
+     0x220000c (has no name): ()  1x1+-1+-1  +-1+-1
+     0x2200001 "NetworkManager Applet": ("nm-applet" "Nm-applet")  10x10+10+10  +10+10
+     0x1e00001 "xfce4-notifyd": ("xfce4-notifyd" "Xfce4-notifyd")  10x10+10+10  +10+10
+     0x1c00001 "polkit-gnome-authentication-agent-1": ("polkit-gnome-authentication-agent-1" "Polkit-gnome-authentication-agent-1")  10x10+10+10  +10+10
+     0x1200003 (has no name): ()  1x1+-1+-1  +-1+-1
+     0x1a00001 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  10x10+10+10  +10+10
+     0xc00bc1 (has no name): ()  1280x800+0+0  +0+0
+     0x1200001 "xfdesktop": ("xfdesktop" "Xfdesktop")  10x10+10+10  +10+10
+     0x1800001 "Thunar": ("Thunar" "Thunar")  10x10+10+10  +10+10
+     0x1400001 "xfce4-panel": ("xfce4-panel" "Xfce4-panel")  10x10+10+10  +10+10
+     0x1000003 (has no name): ()  10x10+0+0  +0+0
+     0x1000002 (has no name): ()  1x1+-1+-1  +-1+-1
+     0x1000001 "xfsettingsd": ("xfsettingsd" "Xfsettingsd")  10x10+10+10  +10+10
+     0xc0003d (has no name): ()  1x1+-1+-1  +-1+-1
+     0xc00032 "Xfwm4": ("xfwm4" "Xfwm4")  5x5+-1000+-1000  +-1000+-1000
+        1 child:
+        0xc00033 (has no name): ()  1x1+-1+-1  +-1001+-1001
+     0xc00030 (has no name): ()  10x10+-100+-100  +-100+-100
+     0xc00001 "xfwm4": ("xfwm4" "Xfwm4")  10x10+10+10  +10+10
+     0xa00001 "xfce4-session": ("xfce4-session" "Xfce4-session")  10x10+10+10  +10+10
+     0x400001 "main": ("main" "VBoxShCl")  1x1+0+0  +0+0
+     0xc00036 (has no name): ()  1x800+-1+0  +-1+0
+     0xc00037 (has no name): ()  1x800+1280+0  +1280+0
+     0xc00038 (has no name): ()  1280x1+0+-1  +0+-1
+     0xc00039 (has no name): ()  1280x1+0+800  +0+800
+     0xc00b90 (has no name): ()  1280x41+0+759  +0+759
+        16 children:
+        0x1400003 "xfce4-panel": ("xfce4-panel" "Xfce4-panel")  1280x41+0+0  +0+759
+           4 children:
+           0x1400009 (has no name): ()  40x40+1240+1  +1240+760
+              1 child:
+              0x2400003 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  40x40+0+0  +1240+760
+                 1 child:
+                 0x2400004 (has no name): ()  1x1+-1+-1  +1239+759
+           0x1400008 (has no name): ()  41x40+1155+1  +1155+760
+              1 child:
+              0x2000003 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  41x40+0+0  +1155+760
+                 1 child:
+                 0x2000004 (has no name): ()  1x1+-1+-1  +1154+759
+           0x1400007 (has no name): ()  94x40+0+1  +0+760
+              1 child:
+              0x1a00003 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  94x40+0+0  +0+760
+                 1 child:
+                 0x1a00004 (has no name): ()  1x1+-1+-1  +-1+759
+           0x1400004 (has no name): ()  1x1+-1+-1  +-1+758
+        0xc00b9f (has no name): ()  1x1+0+0  +0+759
+        0xc00b9e (has no name): ()  1x1+0+0  +0+759
+        0xc00b9d (has no name): ()  1x1+0+0  +0+759
+        0xc00b9c (has no name): ()  1x1+0+0  +0+759
+        0xc00b9b (has no name): ()  1x1+0+0  +0+759
+        0xc00b9a (has no name): ()  1x1+0+0  +0+759
+        0xc00b99 (has no name): ()  1x1+0+0  +0+759
+        0xc00b98 (has no name): ()  1x1+0+0  +0+759
+        0xc00b97 (has no name): ()  1x1+0+0  +0+759
+        0xc00b96 (has no name): ()  1x1+0+0  +0+759
+        0xc00b95 (has no name): ()  1x1+0+0  +0+759
+        0xc00b94 (has no name): ()  1x1+0+0  +0+759
+        0xc00b93 (has no name): ()  1x1+0+0  +0+759
+        0xc00b92 (has no name): ()  1x1+0+0  +0+759
+        0xc00b91 (has no name): ()  1x1+0+0  +0+759
+     0xc00bed (has no name): ()  1280x800+0+0  +0+0
+        16 children:
+        0x1200013 "Área de trabalho": ("xfdesktop" "Xfdesktop")  1280x800+0+0  +0+0
+           1 child:
+           0x1200014 (has no name): ()  1x1+-1+-1  +-1+-1
+        0xc00bfc (has no name): ()  1x1+0+0  +0+0
+        0xc00bfb (has no name): ()  1x1+0+0  +0+0
+        0xc00bfa (has no name): ()  1x1+0+0  +0+0
+        0xc00bf9 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf8 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf7 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf6 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf5 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf4 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf3 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf2 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf1 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf0 (has no name): ()  1x1+0+0  +0+0
+        0xc00bef (has no name): ()  1x1+0+0  +0+0
+        0xc00bee (has no name): ()  1x1+0+0  +0+0
+
+### Área de trabalho (xfdesktop) na tela
+
+xwininfo: Window id: 0x234 (the root window) (has no name)
+
+  Root window id: 0x234 (the root window) (has no name)
+  Parent window id: 0x0 (none)
+     32 children:
+     0x2400008 (has no name): ()  1x1+-1+-1  +-1+-1
+     0x1a00008 (has no name): ()  1x1+-1+-1  +-1+-1
+     0x200000d "wrapper-2.0": ()  10x10+-100+-100  +-100+-100
+     0x2000008 (has no name): ()  1x1+-1+-1  +-1+-1
+     0x2400001 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  10x10+10+10  +10+10
+     0x140000b (has no name): ()  1x1+-1+-1  +-1+-1
+     0x2000001 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  10x10+10+10  +10+10
+     0x220000c (has no name): ()  1x1+-1+-1  +-1+-1
+     0x2200001 "NetworkManager Applet": ("nm-applet" "Nm-applet")  10x10+10+10  +10+10
+     0x1e00001 "xfce4-notifyd": ("xfce4-notifyd" "Xfce4-notifyd")  10x10+10+10  +10+10
+     0x1c00001 "polkit-gnome-authentication-agent-1": ("polkit-gnome-authentication-agent-1" "Polkit-gnome-authentication-agent-1")  10x10+10+10  +10+10
+     0x1200003 (has no name): ()  1x1+-1+-1  +-1+-1
+     0x1a00001 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  10x10+10+10  +10+10
+     0xc00bc1 (has no name): ()  1280x800+0+0  +0+0
+     0x1200001 "xfdesktop": ("xfdesktop" "Xfdesktop")  10x10+10+10  +10+10
+     0x1800001 "Thunar": ("Thunar" "Thunar")  10x10+10+10  +10+10
+     0x1400001 "xfce4-panel": ("xfce4-panel" "Xfce4-panel")  10x10+10+10  +10+10
+     0x1000003 (has no name): ()  10x10+0+0  +0+0
+     0x1000002 (has no name): ()  1x1+-1+-1  +-1+-1
+     0x1000001 "xfsettingsd": ("xfsettingsd" "Xfsettingsd")  10x10+10+10  +10+10
+     0xc0003d (has no name): ()  1x1+-1+-1  +-1+-1
+     0xc00032 "Xfwm4": ("xfwm4" "Xfwm4")  5x5+-1000+-1000  +-1000+-1000
+        1 child:
+        0xc00033 (has no name): ()  1x1+-1+-1  +-1001+-1001
+     0xc00030 (has no name): ()  10x10+-100+-100  +-100+-100
+     0xc00001 "xfwm4": ("xfwm4" "Xfwm4")  10x10+10+10  +10+10
+     0xa00001 "xfce4-session": ("xfce4-session" "Xfce4-session")  10x10+10+10  +10+10
+     0x400001 "main": ("main" "VBoxShCl")  1x1+0+0  +0+0
+     0xc00036 (has no name): ()  1x800+-1+0  +-1+0
+     0xc00037 (has no name): ()  1x800+1280+0  +1280+0
+     0xc00038 (has no name): ()  1280x1+0+-1  +0+-1
+     0xc00039 (has no name): ()  1280x1+0+800  +0+800
+     0xc00b90 (has no name): ()  1280x41+0+759  +0+759
+        16 children:
+        0x1400003 "xfce4-panel": ("xfce4-panel" "Xfce4-panel")  1280x41+0+0  +0+759
+           4 children:
+           0x1400009 (has no name): ()  40x40+1240+1  +1240+760
+              1 child:
+              0x2400003 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  40x40+0+0  +1240+760
+                 1 child:
+                 0x2400004 (has no name): ()  1x1+-1+-1  +1239+759
+           0x1400008 (has no name): ()  41x40+1155+1  +1155+760
+              1 child:
+              0x2000003 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  41x40+0+0  +1155+760
+                 1 child:
+                 0x2000004 (has no name): ()  1x1+-1+-1  +1154+759
+           0x1400007 (has no name): ()  94x40+0+1  +0+760
+              1 child:
+              0x1a00003 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  94x40+0+0  +0+760
+                 1 child:
+                 0x1a00004 (has no name): ()  1x1+-1+-1  +-1+759
+           0x1400004 (has no name): ()  1x1+-1+-1  +-1+758
+        0xc00b9f (has no name): ()  1x1+0+0  +0+759
+        0xc00b9e (has no name): ()  1x1+0+0  +0+759
+        0xc00b9d (has no name): ()  1x1+0+0  +0+759
+        0xc00b9c (has no name): ()  1x1+0+0  +0+759
+        0xc00b9b (has no name): ()  1x1+0+0  +0+759
+        0xc00b9a (has no name): ()  1x1+0+0  +0+759
+        0xc00b99 (has no name): ()  1x1+0+0  +0+759
+        0xc00b98 (has no name): ()  1x1+0+0  +0+759
+        0xc00b97 (has no name): ()  1x1+0+0  +0+759
+        0xc00b96 (has no name): ()  1x1+0+0  +0+759
+        0xc00b95 (has no name): ()  1x1+0+0  +0+759
+        0xc00b94 (has no name): ()  1x1+0+0  +0+759
+        0xc00b93 (has no name): ()  1x1+0+0  +0+759
+        0xc00b92 (has no name): ()  1x1+0+0  +0+759
+        0xc00b91 (has no name): ()  1x1+0+0  +0+759
+     0xc00bed (has no name): ()  1280x800+0+0  +0+0
+        16 children:
+        0x1200013 "Área de trabalho": ("xfdesktop" "Xfdesktop")  1280x800+0+0  +0+0
+           1 child:
+           0x1200014 (has no name): ()  1x1+-1+-1  +-1+-1
+        0xc00bfc (has no name): ()  1x1+0+0  +0+0
+        0xc00bfb (has no name): ()  1x1+0+0  +0+0
+        0xc00bfa (has no name): ()  1x1+0+0  +0+0
+        0xc00bf9 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf8 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf7 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf6 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf5 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf4 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf3 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf2 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf1 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf0 (has no name): ()  1x1+0+0  +0+0
+        0xc00bef (has no name): ()  1x1+0+0  +0+0
+        0xc00bee (has no name): ()  1x1+0+0  +0+0
+
+### Sem diálogo de primeiro uso do painel
+
+xwininfo: Window id: 0x234 (the root window) (has no name)
+
+  Root window id: 0x234 (the root window) (has no name)
+  Parent window id: 0x0 (none)
+     32 children:
+     0x2400008 (has no name): ()  1x1+-1+-1  +-1+-1
+     0x1a00008 (has no name): ()  1x1+-1+-1  +-1+-1
+     0x200000d "wrapper-2.0": ()  10x10+-100+-100  +-100+-100
+     0x2000008 (has no name): ()  1x1+-1+-1  +-1+-1
+     0x2400001 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  10x10+10+10  +10+10
+     0x140000b (has no name): ()  1x1+-1+-1  +-1+-1
+     0x2000001 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  10x10+10+10  +10+10
+     0x220000c (has no name): ()  1x1+-1+-1  +-1+-1
+     0x2200001 "NetworkManager Applet": ("nm-applet" "Nm-applet")  10x10+10+10  +10+10
+     0x1e00001 "xfce4-notifyd": ("xfce4-notifyd" "Xfce4-notifyd")  10x10+10+10  +10+10
+     0x1c00001 "polkit-gnome-authentication-agent-1": ("polkit-gnome-authentication-agent-1" "Polkit-gnome-authentication-agent-1")  10x10+10+10  +10+10
+     0x1200003 (has no name): ()  1x1+-1+-1  +-1+-1
+     0x1a00001 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  10x10+10+10  +10+10
+     0xc00bc1 (has no name): ()  1280x800+0+0  +0+0
+     0x1200001 "xfdesktop": ("xfdesktop" "Xfdesktop")  10x10+10+10  +10+10
+     0x1800001 "Thunar": ("Thunar" "Thunar")  10x10+10+10  +10+10
+     0x1400001 "xfce4-panel": ("xfce4-panel" "Xfce4-panel")  10x10+10+10  +10+10
+     0x1000003 (has no name): ()  10x10+0+0  +0+0
+     0x1000002 (has no name): ()  1x1+-1+-1  +-1+-1
+     0x1000001 "xfsettingsd": ("xfsettingsd" "Xfsettingsd")  10x10+10+10  +10+10
+     0xc0003d (has no name): ()  1x1+-1+-1  +-1+-1
+     0xc00032 "Xfwm4": ("xfwm4" "Xfwm4")  5x5+-1000+-1000  +-1000+-1000
+        1 child:
+        0xc00033 (has no name): ()  1x1+-1+-1  +-1001+-1001
+     0xc00030 (has no name): ()  10x10+-100+-100  +-100+-100
+     0xc00001 "xfwm4": ("xfwm4" "Xfwm4")  10x10+10+10  +10+10
+     0xa00001 "xfce4-session": ("xfce4-session" "Xfce4-session")  10x10+10+10  +10+10
+     0x400001 "main": ("main" "VBoxShCl")  1x1+0+0  +0+0
+     0xc00036 (has no name): ()  1x800+-1+0  +-1+0
+     0xc00037 (has no name): ()  1x800+1280+0  +1280+0
+     0xc00038 (has no name): ()  1280x1+0+-1  +0+-1
+     0xc00039 (has no name): ()  1280x1+0+800  +0+800
+     0xc00b90 (has no name): ()  1280x41+0+759  +0+759
+        16 children:
+        0x1400003 "xfce4-panel": ("xfce4-panel" "Xfce4-panel")  1280x41+0+0  +0+759
+           4 children:
+           0x1400009 (has no name): ()  40x40+1240+1  +1240+760
+              1 child:
+              0x2400003 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  40x40+0+0  +1240+760
+                 1 child:
+                 0x2400004 (has no name): ()  1x1+-1+-1  +1239+759
+           0x1400008 (has no name): ()  41x40+1155+1  +1155+760
+              1 child:
+              0x2000003 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  41x40+0+0  +1155+760
+                 1 child:
+                 0x2000004 (has no name): ()  1x1+-1+-1  +1154+759
+           0x1400007 (has no name): ()  94x40+0+1  +0+760
+              1 child:
+              0x1a00003 "wrapper-2.0": ("wrapper-2.0" "Wrapper-2.0")  94x40+0+0  +0+760
+                 1 child:
+                 0x1a00004 (has no name): ()  1x1+-1+-1  +-1+759
+           0x1400004 (has no name): ()  1x1+-1+-1  +-1+758
+        0xc00b9f (has no name): ()  1x1+0+0  +0+759
+        0xc00b9e (has no name): ()  1x1+0+0  +0+759
+        0xc00b9d (has no name): ()  1x1+0+0  +0+759
+        0xc00b9c (has no name): ()  1x1+0+0  +0+759
+        0xc00b9b (has no name): ()  1x1+0+0  +0+759
+        0xc00b9a (has no name): ()  1x1+0+0  +0+759
+        0xc00b99 (has no name): ()  1x1+0+0  +0+759
+        0xc00b98 (has no name): ()  1x1+0+0  +0+759
+        0xc00b97 (has no name): ()  1x1+0+0  +0+759
+        0xc00b96 (has no name): ()  1x1+0+0  +0+759
+        0xc00b95 (has no name): ()  1x1+0+0  +0+759
+        0xc00b94 (has no name): ()  1x1+0+0  +0+759
+        0xc00b93 (has no name): ()  1x1+0+0  +0+759
+        0xc00b92 (has no name): ()  1x1+0+0  +0+759
+        0xc00b91 (has no name): ()  1x1+0+0  +0+759
+     0xc00bed (has no name): ()  1280x800+0+0  +0+0
+        16 children:
+        0x1200013 "Área de trabalho": ("xfdesktop" "Xfdesktop")  1280x800+0+0  +0+0
+           1 child:
+           0x1200014 (has no name): ()  1x1+-1+-1  +-1+-1
+        0xc00bfc (has no name): ()  1x1+0+0  +0+0
+        0xc00bfb (has no name): ()  1x1+0+0  +0+0
+        0xc00bfa (has no name): ()  1x1+0+0  +0+0
+        0xc00bf9 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf8 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf7 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf6 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf5 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf4 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf3 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf2 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf1 (has no name): ()  1x1+0+0  +0+0
+        0xc00bf0 (has no name): ()  1x1+0+0  +0+0
+        0xc00bef (has no name): ()  1x1+0+0  +0+0
+        0xc00bee (has no name): ()  1x1+0+0  +0+0
+
+### Papel de parede DevOps Lab como padrão
+/usr/share/backgrounds/devops-lab.svg
+
+### Tema Greybird, ícones elementary e fonte Ubuntu
+Greybird
+elementary-xfce
+Ubuntu 10
+
+### Painel com menu, atalhos, tarefas, bandeja e relógio
+/plugins/plugin-1                       whiskermenu
+/plugins/plugin-10                      separator
+/plugins/plugin-11                      systray
+/plugins/plugin-12                      separator
+/plugins/plugin-13                      clock
+/plugins/plugin-14                      actions
+/plugins/plugin-15                      launcher
+/plugins/plugin-2                       separator
+/plugins/plugin-3                       launcher
+/plugins/plugin-4                       launcher
+/plugins/plugin-5                       launcher
+/plugins/plugin-6                       launcher
+/plugins/plugin-7                       launcher
+/plugins/plugin-8                       separator
+/plugins/plugin-9                       tasklist
+
+### Compositor leve ligado (janelas não deixam rastro ao arrastar)
+true xpresent false
+
+### Atalhos confiáveis na Área de Trabalho
+com.microsoft.VSCode.desktop
+docker-devops-lab.desktop
+firefox.desktop
+grafana-devops-lab.desktop
+jenkins-devops-lab.desktop
+LEIA-ME.txt
+painel-devops.desktop
+projetos
+uptime-kuma-devops-lab.desktop
+xfce4-terminal.desktop
+confiaveis=8
+
+### Teclado ABNT2 na interface
+rules:      evdev
+model:      abnt2
+layout:     br
+
+### Integração com o VirtualBox: copiar/colar e ajuste de tela ligados, arrastar/soltar desligado (leve)
+938 /usr/bin/VBoxClient --clipboard
+939 /usr/bin/VBoxClient --clipboard
+953 /usr/bin/VBoxClient --seamless
+954 /usr/bin/VBoxClient --seamless
+1017 /usr/bin/VBoxClient --vmsvga
+1018 /usr/bin/VBoxClient --vmsvga
+clipboard=2 tela=2 arrastar=0
+
+### Imagens Docker já baixadas (nginx, python, alpine, hello-world)
+4
+
+### Imagens do monitoramento guardadas na VM (compactadas, íntegras)
+-rw-r--r-- 1 root root 368175071 nov  6 16:29 /opt/devops-lab/monitoramento/imagens.tar.zst
+integro
+
+### Docker guarda as imagens no overlay2 (sem cópia dupla do containerd)
+overlay2
+
+### Monitoramento vem desligado (não gasta memória no boot)
+0
+
+### Firefox com página inicial e favoritos do Lab
+            "URL": "file:///usr/share/devops-lab/inicio.html",
+                "URL": "file:///usr/share/devops-lab/inicio.html",
+                "URL": "http://localhost:8080",
+
+### VS Code em português, sem chaveiro e sem aceleração de GPU
+{
+  "locale": "pt-br",
+  "disable-hardware-acceleration": true,
+  "password-store": "basic",
+  "enable-crash-reporter": false
+}
+
+### Sem peso morto no .ova (cache de .vsix e Copilot embutido, que fica desligado)
+
+
+### VM parada
+CPU ocupada (média dos 2 núcleos): 2.7%
+trocas de contexto/s: 313
+--- processos (% de 1 núcleo)
+   0.6%  3142  bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida.txt
+   0.2%  954  VBoxClient /usr/bin/VBoxClient --seamless
+   0.2%  2202  containerd /usr/bin/containerd
+   0.1%  846  Xorg /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/light
+   0.1%  677  VBoxService /usr/sbin/VBoxService
+   0.1%  619  earlyoom /usr/bin/earlyoom -m 4 -s 10 -r 0 --prefer (^|/)(Isolated.We
+   0.1%  1094  python3 python3 /usr/local/lib/devops-lab/painel/painel.py
+   0.1%  1018  VBoxClient /usr/bin/VBoxClient --vmsvga
+   0.0%  51  kworker/1:1H-kblockd
+   0.0%  24  ksoftirqd/1
+   0.0%  2234  kworker/u4:4-events_unbound
+   0.0%  212  systemd-journal /usr/lib/systemd/systemd-journald
+   0.0%  1  systemd /sbin/init
+   0.0%  18  migration/0
+   0.0%  17  rcu_preempt
+--- interrupções/s
+   1139  LOC   Local timer interrupts
+     71  CAL   Function call interrupts
+     29  RES   Rescheduling interrupts
+      2  20   IO-APIC 20-fasteoi vboxguest
+      1  21   IO-APIC 21-fasteoi ahci[0000:00:0d.0]
+      0  TLB   TLB shootdowns
+
+### Jenkins não liga sozinho no boot (fica leve até usar)
+205s de boot
+inactive disabled
+
+### Atalho Jenkins abre o Firefox no Jenkins quando ele fica pronto
+ABRIU http://localhost:8080
+
+### Jenkins: login aluno/devops (sem assistente inicial)
+200
+
+### Jenkins: anônimo bloqueado
+403
+
+### Jenkins: plugins Pipeline, Git, GitHub e Docker ativos
+83 ativos; faltam: nenhum
+
+### Jenkins: pipeline com Docker roda com sucesso
+criar=200
+executar=201
+resultado=SUCCESS
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Docker)
+[Pipeline] sh
++ docker run --rm hello-world
++ grep Hello from Docker
+Hello from Docker!
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Ferramentas)
+[Pipeline] sh
++ git --version
+git version 2.43.0
++ python3 --version
+Python 3.12.3
++ terraform -version
++ head -n 1
+Terraform v1.17.1
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS
+
+### Serviços: lightdm, NetworkManager, docker (sob demanda), jenkins
+active active active active 
+
+### Sessão XFCE do aluno rodando
+889 xfce4-session
+
+### Internet dentro da VM
+200
+
+### docker run hello-world (sem sudo)
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
+
+### Docker Compose sobe um serviço
+web-1  | For more examples and ideas, visit:
+web-1  |  https://docs.docker.com/get-started/
+web-1  | 
+ Container tmpkims7zltdl-web-1 Started 
+[Kweb-1 exited with code 0
+
+### Firefox instalado
+Mozilla Firefox 159.0.1
+
+### Extensões do VS Code (pt-BR, Python, Docker, Terraform, YAML)
+hashicorp.terraform
+ms-azuretools.vscode-containers
+ms-azuretools.vscode-docker
+ms-ceintl.vscode-language-pack-pt-br
+ms-python.debugpy
+ms-python.python
+ms-python.vscode-pylance
+ms-python.vscode-python-envs
+redhat.vscode-yaml
+
+### apt update funciona (repositórios e chaves OK)
+Atingido:9 http://security.ubuntu.com/ubuntu noble-security InRelease
+Atingido:10 https://packages.mozilla.org/apt mozilla InRelease
+Lendo listas de pacotes...
+
+### Ansible não vem mais na VM
+
+
+### Terraform executa (init/apply local)
+Outputs:
+
+[0mok = "terraform-ok"
+
+### Python venv + pip
+pip 24.0 from /tmp/venv-qa/lib/python3.12/site-packages/pip (python 3.12)
+
+### Git configura e faz commit
+1
+
+### SSH ativo com chaves novas
+/etc/ssh/ssh_host_ed25519_key
+active
+inactive
+
+### Identidade única (machine-id gerado)
+64acd2189dc34cb5a0da1e3905611732
+
+### Idioma pt-BR, teclado ABNT2, fuso de São Paulo
+LANG=pt_BR.UTF-8
+XKBMODEL="abnt2"
+XKBLAYOUT="br"
+XKBVARIANT=""
+XKBOPTIONS=""
+BACKSPACE="guess"
+Timezone=America/Sao_Paulo
+
+### Sudo funciona com a senha devops
+root
+
+### Memória comprimida (zswap) ligada
+Y lz4 zsmalloc
+
+### earlyoom protege contra travamento por falta de memória
+active
+/usr/bin/earlyoom -m 4 -s 10 -r 0 --prefer (^|/)(Isolated.Web.Co|Web.Content|WebExtensions|firefox|code)$ --avoid (^|/)(Xorg|xfwm4|xfce4-session|xfce4-panel|xfdesktop|lightdm|systemd|sshd|dockerd|containerd)$
+
+### Jenkins é o último a ser fechado se faltar memória
+-300
+
+### VS Code e Firefox com ajustes de desempenho
+vscode=1 firefox=1
+
+### Rede virtio (mais leve com Hyper-V)
+virtio_net
+
+### Sem serviços desnecessários (rsyslog, sysstat, áudio, protetor de tela)
+
+
+### Boot silencioso (quiet)
+BOOT_IMAGE=/boot/vmlinuz-6.8.0-149-generic root=UUID=ee928ba6-6597-4bfd-9745-06b40363e742 ro quiet loglevel=3 systemd.show_status=auto rd.udev.log_level=3
+
+### LEIA-ME e atalho projetos na Área de Trabalho
+com.microsoft.VSCode.desktop
+docker-devops-lab.desktop
+firefox.desktop
+grafana-devops-lab.desktop
+jenkins-devops-lab.desktop
+LEIA-ME.txt
+painel-devops.desktop
+projetos
+uptime-kuma-devops-lab.desktop
+xfce4-terminal.desktop
+
+-rw-rw-r-- 1 aluno aluno 4099179 nov  6 17:29 /tmp/tela.xwd
+### Atalho do Painel DevOps na área de trabalho, no menu e no painel
+/usr/share/applications/painel-devops.desktop
+
+/home/aluno/.config/xfce4/panel/launcher-15:
+painel-devops.desktop
+2
+
+### Painel DevOps já está no ar depois do login (favorito do Firefox funciona sem abrir o ícone)
+{"ok": true}
+
+### Firefox tem o favorito do Painel DevOps
+1
+
+### Painel DevOps responde em localhost:8090
+{"ok": true}
+
+### Painel DevOps: aba docker carrega
+ok
+
+### Painel DevOps: aba jenkins carrega
+ok
+
+### Painel DevOps: aba git carrega
+ok
+
+### Painel DevOps: aba vscode carrega
+ok
+
+### Painel DevOps: aba terraform carrega
+ok
+
+### Painel DevOps: aba python carrega
+ok
+
+### Painel DevOps: aba monitoramento carrega
+ok
+
+### Painel DevOps: aba sistema carrega
+ok
+
+### Painel DevOps: aba resumo carrega
+ok
+
+### Painel DevOps: aba tarefas carrega
+ok
+
+### Painel DevOps: aba ferramentas carrega
+ok
+
+### Painel DevOps: Docker ligado e Jenkins respondendo
+docker True jenkins True
+
+### Painel DevOps: todas as ferramentas instaladas
+9 falhando: nenhuma
+
+### Painel DevOps: cria container pelo botão (modelo + limite de 256 MB)
+{"ok": true, "resultado": "Container painel-web criado e rodando."}http=200 mem=268435456
+
+### Painel DevOps: cria projeto Compose e sobe com saída ao vivo
+codigo 0
+http=200
+
+### Painel DevOps: cria Freestyle numa Pasta e roda com sucesso
+Finished: SUCCESS
+
+### Painel DevOps: gera chave SSH do Git
+ssh-ed25519
+
+### GitHub conhecido para SSH (sem pergunta de confiança)
+6
+
+### Painel DevOps: recusa ação sem token (segurança)
+{"erro": "Token inválido. Recarregue a página do painel."}
+
+### Painel DevOps: recusa acesso por outro endereço (segurança)
+{"erro": "Acesso permitido só por http://localhost:8090"}
+
+### Painel DevOps: Ligar monitoramento sobe Grafana, Uptime Kuma, Prometheus e node-exporter
+codigo None
+grafana=no-ar uptime-kuma=no-ar prometheus=no-ar node-exporter=no-ar
+
+### Imagens do monitoramento carregadas no primeiro Ligar (Grafana, Uptime Kuma, Prometheus, node-exporter)
+4
+
+### Grafana: login aluno/devops e fonte Prometheus funcionando
+{"details":{"application":"Prometheus","features":{"rulerApiEnabled":false}},"message":"Successfully queried the Prometheus API.","status":"OK"}
+
+### Grafana: painel Esta VM com dados da VM
+Esta VM "result":[{
+
+### Prometheus coleta a VM, o Docker e ele mesmo
+[('docker', '1'), ('esta-vm', '1'), ('prometheus', '1')]
+
+### Uptime Kuma responde em localhost:3001
+302
+
+===== memória do monitoramento ligado =====
+monitoramento-prometheus-1 33.75MiB / 256MiB
+monitoramento-grafana-1 185.1MiB / 256MiB
+monitoramento-uptime-kuma-1 172.6MiB / 256MiB
+monitoramento-node-exporter-1 6.586MiB / 64MiB
+qa-compose-web-1 3.32MiB / 1GiB
+painel-web 10.89MiB / 256MiB
+               total       usada       livre    compart.  buff/cache  disponível
+Mem.:           3915        1350         208           9        2647        2565
+Swap:           2047           8        2039
+-rw-rw-r-- 1 aluno aluno 4099179 nov  6 17:35 /tmp/tela.xwd
+### Painel DevOps: Desligar monitoramento libera a memória (dados ficam guardados)
+codigo 0
+grafana=fora uptime-kuma=fora prometheus=fora node-exporter=fora
+3
+
+### Atalhos Grafana e Uptime Kuma na área de trabalho e no menu
+3
+
+### Atalho Grafana liga o monitoramento desligado e abre o Firefox
+ABRIU http://localhost:3000
+
+### Atalho Docker abre a tela do Docker (estilo do app) numa janela própria
+Exec=/usr/local/bin/painel-devops docker
+ABRIU http://localhost:8090/?app=docker#docker
+
+-rw-rw-r-- 1 aluno aluno 4099179 nov  6 17:36 /tmp/tela.xwd
+### Janela do atalho Docker
+        0x2600003 "Docker (DevOps-Lab) — Mozilla Firefox": ("Navigator" "firefox")  1280x736+0+23  +0+23
+
+### Atalho Docker de verdade: a tela do Docker busca os containers
+tela-carregou
+
+### Painel DevOps: Apagar projeto Terraform roda o destroy antes de apagar a pasta
+codigo 0
+codigo 0
+codigo 0
+Destroy complete pasta-apagada
+
+-rw-rw-r-- 1 aluno aluno 4099179 nov  6 17:37 /tmp/tela.xwd
+### Janela do Painel DevOps
+        0x2600003 "Painel DevOps — Mozilla Firefox": ("Navigator" "firefox")  1280x736+0+23  +0+23
+
+### Atalho Docker com o Firefox já aberto
+        0x2600003 "Docker (DevOps-Lab) — Mozilla Firefox": ("Navigator" "firefox")  1280x736+0+23  +0+23
+
+-rw-rw-r-- 1 aluno aluno 3148907 nov  6 17:39 /tmp/tela.xwd
