@@ -16,7 +16,9 @@ fi
 ABA="${1:-}"
 case "$ABA" in
   "") exec firefox "$URL" ;;
-  docker) exec firefox --new-window "$URL/?app=docker#docker" ;;
+  docker)  # janela própria; com o Firefox fechado, "--new-window" abre uma aba vazia, então só o endereço
+    if pgrep -u "$(id -u)" -x firefox >/dev/null 2>&1; then exec firefox --new-window "$URL/?app=docker#docker"; fi
+    exec firefox "$URL/?app=docker#docker" ;;
   *[!a-z]*) echo "aba inválida: $ABA" >&2; exit 2 ;;
   *) exec firefox "$URL/#$ABA" ;;
 esac

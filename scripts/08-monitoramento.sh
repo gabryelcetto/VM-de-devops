@@ -18,6 +18,10 @@ install -m 0755 "$A/abrir-monitoramento.sh" /usr/local/bin/abrir-monitoramento
 for app in grafana uptime-kuma prometheus; do
   install -m 0644 "$A/$app-devops-lab.desktop" "/usr/share/applications/$app-devops-lab.desktop"
 done
+for i in grafana uptime prometheus; do
+  install -D -m 0644 "$A/icone-$i.svg" "/usr/share/icons/hicolor/scalable/apps/devops-lab-$i.svg"
+done
+gtk-update-icon-cache -f -q /usr/share/icons/hicolor || true
 HOME_DIR="$(getent passwd "${LAB_USER}" | cut -d: -f6)"
 DESKTOP="$(sudo -u "${LAB_USER}" -H xdg-user-dir DESKTOP 2>/dev/null || true)"
 if [ -z "${DESKTOP}" ] || [ "${DESKTOP}" = "${HOME_DIR}" ]; then DESKTOP="${HOME_DIR}/Área de Trabalho"; fi

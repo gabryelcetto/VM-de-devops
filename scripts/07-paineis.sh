@@ -14,6 +14,7 @@ install -m 0755 "$P/painel-devops.sh" /usr/local/bin/painel-devops
 install -m 0644 "$P/painel-devops.desktop" /usr/share/applications/
 install -m 0644 "$P/docker-devops-lab.desktop" /usr/share/applications/  # atalho "Docker" = aba Docker do Painel
 install -D -m 0644 "$P/icone-painel.svg" /usr/share/icons/hicolor/scalable/apps/devops-lab-painel.svg
+install -D -m 0644 "$P/icone-docker.svg" /usr/share/icons/hicolor/scalable/apps/devops-lab-docker.svg
 gtk-update-icon-cache -f -q /usr/share/icons/hicolor || true
 python3 -m py_compile /usr/local/lib/devops-lab/painel/painel.py
 rm -rf /usr/local/lib/devops-lab/painel/__pycache__

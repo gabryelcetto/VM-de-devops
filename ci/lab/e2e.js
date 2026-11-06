@@ -528,7 +528,7 @@ const dormir = ms => new Promise(r => setTimeout(r, ms));
     const s2 = sh('abrir-monitoramento grafana', { PATH: '/tmp/ff:' + process.env.PATH });
     reg('Monitoramento', 'atalho "Grafana" com o monitoramento já ligado abre na hora', /ABRIU http:\/\/localhost:3000/.test(s2), fim(s2));
     const s4 = sh('painel-devops docker', { PATH: '/tmp/ff:' + process.env.PATH });
-    reg('Docker', 'atalho "Docker" abre a tela do Docker numa janela própria', /ABRIU --new-window http:\/\/localhost:8090\/\?app=docker#docker/.test(s4), fim(s4));
+    reg('Docker', 'atalho "Docker" abre a tela do Docker numa janela própria', /ABRIU (--new-window )?http:\/\/localhost:8090\/\?app=docker#docker/.test(s4), fim(s4));
     const pg = await ctx.newPage();
     try {
       await pg.goto(URL + '#docker'); await pg.waitForTimeout(2500);
