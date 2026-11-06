@@ -29,7 +29,9 @@ janela_host() { # geometria da janela da VM no X do "computador": X Y LARGURA AL
 }
 
 VBoxManage import "$OVA" --vsys 0 --vmname "$VM" >/dev/null 2>&1 || { log "import falhou"; exit 1; }
-VBoxManage modifyvm "$VM" --graphicscontroller "$VID"
+# variantes: <video>[-ps2]  (ps2 = mouse PS/2 com a integração dos Guest Additions, sem USB)
+VBoxManage modifyvm "$VM" --graphicscontroller "${VID%%-*}"
+case "$VID" in *-ps2) VBoxManage modifyvm "$VM" --mouse ps2 --usb-ohci off ;; esac
 VBoxManage showvminfo "$VM" --machinereadable | grep -E '^(graphicscontroller|vram|hidpointing|hidkeyboard|usb|usbohci|cpus|memory)=' | tee -a "$R"
 # Desliga as dicas da interface do VirtualBox que cobrem a janela
 VBoxManage setextradata global GUI/SuppressMessages "all" >/dev/null 2>&1 || true
@@ -60,7 +62,7 @@ for b in $(seq 1 "$BOOTS"); do
   F="$P/final.png"; shot "$F"; log "tela 25 s depois do login: $(brilho "$F") (cores brilho)"
 
   # ---------------- mouse
-  gsh "echo devops | sudo -S -p '' apt-get install -y -qq xdotool xinput x11-utils >/dev/null 2>&1; which xdotool xinput" >/dev/null
+  gsh "echo devops | sudo -S -p '' apt-get update -qq >/dev/null 2>&1; echo devops | sudo -S -p '' apt-get install -y -qq xdotool xinput x11-utils >/dev/null 2>&1; which xdotool xinput" >/dev/null
   G="$(janela_host)"; log "janela da VM no computador (x y larg alt): ${G:-não achei}"
   if [ -n "$G" ]; then
     read -r WX WY WL WA <<<"$G"

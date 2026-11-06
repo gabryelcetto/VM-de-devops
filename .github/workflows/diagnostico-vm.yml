@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        video: [vboxsvga, vmsvga]
+        video: [vboxsvga, vmsvga, vboxsvga-ps2]
     steps:
       - uses: actions/checkout@v4
       - name: Baixar o .ova publicado
