@@ -36,7 +36,7 @@ case "$FIX" in
   xrandr-auto)
     gsh "mkdir -p ~/.config/autostart; printf '[Desktop Entry]\nType=Application\nName=xrandr auto\nExec=sh -c \"sleep 2; xrandr --auto\"\nNoDisplay=true\n' > ~/.config/autostart/xrandr-auto.desktop; cat ~/.config/autostart/xrandr-auto.desktop" | tee -a "$R" ;;
   sem-vboxclient-vmsvga)
-    gsh "ls /etc/xdg/autostart | grep -i vbox; grep -n Exec /etc/xdg/autostart/vboxclient.desktop; $SUDO sed -i 's/VBoxClient-all/VBoxClient --clipboard; VBoxClient --seamless; VBoxClient --draganddrop/' /etc/xdg/autostart/vboxclient.desktop; grep -n Exec /etc/xdg/autostart/vboxclient.desktop" | tee -a "$R" ;;
+    gsh "$SUDO sed -i 's|^\(.*--vmsvga-session.*\)$|# \\1|' /etc/X11/Xsession.d/98vboxadd-xclient; grep -n vmsvga /etc/X11/Xsession.d/98vboxadd-xclient" | tee -a "$R" ;;
 esac
 desliga
 VBoxManage modifyvm "$VM" --graphicscontroller vmsvga
@@ -58,7 +58,7 @@ for b in $(seq 1 "$BOOTS"); do
     gsh "$XENV xrandr --auto; echo ok" >/dev/null; sleep 5
     VBoxManage controlvm "$VM" screenshotpng "$P/janela-depois-xrandr-auto.png" >/dev/null 2>&1
     log "        preta: depois de 'xrandr --auto' a janela ficou com $(cores "$P/janela-depois-xrandr-auto.png") cores"
-    gsh "grep -E 'modeset|EE|vmware|Output|Virtual' /var/log/Xorg.0.log | head -n 40; ~/.xsession-errors 2>/dev/null | tail -n 5" > "$P/xorg.txt" 2>&1
+    gsh "grep -E 'modeset|EE|vmware|Output|Virtual' /var/log/Xorg.0.log | head -n 40; tail -n 20 ~/.xsession-errors 2>/dev/null" > "$P/xorg.txt" 2>&1
   fi
   [ $((b % 2)) -eq 1 ] && desliga || { VBoxManage controlvm "$VM" poweroff >/dev/null 2>&1; sleep 3; }
   cp "$HOME/VirtualBox VMs/$VM/Logs/VBox.log" "$P/VBox.log" 2>/dev/null || true
