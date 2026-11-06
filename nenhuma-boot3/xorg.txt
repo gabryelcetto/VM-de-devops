@@ -1,0 +1,60 @@
+[     5.301] Current Operating System: Linux devops-lab 6.8.0-149-generic #149-Ubuntu SMP PREEMPT_DYNAMIC Fri Oct 23 13:21:10 UTC 2026 x86_64
+	(WW) warning, (EE) error, (NI) not implemented, (??) unknown.
+[     5.332] (II) LoadModule: "modesetting"
+[     5.332] (II) Loading /usr/lib/xorg/modules/drivers/modesetting_drv.so
+[     5.333] (II) Module modesetting: vendor="X.Org Foundation"
+[     5.333] (II) modesetting: Driver for Modesetting Kernel Drivers: kms
+[     5.338] (II) modeset(0): using drv /dev/dri/card0
+[     5.339] (II) modeset(0): Creating default Display subsection in Screen section
+[     5.339] (==) modeset(0): Depth 24, (==) framebuffer bpp 32
+[     5.339] (==) modeset(0): RGB weight 888
+[     5.339] (==) modeset(0): Default visual is TrueColor
+[     5.626] (II) modeset(0): Refusing to try glamor on llvmpipe
+[     5.629] (II) modeset(0): glamor initialization failed
+[     5.629] (II) modeset(0): ShadowFB: preferred NO, enabled NO
+[     5.629] (II) modeset(0): Output Virtual-1 has no monitor section
+[     5.629] (II) modeset(0): Output Virtual-2 has no monitor section
+[     5.630] (II) modeset(0): Output Virtual-3 has no monitor section
+[     5.630] (II) modeset(0): Output Virtual-4 has no monitor section
+[     5.630] (II) modeset(0): Output Virtual-5 has no monitor section
+[     5.630] (II) modeset(0): Output Virtual-6 has no monitor section
+[     5.630] (II) modeset(0): Output Virtual-7 has no monitor section
+[     5.630] (II) modeset(0): Output Virtual-8 has no monitor section
+[     5.631] (II) modeset(0): EDID for output Virtual-1
+[     5.631] (II) modeset(0): Printing probed modes for output Virtual-1
+[     5.631] (II) modeset(0): Modeline "1280x800"x60.0   81.51  1280 1330 1380 1430  800 850 900 950 -hsync +vsync (57.0 kHz eP)
+[     5.631] (II) modeset(0): Modeline "4096x2160"x60.0  556.74  4096 4104 4136 4176  2160 2208 2216 2222 +hsync -vsync (133.3 kHz e)
+[     5.631] (II) modeset(0): Modeline "4096x2160"x59.9  556.19  4096 4104 4136 4176  2160 2208 2216 2222 +hsync -vsync (133.2 kHz e)
+[     5.631] (II) modeset(0): Modeline "2560x1600"x60.0  348.50  2560 2752 3032 3504  1600 1603 1609 1658 -hsync +vsync (99.5 kHz e)
+[     5.631] (II) modeset(0): Modeline "2560x1600"x60.0  268.50  2560 2608 2640 2720  1600 1603 1609 1646 +hsync -vsync (98.7 kHz e)
+[     5.631] (II) modeset(0): Modeline "1920x1440"x60.0  234.00  1920 2048 2256 2600  1440 1441 1444 1500 -hsync +vsync (90.0 kHz e)
+[     5.631] (II) modeset(0): Modeline "1856x1392"x60.0  218.25  1856 1952 2176 2528  1392 1393 1396 1439 -hsync +vsync (86.3 kHz e)
+[     5.631] (II) modeset(0): Modeline "1792x1344"x60.0  204.75  1792 1920 2120 2448  1344 1345 1348 1394 -hsync +vsync (83.6 kHz e)
+[     5.631] (II) modeset(0): Modeline "2048x1152"x60.0  162.00  2048 2074 2154 2250  1152 1153 1156 1200 +hsync +vsync (72.0 kHz e)
+[     5.631] (II) modeset(0): Modeline "1920x1200"x59.9  193.25  1920 2056 2256 2592  1200 1203 1209 1245 -hsync +vsync (74.6 kHz e)
+[     5.631] (II) modeset(0): Modeline "1920x1200"x60.0  154.00  1920 1968 2000 2080  1200 1203 1209 1235 +hsync -vsync (74.0 kHz e)
+[     5.631] (II) modeset(0): Modeline "1920x1080"x60.0  148.50  1920 2008 2052 2200  1080 1084 1089 1125 -hsync -vsync (67.5 kHz e)
+[     5.631] (II) modeset(0): Modeline "1600x1200"x60.0  162.00  1600 1664 1856 2160  1200 1201 1204 1250 +hsync +vsync (75.0 kHz e)
+[     5.631] (II) modeset(0): Modeline "1680x1050"x60.0  146.25  1680 1784 1960 2240  1050 1053 1059 1089 -hsync +vsync (65.3 kHz e)
+[     5.631] (II) modeset(0): Modeline "1680x1050"x59.9  119.00  1680 1728 1760 1840  1050 1053 1059 1080 +hsync -vsync (64.7 kHz e)
+[     5.631] (II) modeset(0): Modeline "1400x1050"x60.0  121.75  1400 1488 1632 1864  1050 1053 1057 1089 -hsync +vsync (65.3 kHz e)
+
+(xfdesktop:875): dbind-WARNING **: 14:53:16.668: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+(wrapper-2.0:879): dbind-WARNING **: 14:53:16.800: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+** (xfdesktop:875): WARNING **: 14:53:16.952: Thumbnailer failed calling GetFlavors
+
+(polkit-gnome-authentication-agent-1:895): dbind-WARNING **: 14:53:17.126: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+(polkit-gnome-authentication-agent-1:895): GLib-CRITICAL **: 14:53:17.150: g_variant_new_string: assertion 'string != NULL' failed
+
+(polkit-gnome-authentication-agent-1:895): polkit-gnome-1-WARNING **: 14:53:17.155: Failed to register client: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.gnome.SessionManager was not provided by any .service files
+
+(xfsettingsd:904): dbind-WARNING **: 14:53:17.170: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+(nm-applet:884): dbind-WARNING **: 14:53:17.186: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+(wrapper-2.0:1035): dbind-WARNING **: 14:53:17.774: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+
+(wrapper-2.0:1039): dbind-WARNING **: 14:53:17.924: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
