@@ -1,0 +1,16 @@
+tsc
+none
+menu
+menu
+[    0.000016] clocksource: kvm-clock: mask: 0xffffffffffffffff max_cycles: 0x1cd42e4dffb, max_idle_ns: 881590591483 ns
+[    0.000019] tsc: Detected 2793.440 MHz processor
+[    0.044479] ACPI: PM-Timer IO Port: 0x4008
+[    0.044704] clocksource: refined-jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 1910969940391419 ns
+[    0.130456] ..TIMER: vector=0x30 apic1=0 pin1=2 apic2=-1 pin2=-1
+[    0.130552] clocksource: tsc-early: mask: 0xffffffffffffffff max_cycles: 0x28440bd63ce, max_idle_ns: 440795312078 ns
+[    0.290810] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 1911260446275000 ns
+[    0.513556] clocksource: Switched to clocksource kvm-clock
+[    0.536287] clocksource: acpi_pm: mask: 0xffffff max_cycles: 0xffffff, max_idle_ns: 2085701024 ns
+[    0.587146] clocksource: tsc: mask: 0xffffffffffffffff max_cycles: 0x28440bd63ce, max_idle_ns: 440795312078 ns
+[    0.587227] clocksource: Switched to clocksource tsc
+[   24.618753] clocksource: Long readout interval, skipping watchdog check: cs_nsec: 1944127194 wd_nsec: 1944126369

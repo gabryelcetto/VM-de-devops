@@ -1,0 +1,35 @@
+--- timers que dispararam (por segundo, função)
+  117.6  vbg_heartbeat_timer
+   73.8  tick_nohz_highres_handler
+    9.3  delayed_work_timer_fn
+    8.8  hrtimer_wakeup
+    6.1  process_timeout
+    3.3  io_watchdog_func
+    1.8  blk_stat_timer_fn
+    1.7  tcp_orphan_update
+    1.1  clocksource_watchdog
+    0.6  tw_timer_handler
+    0.5  mix_interrupt_randomness
+    0.4  writeout_period
+    0.4  watchdog_timer_fn
+    0.1  dev_watchdog
+    0.1  commit_timeout
+--- quem arma hrtimers (por segundo, processo e função)
+   74.2  <idle> tick_nohz_highres_handler
+    4.7  VBoxClient hrtimer_wakeup
+    2.1  Xorg hrtimer_wakeup
+    1.7  Xorg it_real_fn
+    1.6  python3 hrtimer_wakeup
+    1.0  VBoxService it_real_fn
+    0.9  VBoxService hrtimer_wakeup
+    0.8  gmain hrtimer_wakeup
+    0.7  Xorg tick_nohz_highres_handler
+    0.7  earlyoom hrtimer_wakeup
+    0.5  xfce4-panel hrtimer_wakeup
+    0.5  VBoxService tick_nohz_highres_handler
+    0.5  kworker/u5:2 tick_nohz_highres_handler
+    0.4  VBoxClient tick_nohz_highres_handler
+    0.4  <idle> watchdog_timer_fn
+--- disparos por CPU (por segundo)
+   73.5  cpu000
+    9.5  cpu001

@@ -1,0 +1,26 @@
+CPU ocupada (média dos 2 núcleos): 6.5%
+trocas de contexto/s: 463
+--- processos (% de 1 núcleo)
+   0.9%  2621  bash bash /tmp/medir-ocioso.sh 20 30 /tmp/medida-0-boot1.txt
+   0.3%  705  VBoxService /usr/sbin/VBoxService
+   0.3%  62  kworker/u4:1-ext4-rsv-conversion
+   0.2%  28  kworker/u6:0-events_unbound
+   0.2%  234  kworker/u5:3-events_power_efficient
+   0.1%  979  VBoxClient /usr/bin/VBoxClient --seamless
+   0.1%  877  Xorg /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/light
+   0.1%  333  systemd-resolve /usr/lib/systemd/systemd-resolved
+   0.1%  219  systemd-journal /usr/lib/systemd/systemd-journald
+   0.1%  1  systemd /sbin/init
+   0.1%  1901  containerd /usr/bin/containerd
+   0.1%  17  rcu_preempt
+   0.1%  16  ksoftirqd/0
+   0.1%  1110  python3 python3 /usr/local/lib/devops-lab/painel/painel.py
+   0.0%  616  earlyoom /usr/bin/earlyoom -m 4 -s 10 -r 0 --prefer (^|/)(Isolated.We
+--- interrupções/s
+    447  LOC   Local timer interrupts
+    107  CAL   Function call interrupts
+     38  RES   Rescheduling interrupts
+      8  21   IO-APIC 21-fasteoi ahci[0000:00:0d.0]
+      6  19   IO-APIC 19-fasteoi virtio0
+      3  20   IO-APIC 20-fasteoi vboxguest
+      1  TLB   TLB shootdowns
