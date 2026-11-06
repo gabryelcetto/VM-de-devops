@@ -215,22 +215,41 @@ chk  "Grafana: painel Esta VM com dados da VM" "for i in \$(seq 1 30); do curl -
 chk  "Prometheus coleta a VM, o Docker e ele mesmo" "for i in \$(seq 1 30); do curl -s 'http://127.0.0.1:9090/api/v1/query?query=up' | grep -q '\"esta-vm\"' && break; sleep 3; done; sleep 16; curl -s 'http://127.0.0.1:9090/api/v1/query?query=up' | python3 -c 'import json,sys; print(sorted((r[\"metric\"][\"job\"], r[\"value\"][1]) for r in json.load(sys.stdin)[\"data\"][\"result\"]))'" "\('docker', '1'\), \('esta-vm', '1'\), \('prometheus', '1'\)"
 chk  "Uptime Kuma responde em localhost:3001" "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3001/" "^(200|302)$"
 { echo "===== memória do monitoramento ligado ====="; gsh "docker stats --no-stream --format '{{.Name}} {{.MemUsage}}'; free -m"; } >> "$OUT/qa-detalhes.txt" 2>&1
+# Fecha o Firefox e ESPERA ele sair de verdade: abrir outro enquanto o anterior ainda está
+# fechando faz o pedido cair no Firefox que está saindo (janela em branco ou nenhuma janela)
+FECHA_FF="pkill -u aluno firefox; for i in \$(seq 1 30); do pgrep -u aluno firefox >/dev/null || break; sleep 1; done; pkill -9 -u aluno firefox; sleep 1; true"
+janela() { # $1 = regex do título da janela; espera até 45 s; sem janela, mostra o que tinha (diagnóstico)
+  gsh "$XENV for i in \$(seq 1 45); do xwininfo -root -tree | grep -E '$1' && exit 0; sleep 1; done; echo sem-janela; xwininfo -root -tree | grep -i -E 'firefox|nova aba|new tab'; pgrep -a -u aluno firefox; tail -n 15 ~/.cache/painel-devops.log"
+}
+gsh "$FECHA_FF" >/dev/null
 gsh "$XENV setsid -f firefox http://localhost:3000 >/dev/null 2>&1; sleep 25" >/dev/null
 print_tela tela-5-grafana >/dev/null
-gsh "pkill -u aluno firefox; sleep 2; true" >/dev/null
+gsh "$FECHA_FF" >/dev/null
 chk  "Painel DevOps: Desligar monitoramento libera a memória (dados ficam guardados)" "$PTOK I=\$($PPOST/api/executar -d '{\"ferramenta\":\"monitoramento\",\"acao\":\"desligar\"}' | $PTAREFA); $PESPERA $PMON; docker volume ls --format '{{.Name}}' | grep -c 'monitoramento_'" "grafana=fora uptime-kuma=fora prometheus=fora node-exporter=fora"
 chk  "Atalhos Grafana e Uptime Kuma na área de trabalho e no menu" "D=\$(xdg-user-dir DESKTOP); ls \"\$D\"/grafana-devops-lab.desktop \"\$D\"/uptime-kuma-devops-lab.desktop /usr/share/applications/prometheus-devops-lab.desktop | wc -l" "^3$"
 chk  "Atalho Grafana liga o monitoramento desligado e abre o Firefox" "mkdir -p /tmp/ff && printf '#!/bin/sh\\necho ABRIU \$*\\n' > /tmp/ff/firefox && chmod +x /tmp/ff/firefox && PATH=/tmp/ff:\$PATH timeout 300 abrir-monitoramento grafana 2>&1 | tail -n 1; cd /opt/devops-lab/monitoramento && docker compose down >/dev/null 2>&1" "ABRIU http://localhost:3000"
 chk  "Atalho Docker abre a tela do Docker (estilo do app) numa janela própria" "D=\$(xdg-user-dir DESKTOP); grep -h '^Exec=' \"\$D\"/docker-devops-lab.desktop; PATH=/tmp/ff:\$PATH painel-devops docker" "ABRIU (--new-window )?http://localhost:8090/\\?app=docker#docker"
-gsh "$XENV setsid -f painel-devops docker >/dev/null 2>&1; sleep 25" >/dev/null
+gsh "$FECHA_FF" >/dev/null
+gsh "$XENV setsid -f painel-devops docker >/dev/null 2>&1" >/dev/null
+R="$(janela '"Docker \(DevOps-Lab\)')"; sleep 5
 print_tela tela-6-docker-app >/dev/null
-chk  "Atalho Docker de verdade: o Firefox abre a tela do Docker e ela busca os containers" "awk '/GET \\/\\?app=docker/{a=1} a && /GET \\/api\\/docker/{print \"tela-carregou\"; exit}' ~/.cache/painel-devops.log" "tela-carregou"
-gsh "pkill -u aluno firefox; sleep 2; true" >/dev/null
+printf '### Janela do atalho Docker\n%s\n\n' "$R" >> "$OUT/qa-detalhes.txt"
+if echo "$R" | grep -q '"Docker (DevOps-Lab)'; then ok "Atalho Docker de verdade: abre a janela \"Docker (DevOps-Lab)\" no Firefox"; else bad "Atalho Docker de verdade: a janela do Docker não abriu"; log "$(echo "$R" | tail -n 8)"; fi
+chk  "Atalho Docker de verdade: a tela do Docker busca os containers" "awk '/GET \\/\\?app=docker/{a=1} a && /GET \\/api\\/docker/{print \"tela-carregou\"; exit}' ~/.cache/painel-devops.log" "tela-carregou"
+gsh "$FECHA_FF" >/dev/null
 chk  "Painel DevOps: Apagar projeto Terraform roda o destroy antes de apagar a pasta" "$PTOK $PPOST/api/arquivo -d '{\"acao\":\"projeto\",\"nome\":\"qa-tf\",\"arquivos\":{\"main.tf\":\"resource \\\"terraform_data\\\" \\\"x\\\" {\\n  input = \\\"qa\\\"\\n}\\n\"}}' >/dev/null; for a in init apply; do I=\$($PPOST/api/executar -d '{\"ferramenta\":\"terraform\",\"acao\":\"'\$a'\",\"pasta\":\"~/projetos/qa-tf\"}' | $PTAREFA); $PESPERA done; I=\$($PPOST/api/executar -d '{\"ferramenta\":\"projeto\",\"acao\":\"apagar\",\"pasta\":\"~/projetos/qa-tf\"}' | $PTAREFA); $PESPERA D=\$($PAPI/api/tarefa?id=\$I | grep -o 'Destroy complete' | head -n 1); test -e ~/projetos/qa-tf && P=pasta-ficou || P=pasta-apagada; echo \"\$D \$P\"" "Destroy complete pasta-apagada"
-gsh "$XENV setsid -f firefox http://localhost:8090 >/dev/null 2>&1; sleep 30" >/dev/null
+gsh "$XENV setsid -f firefox http://localhost:8090 >/dev/null 2>&1" >/dev/null
+R="$(janela '"Painel DevOps ')"; sleep 5
 CORES="$(print_tela tela-4-painel-devops)"
-if [ "${CORES:-0}" -gt 100 ]; then ok "Painel DevOps aberto no Firefox ($CORES cores)"; else bad "Painel DevOps não apareceu no Firefox ($CORES cores)"; fi
-gsh "pkill -u aluno firefox; docker rm -f painel-web >/dev/null; cd ~/projetos/qa-compose && docker compose down >/dev/null 2>&1; rm -rf ~/projetos/qa-compose; true" >/dev/null
+printf '### Janela do Painel DevOps\n%s\n\n' "$R" >> "$OUT/qa-detalhes.txt"
+# Só cores não basta: a área de trabalho sozinha já é colorida. Tem que ter a janela com o título do painel.
+if echo "$R" | grep -q '"Painel DevOps ' && [ "${CORES:-0}" -gt 100 ]; then ok "Painel DevOps aberto no Firefox ($CORES cores)"; else bad "Painel DevOps não apareceu no Firefox ($CORES cores)"; log "$(echo "$R" | tail -n 8)"; fi
+# Com o Firefox já aberto (no Painel), o atalho Docker abre outra janela, a do Docker
+gsh "$XENV setsid -f painel-devops docker >/dev/null 2>&1" >/dev/null
+R="$(janela '"Docker \(DevOps-Lab\)')"
+printf '### Atalho Docker com o Firefox já aberto\n%s\n\n' "$R" >> "$OUT/qa-detalhes.txt"
+if echo "$R" | grep -q '"Docker (DevOps-Lab)'; then ok "Atalho Docker com o Firefox já aberto: abre a janela do Docker"; else bad "Atalho Docker com o Firefox já aberto: a janela do Docker não abriu"; log "$(echo "$R" | tail -n 8)"; fi
+gsh "$FECHA_FF; docker rm -f painel-web >/dev/null; cd ~/projetos/qa-compose && docker compose down >/dev/null 2>&1; rm -rf ~/projetos/qa-compose; true" >/dev/null
 
 # ---------------------------------------------------------------- análise de desempenho e espaço
 {
